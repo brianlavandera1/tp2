@@ -47,12 +47,13 @@ app.use(session({
   saveUninitialized: false
 }));
 
+// Configuración de rutas
 app.use('/auth', authRoutes);
 app.use('/cliente/carrito', carritoRoutes);
 app.use('/cliente', clienteRoutes);
-app.use('/salas', salasRoutes);
-app.use('/admin', adminRoutes);     
-app.use('/eventos', eventosRoutes); 
+app.use('/admin/salas', salasRoutes);     // 👈 Debe ser /admin/salas
+app.use('/admin', adminRoutes);         // 👈 Panel de administración general
+app.use('/admin/eventos', eventosRoutes); // 👈 Debe ser /admin/eventos
 app.use('/entradas', entradasRoutes); 
 
 app.get('/', (req, res) => {
@@ -76,7 +77,6 @@ conectarDB()
 
     app.listen(PORT, '0.0.0.0', () => {
       console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
-      console.log(`🌐 Prueba también en tu navegador: http://127.0.0.1:${PORT}`);
     });
   })
   .catch(err => {

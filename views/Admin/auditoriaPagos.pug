@@ -4,80 +4,89 @@ html(lang="es")
     meta(charset="UTF-8")
     meta(name="viewport" content="width=device-width, initial-scale=1")
     title Auditoría de Pagos y Ventas
-  body(style="font-family: sans-serif; padding: 30px; max-width: 1200px; margin: auto; background-color: #f4f6f9;")
+  body(style="font-family: 'Segoe UI', system-ui, sans-serif; padding: 30px; max-width: 1200px; margin: auto; background-color: #f8fafc; color: #1e293b;")
     
-    div(style="background-color: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center;")
-      h2(style="margin: 0; color: #16a34a;") 💳 Auditoría de Pagos y Compras
-      a(href="/admin/dashboard" style="background: #007bff; color: white; padding: 10px 18px; border-radius: 5px; text-decoration: none; font-size: 14px; font-weight: bold;") ⬅️ Volver al Panel
+    div(style="background-color: #ffffff; padding: 20px 30px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0;")
+      h2(style="margin: 0; color: #16a34a; font-size: 20px;") 💳 Auditoría de Pagos y Compras
+      a(href="/admin/dashboard" style="background: #007bff; color: white; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: bold;") ⬅️ Volver al Panel
 
-    //- 🔍 Formulario de Filtros, Búsqueda Multicampo y Filtro de Hoy
-    div(style="background-color: #ffffff; padding: 15px 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 20px;")
-      form(action="/admin/compras" method="GET" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;")
+    nav(style="background: #ffffff; padding: 12px 20px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); margin-bottom: 25px; display: flex; gap: 10px; flex-wrap: wrap; border: 1px solid #e2e8f0; align-items: center;")
+      span(style="font-size: 12px; font-weight: bold; color: #94a3b8; text-transform: uppercase; margin-right: 5px;") 📌 Menú:
+      a(href="/admin/dashboard" style="color: #475569; text-decoration: none; font-size: 13px; font-weight: 600; padding: 7px 12px; border-radius: 6px; background: #f1f5f9;") 🏠 Panel
+      a(href="/admin/boleteria" style="color: #475569; text-decoration: none; font-size: 13px; font-weight: 600; padding: 7px 12px; border-radius: 6px; background: #f1f5f9;") 🎫 Boletería
+      a(href="/admin/usuarios" style="color: #475569; text-decoration: none; font-size: 13px; font-weight: 600; padding: 7px 12px; border-radius: 6px; background: #f1f5f9;") 👥 Usuarios
+      a(href="/admin/pagos" style="color: #ffffff; text-decoration: none; font-size: 13px; font-weight: 600; padding: 7px 12px; border-radius: 6px; background: #16a34a;") 💳 Pagos (Actual)
+      a(href="/admin/informe" style="color: #475569; text-decoration: none; font-size: 13px; font-weight: 600; padding: 7px 12px; border-radius: 6px; background: #f1f5f9;") 📊 Informes
+      a(href="/admin/eventos" style="color: #475569; text-decoration: none; font-size: 13px; font-weight: 600; padding: 7px 12px; border-radius: 6px; background: #f1f5f9;") 🎭 Eventos
+      a(href="/admin/salas" style="color: #475569; text-decoration: none; font-size: 13px; font-weight: 600; padding: 7px 12px; border-radius: 6px; background: #f1f5f9;") 🏢 Salas
+      a(href="/admin/cancelaciones" style="color: #475569; text-decoration: none; font-size: 13px; font-weight: 600; padding: 7px 12px; border-radius: 6px; background: #f1f5f9;") 🛡️ Cancelaciones
+
+    div(style="background-color: #ffffff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); margin-bottom: 20px; border: 1px solid #e2e8f0;")
+      form(action="/admin/pagos" method="GET" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;")
         input(
           type="text" 
           name="busqueda" 
           placeholder="🔍 Buscar por evento, cliente, correo, DNI, comprobante o ID..." 
           value=busqueda || '' 
-          style="flex: 1; min-width: 280px; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; box-sizing: border-box;"
+          style="flex: 1; min-width: 280px; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; box-sizing: border-box;"
         )
         
-        //- Si el filtro de hoy está activo, lo preservamos al buscar
         if filtroActual === 'hoy'
           input(type="hidden" name="filtro" value="hoy")
 
-        button(type="submit" style="background-color: #16a34a; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px;") Buscar
+        button(type="submit" style="background-color: #16a34a; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px;") Buscar
         
         if filtroActual === 'hoy'
-          a(href="/admin/compras" style="background-color: #0284c7; color: white; padding: 10px 16px; border-radius: 6px; text-decoration: none; font-size: 14px; font-weight: bold;") 📅 Ver Todos
+          a(href="/admin/pagos" style="background-color: #0284c7; color: white; padding: 10px 16px; border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: bold;") 📅 Ver Todos
         else
-          a(href="/admin/compras?filtro=hoy" style="background-color: #0284c7; color: white; padding: 10px 16px; border-radius: 6px; text-decoration: none; font-size: 14px; font-weight: bold;") 📅 Ver Pagos de Hoy
+          a(href="/admin/pagos?filtro=hoy" style="background-color: #0284c7; color: white; padding: 10px 16px; border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: bold;") 📅 Ver Pagos de Hoy
 
         if busqueda || filtroActual === 'hoy'
-          a(href="/admin/compras" style="background-color: #64748b; color: white; padding: 10px 16px; border-radius: 6px; text-decoration: none; font-size: 14px; font-weight: bold;") 🧹 Limpiar Filtros
+          a(href="/admin/pagos" style="background-color: #64748b; color: white; padding: 10px 16px; border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: bold;") 🧹 Limpiar Filtros
 
-    div(style="background-color: #ffffff; padding: 25px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);")
+    div(style="background-color: #ffffff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;")
       div(style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;")
-        h3(style="margin: 0; color: #2c3e50;") 📋 Historial Completo de Transacciones
+        h3(style="margin: 0; color: #0f172a;") 📋 Historial Completo de Transacciones
         div(style="display: flex; gap: 8px; align-items: center;")
           if filtroActual === 'hoy'
-            span(style="font-size: 13px; color: #0284c7; background: #e0f2fe; padding: 4px 10px; border-radius: 4px; font-weight: bold;") 🕒 Mostrando solo pagos de hoy
+            span(style="font-size: 13px; color: #0284c7; background: #e0f2fe; padding: 4px 10px; border-radius: 6px; font-weight: bold;") 🕒 Mostrando solo pagos de hoy
           if busqueda
-            span(style="font-size: 13px; color: #475569; background: #e2e8f0; padding: 4px 10px; border-radius: 4px;") Filtrando por: 
+            span(style="font-size: 13px; color: #475569; background: #e2e8f0; padding: 4px 10px; border-radius: 6px;") Filtrando por: 
               strong "#{busqueda}"
 
       if compras && compras.length > 0
         div(style="overflow-x: auto; max-width: 100%;")
           table(style="width: 100%; border-collapse: collapse; margin-top: 10px;")
             thead
-              tr(style="background-color: #f1f5f9; text-align: left; font-size: 13px; color: #333;")
-                th(style="padding: 10px; border-bottom: 2px solid #cbd5e1;") Comprobante
-                th(style="padding: 10px; border-bottom: 2px solid #cbd5e1;") Cliente / Datos
-                th(style="padding: 10px; border-bottom: 2px solid #cbd5e1;") Detalle de Entradas
-                th(style="padding: 10px; border-bottom: 2px solid #cbd5e1;") Desglose Económico
-                th(style="padding: 10px; border-bottom: 2px solid #cbd5e1;") Medio Pago
-                th(style="padding: 10px; border-bottom: 2px solid #cbd5e1;") Total Pagado
-                th(style="padding: 10px; border-bottom: 2px solid #cbd5e1;") Fecha y Hora
+              tr(style="background-color: #f1f5f9; text-align: left; font-size: 13px; color: #475569;")
+                th(style="padding: 12px; border-bottom: 2px solid #cbd5e1;") Comprobante
+                th(style="padding: 12px; border-bottom: 2px solid #cbd5e1;") Cliente / Datos
+                th(style="padding: 12px; border-bottom: 2px solid #cbd5e1;") Detalle de Entradas
+                th(style="padding: 12px; border-bottom: 2px solid #cbd5e1;") Desglose Económico
+                th(style="padding: 12px; border-bottom: 2px solid #cbd5e1;") Medio Pago
+                th(style="padding: 12px; border-bottom: 2px solid #cbd5e1;") Total Pagado
+                th(style="padding: 12px; border-bottom: 2px solid #cbd5e1;") Fecha y Hora
             tbody
               each c in compras
                 tr(style="border-bottom: 1px solid #e2e8f0; font-size: 13px; vertical-align: top;")
-                  td(style="padding: 10px;")
+                  td(style="padding: 12px;")
                     div(style="font-weight: bold; color: #1e293b;")= c.comprobanteId || 'REC-SYS'
-                    span(style="display: inline-block; margin-top: 4px; background: #d1e7dd; color: #0f5132; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold;") COMPLETADO
+                    span(style="display: inline-block; margin-top: 4px; background: #d1e7dd; color: #0f5132; padding: 2px 6px; border-radius: 6px; font-size: 10px; font-weight: bold;") COMPLETADO
                   
-                  td(style="padding: 10px;")
+                  td(style="padding: 12px;")
                     div(style="color: #0284c7; font-weight: bold;")= c.nombreCliente || (c.cliente ? c.cliente.nombreUsuario : 'Cliente')
                     if c.cliente
                       div(style="font-size: 11px; color: #475569; margin-top: 2px;") 📧 #{c.cliente.email}
                       div(style="font-size: 11px; color: #475569;") 🪪 DNI: #{c.cliente.dni || 'N/A'}
                       div(style="margin-top: 4px;")
                         if c.cliente.tipoCliente === 'VIP'
-                          span(style="background: #fef3c7; color: #92400e; padding: 1px 5px; border-radius: 3px; font-size: 10px; font-weight: bold;") VIP (#{c.cliente.porcentajeDescuento ? (c.cliente.porcentajeDescuento * 100) + '%' : '30%'} Desc.)
+                          span(style="background: #fef3c7; color: #92400e; padding: 1px 5px; border-radius: 4px; font-size: 10px; font-weight: bold;") VIP (#{c.cliente.porcentajeDescuento ? (c.cliente.porcentajeDescuento * 100) + '%' : '30%'} Desc.)
                         else
-                          span(style="background: #f1f5f9; color: #475569; padding: 1px 5px; border-radius: 3px; font-size: 10px; font-weight: bold;") ESTÁNDAR
+                          span(style="background: #f1f5f9; color: #475569; padding: 1px 5px; border-radius: 4px; font-size: 10px; font-weight: bold;") ESTÁNDAR
                     else
                       div(style="font-size: 11px; color: #94a3b8;") Cliente sin vincular
 
-                  td(style="padding: 10px;")
+                  td(style="padding: 12px;")
                     if c.items && c.items.length > 0
                       details
                         summary(style="cursor: pointer; color: #2563eb; font-weight: bold; font-size: 12px;") Ver #{c.items.length} ítem(s)
@@ -92,7 +101,7 @@ html(lang="es")
                     else
                       span(style="color: #94a3b8;") Sin detalle
 
-                  td(style="padding: 10px; font-size: 12px;")
+                  td(style="padding: 12px; font-size: 12px;")
                     div(style="color: #475569;") Subtotal: 
                       strong $#{c.subtotal ? c.subtotal.toLocaleString('es-AR') : '0'}
                     if c.descuentoAplicado > 0
@@ -100,13 +109,13 @@ html(lang="es")
                     else
                       div(style="color: #94a3b8; margin-top: 2px;") Sin descuento
 
-                  td(style="padding: 10px; color: #475569;")
+                  td(style="padding: 12px; color: #475569;")
                     div(style="font-weight: bold; color: #334155;")= c.medioPago || 'Tarjeta'
                     div(style="font-size: 11px; color: #64748b;") **** #{c.tarjetaUltimosDigitos || '****'}
 
-                  td(style="padding: 10px;")
+                  td(style="padding: 12px;")
                     div(style="font-weight: bold; color: #16a34a; font-size: 15px;") $#{c.total ? c.total.toLocaleString('es-AR') : '0'}
 
-                  td(style="padding: 10px; color: #64748b; font-size: 12px;")= c.fechaCompra ? new Date(c.fechaCompra).toLocaleString('es-AR') : '-'
+                  td(style="padding: 12px; color: #64748b; font-size: 12px;")= c.fechaCompra ? new Date(c.fechaCompra).toLocaleString('es-AR') : '-'
       else
         p(style="color: #64748b; text-align: center; padding: 20px;") No se encontraron transacciones que coincidan con la búsqueda o los filtros seleccionados.

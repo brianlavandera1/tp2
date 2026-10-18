@@ -10,7 +10,7 @@ const getSalas = async (req, res) => {
   try {
     const salas = await Sala.find();
     if (isHtmlRequest(req)) {
-      return res.render('salas', { 
+      return res.render('Admin/salas', {  // 👈 Apunta a views/Admin/salas.pug
         usuarioLogueado: req.session ? req.session.usuario : null,
         salas,
         error: req.query.error || null,
@@ -52,7 +52,7 @@ const createSala = async (req, res) => {
     const nuevaSala = new Sala(datos);
     await nuevaSala.save();
 
-    if (isHtmlRequest(req)) return res.redirect('/salas?exito=Sala+creada+correctamente');
+    if (isHtmlRequest(req)) return res.redirect('/admin/salas?exito=Sala+creada+correctamente');
     res.status(201).json(nuevaSala);
   } catch (error) {
     console.error('Error al crear sala:', error);
@@ -62,7 +62,7 @@ const createSala = async (req, res) => {
     }
     if (isHtmlRequest(req)) {
       const salas = await Sala.find();
-      return res.status(400).render('salas', {
+      return res.status(400).render('Admin/salas', {
         usuarioLogueado: req.session ? req.session.usuario : null,
         salas,
         datos: req.body,
@@ -76,14 +76,14 @@ const createSala = async (req, res) => {
 const showEditSalaForm = async (req, res) => {
   try {
     const sala = await Sala.findById(req.params.id);
-    if (!sala) return res.redirect('/salas?error=Sala+no+encontrada');
-    res.render('editarSala', { 
+    if (!sala) return res.redirect('/admin/salas?error=Sala+no+encontrada');
+    res.render('Admin/editarSala', {  // 👈 Apunta a views/Admin/editarSala.pug
       usuarioLogueado: req.session ? req.session.usuario : null,
       sala,
       error: req.query.error || null 
     });
   } catch (error) {
-    res.redirect('/salas?error=Error+al+cargar+la+sala');
+    res.redirect('/admin/salas?error=Error+al+cargar+la+sala');
   }
 };
 
@@ -108,11 +108,11 @@ const updateSala = async (req, res) => {
     );
 
     if (!salaActualizada) {
-      if (isHtmlRequest(req)) return res.redirect('/salas?error=Sala+no+encontrada');
+      if (isHtmlRequest(req)) return res.redirect('/admin/salas?error=Sala+no+encontrada');
       return res.status(404).json({ message: 'Sala no encontrada' });
     }
 
-    if (isHtmlRequest(req)) return res.redirect('/salas?exito=Sala+actualizada+correctamente');
+    if (isHtmlRequest(req)) return res.redirect('/admin/salas?exito=Sala+actualizada+correctamente');
     res.json(salaActualizada);
   } catch (error) {
     console.error('Error al actualizar sala:', error);
@@ -133,7 +133,7 @@ const updateSala = async (req, res) => {
           VIP: req.body.vip !== undefined ? req.body.vip : 0
         }
       };
-      return res.status(400).render('editarSala', {
+      return res.status(400).render('Admin/editarSala', {
         usuarioLogueado: req.session ? req.session.usuario : null,
         sala: salaObj,
         error: mensajeError
@@ -147,17 +147,17 @@ const deleteSala = async (req, res) => {
   try {
     const tieneEventos = await Evento.exists({ sala: req.params.id });
     if (tieneEventos) {
-      if (isHtmlRequest(req)) return res.redirect('/salas?error=No+se+puede+eliminar+una+sala+con+eventos+asociados');
+      if (isHtmlRequest(req)) return res.redirect('/admin/salas?error=No+se+puede+eliminar+una+sala+con+eventos+asociados');
       return res.status(400).json({ message: 'No se puede eliminar una sala con eventos asociados' });
     }
 
     const salaEliminada = await Sala.findByIdAndDelete(req.params.id);
     if (!salaEliminada) {
-      if (isHtmlRequest(req)) return res.redirect('/salas?error=Sala+no+encontrada');
+      if (isHtmlRequest(req)) return res.redirect('/admin/salas?error=Sala+no+encontrada');
       return res.status(404).json({ message: 'Sala no encontrada' });
     }
 
-    if (isHtmlRequest(req)) return res.redirect('/salas?exito=Sala+eliminada+correctamente');
+    if (isHtmlRequest(req)) return res.redirect('/admin/salas?exito=Sala+eliminada+correctamente');
     res.json({ message: 'Sala eliminada correctamente', sala: salaEliminada });
   } catch (error) {
     res.status(500).json({ message: 'Error al eliminar la sala' });

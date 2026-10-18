@@ -1,0 +1,92 @@
+doctype html
+html(lang="es")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1")
+    title Editar Evento
+    style
+      include salas.css
+  body(style="font-family: 'Segoe UI', system-ui, sans-serif; padding: 30px; max-width: 900px; margin: auto; background-color: #f8fafc; color: #1e293b;")
+    
+    div(style="background-color: #ffffff; padding: 20px 30px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0;")
+      h1(style="margin: 0; font-size: 20px; color: #0f172a;") ✏️ Editar Evento
+      a(href="/admin/eventos" style="background: #007bff; color: white; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: bold;") ⬅️ Volver a Eventos
+
+    nav(style="background: #ffffff; padding: 12px 20px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); margin-bottom: 25px; display: flex; gap: 10px; flex-wrap: wrap; border: 1px solid #e2e8f0; align-items: center;")
+      span(style="font-size: 12px; font-weight: bold; color: #94a3b8; text-transform: uppercase; margin-right: 5px;") 📌 Menú:
+      a(href="/admin/dashboard" style="color: #475569; text-decoration: none; font-size: 13px; font-weight: 600; padding: 7px 12px; border-radius: 6px; background: #f1f5f9;") 🏠 Panel
+      a(href="/admin/boleteria" style="color: #475569; text-decoration: none; font-size: 13px; font-weight: 600; padding: 7px 12px; border-radius: 6px; background: #f1f5f9;") 🎫 Boletería
+      a(href="/admin/usuarios" style="color: #475569; text-decoration: none; font-size: 13px; font-weight: 600; padding: 7px 12px; border-radius: 6px; background: #f1f5f9;") 👥 Usuarios
+      a(href="/admin/pagos" style="color: #475569; text-decoration: none; font-size: 13px; font-weight: 600; padding: 7px 12px; border-radius: 6px; background: #f1f5f9;") 💳 Pagos
+      a(href="/admin/informe" style="color: #475569; text-decoration: none; font-size: 13px; font-weight: 600; padding: 7px 12px; border-radius: 6px; background: #f1f5f9;") 📊 Informes
+      a(href="/admin/eventos" style="color: #ffffff; text-decoration: none; font-size: 13px; font-weight: 600; padding: 7px 12px; border-radius: 6px; background: #7c3aed;") 🎭 Eventos (Actual)
+      a(href="/admin/salas" style="color: #475569; text-decoration: none; font-size: 13px; font-weight: 600; padding: 7px 12px; border-radius: 6px; background: #f1f5f9;") 🏢 Salas
+      a(href="/admin/cancelaciones" style="color: #475569; text-decoration: none; font-size: 13px; font-weight: 600; padding: 7px 12px; border-radius: 6px; background: #f1f5f9;") 🛡️ Cancelaciones
+
+    main(style="background: #ffffff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;")
+      h2(style="margin-top: 0; color: #0f172a;")= evento.nombre
+      if error
+        .alert(role="alert" style="background: #fee2e2; color: #dc2626; padding: 12px; border-radius: 8px; margin-bottom: 15px; font-weight: bold;")= error
+      
+      form(action=`/admin/eventos/editar/${evento._id}` method="POST")
+        .fields(style="display: flex; flex-direction: column; gap: 15px;")
+          .field
+            label(for="nombre" style="font-weight: bold; font-size: 13px; color: #334155;") Nombre del Evento
+            input#nombre(type="text" name="nombre" value=evento.nombre required style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; margin-top: 5px;")
+          
+          .field
+            label(for="nombreEntidadSelect" style="font-weight: bold; font-size: 13px; color: #334155;") Artista / Compañía / Productora
+            select#nombreEntidadSelect(name="nombreEntidadSelect" onchange="toggleNuevoArtista(this)" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; background: #fff; margin-top: 5px;")
+              option(value="") Seleccionar de la lista...
+              if entidades
+                each ent in entidades
+                  option(value=ent.nombre selected=(evento.entidad && String(evento.entidad.nombre || evento.entidad) === String(ent.nombre)))= ent.nombre
+              option(value="OTRO_NUEVO") ➕ Escribir uno nuevo...
+
+            input#nombreEntidadTexto(type="text" name="nombreEntidadTexto" placeholder="Escribe el nombre del nuevo artista/compañía..." style="display:none; margin-top: 8px; width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px;" autocomplete="off")
+                  
+          .field
+            label(for="fecha" style="font-weight: bold; font-size: 13px; color: #334155;") Fecha
+            - const fechaFormateada = evento.fecha ? (evento.fecha instanceof Date ? evento.fecha.toISOString().split('T')[0] : String(evento.fecha).slice(0, 10)) : ''
+            input#fecha(type="date" name="fecha" value=fechaFormateada required style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; margin-top: 5px;")
+          
+          .field
+            label(for="hora" style="font-weight: bold; font-size: 13px; color: #334155;") Hora
+            input#hora(type="time" name="hora" value=evento.hora required style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; margin-top: 5px;")
+          
+          .field
+            label(for="sala" style="font-weight: bold; font-size: 13px; color: #334155;") Sala
+            select#sala(name="sala" required style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; background: #fff; margin-top: 5px;")
+              option(value="") Seleccionar sala
+              each sala in salas
+                option(value=sala._id selected=(String((evento.sala && evento.sala._id) || evento.sala || "") === String(sala._id))) #{sala.nombre} (#{sala.capacidad} personas)
+          
+          .field
+            label(for="entradasDisponibles" style="font-weight: bold; font-size: 13px; color: #334155;") Entradas Disponibles
+            input#entradasDisponibles(type="number" name="entradasDisponibles" min="0" step="1" value=evento.entradasDisponibles required style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; margin-top: 5px;")
+          
+          .field.wide
+            label(for="descripcion" style="font-weight: bold; font-size: 13px; color: #334155;") Descripción
+            textarea#descripcion(name="descripcion" rows="3" required style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; margin-top: 5px;")= evento.descripcion
+
+        .actions(style="display: flex; gap: 10px; margin-top: 20px;")
+          button.button(type="submit" style="background-color: #16a34a; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer;") Guardar Cambios
+          a.button.secondary(href="/admin/eventos" style="background: #64748b; color: white; padding: 12px 20px; border-radius: 8px; text-decoration: none; font-weight: bold;") Cancelar
+
+    script.
+      function toggleNuevoArtista(select) {
+        const inputTexto = document.getElementById('nombreEntidadTexto');
+        if (select.value === 'OTRO_NUEVO') {
+          inputTexto.style.display = 'block';
+          inputTexto.required = true;
+          inputTexto.focus();
+          select.removeAttribute('name');
+          select.required = false;
+        } else {
+          inputTexto.style.display = 'none';
+          inputTexto.required = false;
+          inputTexto.value = '';
+          select.setAttribute('name', 'nombreEntidadSelect');
+          select.required = true;
+        }
+      }

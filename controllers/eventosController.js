@@ -15,8 +15,8 @@ const getEventos = async (req, res) => {
   try {
     const eventos = await Evento.find().populate('sala').populate('entidad'); 
     if (isHtmlRequest(req)) {
-      return res.render('eventos', { 
-        usuarioLogueado: req.session ? req.session.usuario : null, // 👈 Enviamos la sesión activa
+      return res.render('Admin/eventos', {  // 👈 Apunta a views/Admin/eventos.pug
+        usuarioLogueado: req.session ? req.session.usuario : null,
         eventos, 
         salas: await Sala.find(), 
         entidades: await Entidad.find().sort({ nombre: 1 }), 
@@ -47,7 +47,7 @@ const createEvento = async (req, res) => {
     const entradas = Number(entradasDisponibles);
 
     if (entradasDisponibles === undefined || isNaN(entradas) || entradas < 0) {
-      if (isHtmlRequest(req)) return res.redirect('/eventos?error=Entradas+inválidas');
+      if (isHtmlRequest(req)) return res.redirect('/admin/eventos?error=Entradas+inválidas');
       return res.status(400).json({ message: 'Las entradas disponibles deben ser un número >= 0.' });
     }
 
@@ -75,7 +75,7 @@ const createEvento = async (req, res) => {
     });
 
     await nuevoEvento.save();
-    if (isHtmlRequest(req)) return res.redirect('/eventos');
+    if (isHtmlRequest(req)) return res.redirect('/admin/eventos');
     res.status(201).json(nuevoEvento);
   } catch (error) {
     console.error('Error al crear evento:', error);
@@ -86,16 +86,16 @@ const createEvento = async (req, res) => {
 const showEditEventoForm = async (req, res) => {
   try {
     const evento = await Evento.findById(req.params.id).populate('entidad');
-    if (!evento) return res.redirect('/eventos?error=Evento+no+encontrado');
-    res.render('editarEvento', { 
-      usuarioLogueado: req.session ? req.session.usuario : null, // 👈 Enviamos la sesión activa
+    if (!evento) return res.redirect('/admin/eventos?error=Evento+no+encontrado');
+    res.render('Admin/editarEvento', {  // 👈 Apunta a views/Admin/editarEvento.pug
+      usuarioLogueado: req.session ? req.session.usuario : null,
       evento, 
       salas: await Sala.find(), 
       entidades: await Entidad.find().sort({ nombre: 1 }),
       error: req.query.error 
     });
   } catch (error) {
-    res.redirect('/eventos?error=Error+al+cargar+el+evento');
+    res.redirect('/admin/eventos?error=Error+al+cargar+el+evento');
   }
 };
 
@@ -131,11 +131,11 @@ const updateEvento = async (req, res) => {
     const eventoActualizado = await Evento.findByIdAndUpdate(req.params.id, updateData, { new: true, runValidators: true });
 
     if (!eventoActualizado) {
-      if (isHtmlRequest(req)) return res.redirect('/eventos?error=Evento+no+encontrado');
+      if (isHtmlRequest(req)) return res.redirect('/admin/eventos?error=Evento+no+encontrado');
       return res.status(404).json({ message: 'Evento no encontrado' });
     }
 
-    if (isHtmlRequest(req)) return res.redirect('/eventos');
+    if (isHtmlRequest(req)) return res.redirect('/admin/eventos');
     res.json(eventoActualizado);
   } catch (error) {
     console.error('Error al actualizar evento:', error);
@@ -147,10 +147,10 @@ const deleteEvento = async (req, res) => {
   try {
     const eventoEliminado = await Evento.findByIdAndDelete(req.params.id);
     if (!eventoEliminado) {
-      if (isHtmlRequest(req)) return res.redirect('/eventos?error=Evento+no+encontrado');
+      if (isHtmlRequest(req)) return res.redirect('/admin/eventos?error=Evento+no+encontrado');
       return res.status(404).json({ message: 'Evento no encontrado' });
     }
-    if (isHtmlRequest(req)) return res.redirect('/eventos');
+    if (isHtmlRequest(req)) return res.redirect('/admin/eventos');
     res.json({ message: 'Evento eliminado correctamente', evento: eventoEliminado });
   } catch (error) {
     res.status(500).json({ message: 'Error al eliminar el evento' });
@@ -160,12 +160,12 @@ const deleteEvento = async (req, res) => {
 const actualizarEntidad = async (req, res) => {
   try {
     const { nombre } = req.body;
-    if (!nombre || !nombre.trim()) return res.redirect('/eventos?error=El+nombre+del+artista+es+obligatorio');
+    if (!nombre || !nombre.trim()) return res.redirect('/admin/entidades?error=El+nombre+del+artista+es+obligatorio');
     
     await Entidad.findByIdAndUpdate(req.params.id, { nombre: nombre.trim() }, { runValidators: true });
-    res.redirect('/eventos?exito=Artista/Compañía+actualizado+correctamente');
+    res.redirect('/admin/entidades?exito=Artista/Compañía+actualizado+correctamente');
   } catch (error) {
-    res.redirect('/eventos?error=Error:+Ya+existe+una+entidad+con+ese+nombre');
+    res.redirect('/admin/entidades?error=Error:+Ya+existe+una+entidad+con+ese+nombre');
   }
 };
 
@@ -173,12 +173,12 @@ const eliminarEntidad = async (req, res) => {
   try {
     const tieneEventos = await Evento.exists({ entidad: req.params.id });
     if (tieneEventos) {
-      return res.redirect('/eventos?error=No+se+puede+eliminar+un+artista+con+eventos+activos');
+      return res.redirect('/admin/entidades?error=No+se+puede+eliminar+un+artista+con+eventos+activos');
     }
     await Entidad.findByIdAndDelete(req.params.id);
-    res.redirect('/eventos?exito=Artista/Compañía+eliminado+correctamente');
+    res.redirect('/admin/entidades?exito=Artista/Compañía+eliminado+correctamente');
   } catch (error) {
-    res.redirect('/eventos?error=Error+al+eliminar+el+artista');
+    res.redirect('/admin/entidades?error=Error+al+eliminar+el+artista');
   }
 };
 

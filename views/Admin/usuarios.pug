@@ -2,58 +2,65 @@ doctype html
 html(lang="es")
   head
     meta(charset="UTF-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1")
     title Gestión de Usuarios - Panel de Administración
-  body(style="font-family: sans-serif; padding: 30px; max-width: 900px; margin: auto; background-color: #f4f6f9;")
-    div(style="background-color: #ffffff; padding: 25px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);")
+  body(style="font-family: 'Segoe UI', system-ui, sans-serif; padding: 30px; max-width: 1100px; margin: auto; background-color: #f8fafc; color: #1e293b;")
+    div(style="background-color: #ffffff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;")
       
       div(style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;")
-        h2(style="margin: 0; color: #2c3e50;") 👥 Listado de Usuarios del Sistema
-        a(href="/admin/dashboard" style="color: #666; text-decoration: none; font-weight: bold;") ⬅️ Volver al Panel
+        h2(style="margin: 0; color: #0f172a; font-size: 20px;") 👥 Listado de Usuarios del Sistema
+        a(href="/auth/logout" style="color: #dc2626; text-decoration: none; font-weight: 600; font-size: 14px; background: #fef2f2; padding: 8px 16px; border-radius: 8px; border: 1px solid #fecaca;") 🚪 Cerrar Sesión
+
+      nav(style="background: #ffffff; padding: 12px 20px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); margin-bottom: 25px; display: flex; gap: 10px; flex-wrap: wrap; border: 1px solid #e2e8f0; align-items: center;")
+        span(style="font-size: 12px; font-weight: bold; color: #94a3b8; text-transform: uppercase; margin-right: 5px;") 📌 Menú:
+        a(href="/admin/dashboard" style="color: #475569; text-decoration: none; font-size: 13px; font-weight: 600; padding: 7px 12px; border-radius: 6px; background: #f1f5f9;") 🏠 Panel
+        if usuarioLogueado && (usuarioLogueado.rol === 'Administrador' || usuarioLogueado.rol === 'Supervisor')
+          a(href="/admin/boleteria" style="color: #475569; text-decoration: none; font-size: 13px; font-weight: 600; padding: 7px 12px; border-radius: 6px; background: #f1f5f9;") 🎫 Boletería
+        a(href="/admin/usuarios" style="color: #ffffff; text-decoration: none; font-size: 13px; font-weight: 600; padding: 7px 12px; border-radius: 6px; background: #059669;") 👥 Usuarios (Actual)
+        a(href="/admin/pagos" style="color: #475569; text-decoration: none; font-size: 13px; font-weight: 600; padding: 7px 12px; border-radius: 6px; background: #f1f5f9;") 💳 Pagos
+        a(href="/admin/informe" style="color: #475569; text-decoration: none; font-size: 13px; font-weight: 600; padding: 7px 12px; border-radius: 6px; background: #f1f5f9;") 📊 Informes
+        a(href="/admin/eventos" style="color: #475569; text-decoration: none; font-size: 13px; font-weight: 600; padding: 7px 12px; border-radius: 6px; background: #f1f5f9;") 🎭 Eventos
+        a(href="/admin/salas" style="color: #475569; text-decoration: none; font-size: 13px; font-weight: 600; padding: 7px 12px; border-radius: 6px; background: #f1f5f9;") 🏢 Salas
+        a(href="/admin/cancelaciones" style="color: #475569; text-decoration: none; font-size: 13px; font-weight: 600; padding: 7px 12px; border-radius: 6px; background: #f1f5f9;") 🛡️ Cancelaciones
 
       if exito
-        div(style="background-color: #d1e7dd; color: #0f5132; padding: 10px; border-radius: 5px; margin-bottom: 15px; border: 1px solid #badbcc;")
+        div(style="background-color: #d1e7dd; color: #0f5132; padding: 12px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #badbcc;")
           strong= exito
 
-      //- El botón de registrar nuevo usuario solo aparece si el rol es Administrador
       if usuarioLogueado && usuarioLogueado.rol === 'Administrador'
         div(style="margin-bottom: 20px;")
-          a(href="/admin/crear-personal" style="background-color: #16a34a; color: white; padding: 10px 15px; border-radius: 5px; text-decoration: none; font-weight: bold;") ➕ Registrar Nuevo Usuario / Personal
+          a(href="/admin/crear-personal" style="background-color: #16a34a; color: white; padding: 10px 16px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 14px;") ➕ Registrar Nuevo Usuario / Personal
 
       if usuarios && usuarios.length > 0
-        //- Contenedor con overflow-x para que la tabla no rompa el diseño principal si es muy ancha
         div(style="overflow-x: auto; max-width: 100%;")
           table(style="width: 100%; border-collapse: collapse; margin-top: 10px;")
             thead
-              tr(style="background-color: #f1f5f9; text-align: left; border-bottom: 2px solid #cbd5e1;")
-                th(style="padding: 10px; min-width: 100px;") Usuario
-                th(style="padding: 10px; min-width: 150px;") Nombre y Apellido
-                //- Ancho fijo para el encabezado del email
-                th(style="padding: 10px; max-width: 250px; min-width: 180px;") Email
-                th(style="padding: 10px; min-width: 80px;") Rol
-                th(style="padding: 10px; min-width: 100px;") Tipo Cliente
-                //- La columna de acciones solo aparece para administradores
+              tr(style="background-color: #f1f5f9; text-align: left; border-bottom: 2px solid #cbd5e1; font-size: 13px; color: #475569;")
+                th(style="padding: 12px; min-width: 100px;") Usuario
+                th(style="padding: 12px; min-width: 150px;") Nombre y Apellido
+                th(style="padding: 12px; max-width: 250px; min-width: 180px;") Email
+                th(style="padding: 12px; min-width: 80px;") Rol
+                th(style="padding: 12px; min-width: 100px;") Tipo Cliente
                 if usuarioLogueado && usuarioLogueado.rol === 'Administrador'
-                  th(style="padding: 10px; text-align: center; min-width: 160px;") Acciones
+                  th(style="padding: 12px; text-align: center; min-width: 160px;") Acciones
             tbody
               each user in usuarios
-                tr(style="border-bottom: 1px solid #e2e8f0;")
-                  td(style="padding: 10px;")= user.nombreUsuario
-                  td(style="padding: 10px;")
+                tr(style="border-bottom: 1px solid #e2e8f0; font-size: 13px;")
+                  td(style="padding: 12px; font-weight: bold; color: #1e293b;")= user.nombreUsuario
+                  td(style="padding: 12px;")
                     | #{user.nombre}
                     br
-                    | #{user.apellido}
-                  //- Aplicación de word-break para cortar los emails excesivamente largos
-                  td(style="padding: 10px; max-width: 250px; word-break: break-all; white-space: normal;")= user.email
-                  td(style="padding: 10px;")
-                    span(style="padding: 3px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; background-color: #e2e8f0;")= user.rol
-                  td(style="padding: 10px;")= user.tipoCliente
+                    span(style="color: #64748b;") #{user.apellido}
+                  td(style="padding: 12px; max-width: 250px; word-break: break-all; white-space: normal;")= user.email
+                  td(style="padding: 12px;")
+                    span(style="padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: bold; background-color: #e2e8f0; color: #334155;")= user.rol
+                  td(style="padding: 12px;")= user.tipoCliente
                   
-                  //- Los botones de edición y eliminación solo se muestran si el rol es Administrador
                   if usuarioLogueado && usuarioLogueado.rol === 'Administrador'
-                    td(style="padding: 10px; text-align: center;")
+                    td(style="padding: 12px; text-align: center;")
                       div(style="display: flex; justify-content: center; gap: 8px;")
-                        a(href=`/admin/usuarios/editar/${user._id}` style="background-color: #0ea5e9; color: white; padding: 5px 10px; border-radius: 4px; text-decoration: none; font-size: 12px;") ✏️ Editar
+                        a(href=`/admin/usuarios/editar/${user._id}` style="background-color: #0ea5e9; color: white; padding: 6px 12px; border-radius: 6px; text-decoration: none; font-size: 12px; font-weight: bold;") ✏️ Editar
                         form(action=`/admin/usuarios/eliminar/${user._id}` method="POST" style="margin: 0;" onsubmit="return confirm('¿Estás seguro de eliminar este usuario?');")
-                          button(type="submit" style="background-color: #dc2626; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px;") 🗑️ Eliminar
+                          button(type="submit" style="background-color: #dc2626; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: bold;") 🗑️ Eliminar
       else
         p(style="color: #64748b; text-align: center; padding: 20px;") No hay usuarios registrados en el sistema.

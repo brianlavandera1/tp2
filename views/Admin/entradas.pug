@@ -6,74 +6,72 @@ html(lang="es")
     title Auditoría de Entradas - Administración
     style.
       * { box-sizing: border-box; }
-      body { font-family: sans-serif; padding: 30px; max-width: 1050px; margin: auto; background-color: #f4f6f9; color: #333; }
-      .card { background: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 25px; }
+      body { font-family: 'Segoe UI', system-ui, sans-serif; padding: 30px; max-width: 1100px; margin: auto; background-color: #f8fafc; color: #1e293b; }
+      .card { background: #ffffff; padding: 24px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); margin-bottom: 25px; border: 1px solid #e2e8f0; }
       .header { display: flex; justify-content: space-between; align-items: center; }
-      .button { display: inline-block; background: #6c757d; color: white; padding: 8px 14px; border-radius: 5px; text-decoration: none; font-size: 14px; font-weight: bold; }
       .kpi-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px; }
-      
-      .kpi-card { background: #ecfdf5; border-left: 5px solid #059669; padding: 15px; border-radius: 6px; }
-      .kpi-card-hoy { background: #eff6ff; border-left: 5px solid #3b82f6; padding: 15px; border-radius: 6px; }
-      
-      .kpi-label { font-size: 13px; color: #065f46; font-weight: bold; margin: 0; }
-      .kpi-label-hoy { font-size: 13px; color: #1d4ed8; font-weight: bold; margin: 0; }
-      
-      .kpi-value { font-size: 26px; color: #064e3b; margin: 5px 0 0 0; font-weight: bold; }
-      .kpi-value-hoy { font-size: 26px; color: #1e3a8a; margin: 5px 0 0 0; font-weight: bold; }
-      
+      .kpi-card { background: #ecfdf5; border-left: 5px solid #059669; padding: 16px; border-radius: 8px; }
+      .kpi-card-hoy { background: #eff6ff; border-left: 5px solid #3b82f6; padding: 16px; border-radius: 8px; }
+      .kpi-label { font-size: 12px; color: #065f46; font-weight: bold; text-transform: uppercase; margin: 0; }
+      .kpi-label-hoy { font-size: 12px; color: #1d4ed8; font-weight: bold; text-transform: uppercase; margin: 0; }
+      .kpi-value { font-size: 24px; color: #064e3b; margin: 5px 0 0 0; font-weight: bold; }
+      .kpi-value-hoy { font-size: 24px; color: #1e3a8a; margin: 5px 0 0 0; font-weight: bold; }
       table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-      th, td { padding: 12px 10px; text-align: left; border-bottom: 1px solid #eee; font-size: 14px; }
-      th { background-color: #f8f9fa; color: #555; }
-      
-      .badge { padding: 3px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
+      th, td { padding: 12px; text-align: left; border-bottom: 1px solid #e2e8f0; font-size: 14px; }
+      th { background-color: #f1f5f9; color: #475569; }
+      .badge { padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: bold; }
       .badge-ok { background: #dcfce7; color: #15803d; }
       .badge-warn { background: #fef3c7; color: #d97706; }
       .badge-danger { background: #fee2e2; color: #dc2626; }
-      
-      .section-title { margin-top: 0; color: #2c3e50; font-size: 18px; margin-bottom: 15px; border-bottom: 2px solid #eee; padding-bottom: 5px;}
-      
-      /* Estilos para los filtros */
-      .filtros-bar { display: flex; gap: 15px; align-items: flex-end; background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 20px; }
+      .section-title { margin-top: 0; color: #0f172a; font-size: 18px; margin-bottom: 15px; border-bottom: 2px solid #f1f5f9; padding-bottom: 8px; }
+      .filtros-bar { display: flex; gap: 15px; align-items: flex-end; background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 20px; }
       .form-group { display: flex; flex-direction: column; }
       .form-group label { font-size: 12px; font-weight: bold; margin-bottom: 5px; color: #475569; }
-      .form-group input { padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px; font-family: sans-serif; }
-      .btn-filtrar { background: #0f766e; color: white; border: none; padding: 9px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; }
-      .btn-limpiar { background: #e2e8f0; color: #334155; text-decoration: none; padding: 9px 15px; border-radius: 4px; font-weight: bold; font-size: 14px; }
-  
+      .form-group input { padding: 9px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 14px; }
+      .btn-filtrar { background: #0f766e; color: white; border: none; padding: 10px 18px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 14px; }
+      .btn-limpiar { background: #e2e8f0; color: #334155; text-decoration: none; padding: 10px 18px; border-radius: 8px; font-weight: bold; font-size: 14px; display: inline-block; }
   body
     header.card.header
-      h1(style="margin: 0; color: #2c3e50; font-size: 24px;") 🎟️ Informe y Balance de Entradas
-      a.button(href="/admin/dashboard") ⬅️ Volver al Panel
+      h1(style="margin: 0; color: #0f172a; font-size: 22px;") 🎟️ Informe y Balance de Entradas
+      a(href="/admin/dashboard" style="background: #007bff; color: white; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: bold;") ⬅️ Volver al Panel
 
-    //- 1. BALANCE DEL DÍA (FIJO)
+    nav(style="background: #ffffff; padding: 12px 20px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); margin-bottom: 25px; display: flex; gap: 10px; flex-wrap: wrap; border: 1px solid #e2e8f0; align-items: center;")
+      span(style="font-size: 12px; font-weight: bold; color: #94a3b8; text-transform: uppercase; margin-right: 5px;") 📌 Menú:
+      a(href="/admin/dashboard" style="color: #475569; text-decoration: none; font-size: 13px; font-weight: 600; padding: 7px 12px; border-radius: 6px; background: #f1f5f9;") 🏠 Panel
+      a(href="/admin/boleteria" style="color: #475569; text-decoration: none; font-size: 13px; font-weight: 600; padding: 7px 12px; border-radius: 6px; background: #f1f5f9;") 🎫 Boletería
+      a(href="/admin/usuarios" style="color: #475569; text-decoration: none; font-size: 13px; font-weight: 600; padding: 7px 12px; border-radius: 6px; background: #f1f5f9;") 👥 Usuarios
+      a(href="/admin/pagos" style="color: #475569; text-decoration: none; font-size: 13px; font-weight: 600; padding: 7px 12px; border-radius: 6px; background: #f1f5f9;") 💳 Pagos
+      a(href="/admin/informe" style="color: #ffffff; text-decoration: none; font-size: 13px; font-weight: 600; padding: 7px 12px; border-radius: 6px; background: #0d9488;") 📊 Informes (Actual)
+      a(href="/admin/eventos" style="color: #475569; text-decoration: none; font-size: 13px; font-weight: 600; padding: 7px 12px; border-radius: 6px; background: #f1f5f9;") 🎭 Eventos
+      a(href="/admin/salas" style="color: #475569; text-decoration: none; font-size: 13px; font-weight: 600; padding: 7px 12px; border-radius: 6px; background: #f1f5f9;") 🏢 Salas
+      a(href="/admin/cancelaciones" style="color: #475569; text-decoration: none; font-size: 13px; font-weight: 600; padding: 7px 12px; border-radius: 6px; background: #f1f5f9;") 🛡️ Cancelaciones
+
     if resumenHoy
       div.card(style="background-color: #f8fafc;")
         h2.section-title 📅 Caja Diaria (Hoy)
         .kpi-container
           .kpi-card-hoy
-            p.kpi-label-hoy OPERACIONES HOY
+            p.kpi-label-hoy Operaciones Hoy
             p.kpi-value-hoy #{resumenHoy.totalTransacciones}
           .kpi-card-hoy
-            p.kpi-label-hoy TICKETS VENDIDOS HOY
+            p.kpi-label-hoy Tickets Vendidos Hoy
             p.kpi-value-hoy #{resumenHoy.totalVendidas}
           .kpi-card-hoy
-            p.kpi-label-hoy RECAUDACIÓN HOY
+            p.kpi-label-hoy Recaudación Hoy
             p.kpi-value-hoy $#{Number(resumenHoy.totalRecaudado).toLocaleString('es-AR')}
 
-    //- 2. BARRA DE FILTROS
-    form.filtros-bar(method="GET" action="/admin/entradas")
+    form.filtros-bar(method="GET" action="/admin/informe")
       div.form-group
         label(for="fechaInicio") Desde:
         input(type="date" name="fechaInicio" id="fechaInicio" value=(filtrosApli ? filtrosApli.fechaInicio : ''))
       div.form-group
         label(for="fechaFin") Hasta:
         input(type="date" name="fechaFin" id="fechaFin" value=(filtrosApli ? filtrosApli.fechaFin : ''))
-      div(style="display: flex; gap: 10px;")
+      div(style="display: flex; gap: 10px; align-items: flex-end;")
         button.btn-filtrar(type="submit") 🔍 Filtrar Datos
         if filtrosApli && (filtrosApli.fechaInicio || filtrosApli.fechaFin)
-          a.btn-limpiar(href="/admin/entradas") ❌ Quitar Filtros
+          a.btn-limpiar(href="/admin/informe") ❌ Quitar Filtros
 
-    //- 3. BALANCE HISTÓRICO / FILTRADO
     if resumen
       div.card
         h2.section-title 
@@ -83,16 +81,15 @@ html(lang="es")
             | 📊 Balance Histórico Acumulado
         .kpi-container
           .kpi-card
-            p.kpi-label OPERACIONES
+            p.kpi-label Operaciones
             p.kpi-value #{resumen.totalTransacciones}
           .kpi-card
-            p.kpi-label TICKETS VENDIDOS
+            p.kpi-label Tickets Vendidos
             p.kpi-value #{resumen.totalVendidas}
           .kpi-card
-            p.kpi-label RECAUDACIÓN
+            p.kpi-label Recaudación
             p.kpi-value $#{Number(resumen.totalRecaudado).toLocaleString('es-AR')}
 
-    //- 4. TABLA DE EVENTOS
     main.card
       h2.section-title Desglose por Evento
       if eventos && eventos.length > 0
@@ -111,15 +108,13 @@ html(lang="es")
             tbody
               each ev in eventos
                 tr
-                  td
-                    strong= ev.nombre
-                  td(style="color: #666;")= ev.sala
-                  td(style="text-align: center; font-weight: 500;")= ev.cupo
+                  td: strong= ev.nombre
+                  td(style="color: #64748b;")= ev.sala
+                  td(style="text-align: center;")= ev.cupo
                   td(style="text-align: center; font-weight: bold; color: #1e40af;")= ev.vendidas
                   td(style="text-align: center; color: #047857; font-weight: bold;")= ev.disponibles
                   td(style="text-align: center; font-weight: bold;") #{ev.porcentaje}%
-                  td(style="font-weight: bold; color: #047857;")
-                    | $#{Number(ev.recaudado).toLocaleString('es-AR')}
+                  td(style="font-weight: bold; color: #047857;") $#{Number(ev.recaudado).toLocaleString('es-AR')}
                   td
                     if ev.disponibles === 0
                       span.badge.badge-danger Agotado
@@ -128,4 +123,4 @@ html(lang="es")
                     else
                       span.badge.badge-ok En venta
       else
-        p(style="color: #666; margin: 15px 0 0 0;") No se encontraron eventos registrados en este período.
+        p(style="color: #64748b; text-align: center; padding: 20px;") No se encontraron eventos registrados en este período.

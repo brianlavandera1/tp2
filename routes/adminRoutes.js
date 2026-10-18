@@ -29,10 +29,10 @@ router.get('/usuarios/editar/:id', verificarRol(['Administrador']), asyncHandler
 router.post('/usuarios/editar/:id', verificarRol(['Administrador']), asyncHandler(actualizarUsuario));
 router.post('/usuarios/eliminar/:id', verificarRol(['Administrador']), asyncHandler(eliminarUsuario));
 
-// Auditorías, Informes y Gestión de Entradas
-router.get('/compras', asyncHandler(listarAuditoriaPagos));
+// Auditorías, Informes y Gestión de Entradas (Rutas corregidas)
+router.get('/pagos', asyncHandler(listarAuditoriaPagos));         // 👈 Actualizado a /admin/pagos
 router.get('/cancelaciones', asyncHandler(listarCancelaciones));
-router.get('/entradas', asyncHandler(mostrarGestionEntradas));
+router.get('/informe', asyncHandler(mostrarGestionEntradas));     // 👈 Actualizado a /admin/informe
 
 // Boletería Física y Cobros
 router.get('/boleteria', verificarRol(['Administrador', 'Supervisor']), asyncHandler(mostrarBoleteria));
