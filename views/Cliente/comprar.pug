@@ -11,9 +11,9 @@ block content
   //- 1. TÍTULO DE LA CARTELERA
   div(style="background-color: #ffffff; padding: 20px 30px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); margin-bottom: 25px; border: 1px solid #e2e8f0;")
     h2(style="margin: 0; color: #0f172a; font-size: 20px;") 🎟️ Cartelera de Eventos
-    p(style="margin: 5px 0 0 0; color: #64748b; font-size: 13px;") Selecciona tus entradas y paga cuando estés listo.
+    p(style="margin: 5px 0 0 0; color: #64748b; font-size: 13px;") Busca por artista o filtra por fecha específica para encontrar tu función ideal.
 
-  //- 2. CARTEL / BANNER FLOTANTE DE NOTIFICACIÓN CLARO Y DETALLADO
+  //- 2. CARTEL / BANNER FLOTANTE DE NOTIFICACIÓN (DEBAJO DE LA CABECERA)
   #notificacion-carrito(style="display: none; background-color: #d1e7dd; color: #0f5132; padding: 15px 20px; border-radius: 12px; margin-bottom: 25px; border: 1px solid #badbcc; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;" class="alerta-flotante")
     div(style="display: flex; align-items: center; gap: 10px;")
       span(style="font-size: 20px;") ✅
@@ -24,12 +24,17 @@ block content
       a(href="/cliente/carrito" id="btn-ver-carrito" style="background: #0284c7; color: white; padding: 8px 14px; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: bold;") 🛒 Ver Carrito
       a(href="/cliente/carrito/checkout" style="background: #16a34a; color: white; padding: 8px 14px; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: bold;") 💳 Pagar Ahora
 
-  //- 3. BARRA DE BÚSQUEDA
+  //- 3. BARRA DE BÚSQUEDA Y FILTRO POR FECHA
   div(style="background-color: #ffffff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); margin-bottom: 25px; border: 1px solid #e2e8f0;")
-    form(action="/cliente/comprar" method="GET" style="display: flex; gap: 10px; flex-wrap: wrap;")
-      input(type="text" name="buscar" placeholder="🔍 Buscar por evento, artista, productora..." value=(busqueda || '') style="flex: 1; min-width: 260px; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px;")
-      button(type="submit" style="background: #0ea5e9; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px;") Buscar
-      if busqueda
+    form(action="/cliente/comprar" method="GET" style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;")
+      input(type="text" name="buscar" placeholder="🔍 Buscar por evento, artista, productora..." value=(busqueda || '') style="flex: 2; min-width: 240px; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px;")
+      
+      div(style="flex: 1; min-width: 160px; display: flex; align-items: center; gap: 5px;")
+        label(style="font-size: 12px; font-weight: bold; color: #475569; white-space: nowrap;") 📅 Fecha:
+        input(type="date" name="fecha" value=(filtroFecha || '') style="width: 100%; padding: 9px 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; background: white;")
+
+      button(type="submit" style="background: #0ea5e9; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px;") Filtrar
+      if busqueda || filtroFecha
         a(href="/cliente/comprar" style="background: #64748b; color: white; padding: 10px 16px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 14px; display: inline-flex; align-items: center;") Limpiar
 
   //- 4. GRILLA DE EVENTOS
@@ -42,8 +47,12 @@ block content
             if evento.entidad
               p(style="margin: 0 0 10px 0; color: #0284c7; font-weight: bold; font-size: 13px;") 🎭 Presenta: #{evento.entidad.nombre}
             
+            if evento.fecha
+              p(style="margin: 0 0 8px 0; color: #334155; font-size: 13px; font-weight: bold;") 
+                | 📅 Función: #{new Date(evento.fecha).toLocaleDateString()} - ⏰ #{evento.hora || '21:00'} hs
+
             p(style="color: #64748b; font-size: 13px; margin-bottom: 8px;") 
-              | 📅 <strong>Stock:</strong> 
+              | 🎫 <strong>Stock:</strong> 
               if evento.entradasDisponibles > 0
                 span(style="color: #10b981; font-weight: bold;") #{evento.entradasDisponibles} disponibles
               else
@@ -76,7 +85,7 @@ block content
               button(type="button" disabled style="width: 100%; background: #94a3b8; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: not-allowed; font-size: 13px;") 🚫 Agotado
     else
       div(style="grid-column: 1 / -1; text-align: center; padding: 40px; background: white; border-radius: 12px; border: 1px solid #e2e8f0;")
-        p(style="color: #64748b; font-size: 15px;") No se encontraron eventos para tu búsqueda.
+        p(style="color: #64748b; font-size: 15px;") No se encontraron eventos para los filtros seleccionados.
 
   script.
     async function agregarAlCarrito(event, form) {
@@ -99,15 +108,13 @@ block content
           const notificacion = document.getElementById('notificacion-carrito');
           const textoNotif = document.getElementById('texto-notificacion');
           const detalleCarrito = document.getElementById('detalle-carrito');
-          const btnVerCarrito = document.getElementById('btn-ver-carrito');
+          const btnVercarrito = document.getElementById('btn-ver-carrito');
 
-          // Mensajes claros y descriptivos para el usuario
           textoNotif.innerText = `¡Agregaste ${cantVal} entrada(s) de "${nombreEvento}"!`;
           detalleCarrito.innerText = `🛒 En total tienes ${data.totalItems} entrada(s) acumuladas en tu carrito listo para pagar.`;
-          btnVerCarrito.innerText = `🛒 Ver Carrito (${data.totalItems})`;
+          btnVercarrito.innerText = `🛒 Ver Carrito (${data.totalItems})`;
           
           notificacion.style.display = 'flex';
-
           window.scrollTo({ top: 0, behavior: 'smooth' });
 
           const textoOriginal = boton.innerHTML;

@@ -1,8 +1,3 @@
-import crypto from 'node:crypto';
-if (!global.crypto) {
-  global.crypto = crypto;
-}
-
 import mongoose from 'mongoose';
 import path from 'node:path';
 import { fileURLToPath } from 'url';
@@ -72,7 +67,6 @@ async function poblarBaseDeDatos() {
     }
     console.log(`🎭 ${entidadesGuardadas.length} entidades culturales cargadas con éxito.`);
 
-    // Encriptamos una contraseña genérica ('123') para los usuarios del seed
     const passwordHash = await bcrypt.hash('123', 10);
 
     await Usuario.findOneAndUpdate(
@@ -88,40 +82,6 @@ async function poblarBaseDeDatos() {
         rol: 'Administrador',
         tipoCliente: 'VIP',
         porcentajeDescuento: 0.3
-      },
-      { upsert: true, returnDocument: 'after', setDefaultsOnInsert: true }
-    );
-
-    await Usuario.findOneAndUpdate(
-      { nombreUsuario: 'supervisor' },
-      {
-        nombre: 'Carlos',
-        apellido: 'Gómez',
-        email: 'supervisor@email.com',
-        password: passwordHash,
-        dni: '33445566',
-        fechaNacimiento: new Date('1988-03-20'),
-        telefono: '1144556677',
-        rol: 'Supervisor',
-        tipoCliente: 'ESTANDAR',
-        porcentajeDescuento: 0
-      },
-      { upsert: true, returnDocument: 'after', setDefaultsOnInsert: true }
-    );
-
-    await Usuario.findOneAndUpdate(
-      { nombreUsuario: 'lector' },
-      {
-        nombre: 'Lucía',
-        apellido: 'Fernández',
-        email: 'lector@email.com',
-        password: passwordHash,
-        dni: '44556677',
-        fechaNacimiento: new Date('1992-07-10'),
-        telefono: '1155667788',
-        rol: 'Lector',
-        tipoCliente: 'ESTANDAR',
-        porcentajeDescuento: 0
       },
       { upsert: true, returnDocument: 'after', setDefaultsOnInsert: true }
     );
@@ -143,23 +103,6 @@ async function poblarBaseDeDatos() {
       { upsert: true, returnDocument: 'after', setDefaultsOnInsert: true }
     );
 
-    const cliente2 = await Usuario.findOneAndUpdate(
-      { nombreUsuario: 'cliente2' },
-      {
-        nombre: 'Maria',
-        apellido: 'Lopez',
-        email: 'maria.lopez@email.com',
-        password: passwordHash,
-        dni: '23456789',
-        fechaNacimiento: new Date('2000-11-22'),
-        telefono: '1133445566',
-        rol: 'Cliente',
-        tipoCliente: 'ESTANDAR',
-        porcentajeDescuento: 0
-      },
-      { upsert: true, returnDocument: 'after', setDefaultsOnInsert: true }
-    );
-
     const salaTeatro = await Sala.findOneAndUpdate(
       { nombre: 'Teatro Gran Rex' },
       {
@@ -172,13 +115,25 @@ async function poblarBaseDeDatos() {
       { upsert: true, returnDocument: 'after', setDefaultsOnInsert: true }
     );
 
-    const eventoCultural = await Evento.create({
+    // --- EVENTOS CON MÚLTIPLES FECHAS ---
+    const eventoCultural1 = await Evento.create({
       nombre: 'Espectáculo Visual - Wayra',
-      descripcion: 'Experiencia inmersiva 360',
-      fecha: new Date('2025-11-10T21:00:00'),
+      descripcion: 'Experiencia inmersiva 360 (Función Viernes)',
+      fecha: new Date('2026-11-10T21:00:00'),
       hora: '21:00',
       precio: 8500,
       entradasDisponibles: 195,
+      sala: salaTeatro._id,
+      entidad: entidadesGuardadas[0]._id 
+    });
+
+    const eventoCultural2 = await Evento.create({
+      nombre: 'Espectáculo Visual - Wayra',
+      descripcion: 'Experiencia inmersiva 360 (Función Sábado)',
+      fecha: new Date('2026-11-11T20:30:00'),
+      hora: '20:30',
+      precio: 9000,
+      entradasDisponibles: 200,
       sala: salaTeatro._id,
       entidad: entidadesGuardadas[0]._id 
     });
@@ -194,41 +149,7 @@ async function poblarBaseDeDatos() {
       entidad: entidadesGuardadas[2]._id 
     });
 
-    await Entrada.create([
-      { cliente: cliente1._id, evento: eventoCultural._id, nombre: 'General - Espectáculo Visual - Wayra', descripcion: 'Acceso adquirido', precio: 8500, cantidad: 1, fila: 'Fila Única', asiento: 'General / Numerado', sector: 'General', estado: 'Completado', codigoBoleto: 'TICK-100001' },
-      { cliente: cliente1._id, evento: eventoMusica._id, nombre: 'Platea - Gran Concierto Sinfónico', descripcion: 'Acceso adquirido', precio: 5000, cantidad: 2, fila: 'Fila 4', asiento: 'Platea / 12, 13', sector: 'Platea', estado: 'Completado', codigoBoleto: 'TICK-100002' },
-      { cliente: cliente2._id, evento: eventoCultural._id, nombre: 'General - Espectáculo Visual - Wayra', descripcion: 'Acceso adquirido', precio: 8500, cantidad: 2, fila: 'Fila Única', asiento: 'General / Numerado', sector: 'General', estado: 'Completado', codigoBoleto: 'TICK-100003' },
-      { cliente: cliente2._id, evento: eventoMusica._id, nombre: 'VIP - Gran Concierto Sinfónico', descripcion: 'Acceso VIP adquirido', precio: 8000, cantidad: 2, fila: 'Fila 1', asiento: 'VIP / 05, 06', sector: 'VIP', estado: 'Completado', codigoBoleto: 'TICK-100004' }
-    ]);
-
-    await Transaccion.create([
-      {
-        cliente: cliente1._id, nombreCliente: 'cliente1',
-        items: [{ eventoId: eventoCultural._id.toString(), nombreEvento: eventoCultural.nombre, tipoEntrada: 'General', precio: 8500, cantidad: 1 }],
-        subtotal: 8500, descuentoAplicado: 2550, total: 5950, medioPago: 'Tarjeta de Crédito', tarjetaUltimosDigitos: '4321',
-        comprobanteId: 'REC-OLD-01', fechaCompra: new Date('2026-03-15T14:30:00')
-      },
-      {
-        cliente: cliente2._id, nombreCliente: 'cliente2',
-        items: [{ eventoId: eventoMusica._id.toString(), nombreEvento: eventoMusica.nombre, tipoEntrada: 'Platea', precio: 5000, cantidad: 2 }],
-        subtotal: 10000, descuentoAplicado: 0, total: 10000, medioPago: 'Mercado Pago', tarjetaUltimosDigitos: '8812',
-        comprobanteId: 'REC-OLD-02', fechaCompra: new Date('2026-05-20T10:15:00')
-      },
-      {
-        cliente: cliente1._id, nombreCliente: 'cliente1',
-        items: [{ eventoId: eventoCultural._id.toString(), nombreEvento: eventoCultural.nombre, tipoEntrada: 'General', precio: 8500, cantidad: 1 }],
-        subtotal: 8500, descuentoAplicado: 2550, total: 5950, medioPago: 'Tarjeta de Crédito', tarjetaUltimosDigitos: '4321',
-        comprobanteId: 'REC-MES-01', fechaCompra: new Date('2026-10-01T14:30:00')
-      },
-      {
-        cliente: cliente2._id, nombreCliente: 'cliente2',
-        items: [{ eventoId: eventoMusica._id.toString(), nombreEvento: eventoMusica.nombre, tipoEntrada: 'General', precio: 5000, cantidad: 1 }],
-        subtotal: 5000, descuentoAplicado: 0, total: 5000, medioPago: 'Efectivo', tarjetaUltimosDigitos: '0000',
-        comprobanteId: 'REC-HOY-01', fechaCompra: new Date('2026-10-12T08:30:00')
-      }
-    ]);
-
-    console.log('🎟️ Múltiples clientes, entradas y transacciones de pagos cargadas con éxito.');
+    console.log('🎟️ Eventos con múltiples fechas y datos cargados con éxito.');
     console.log('✨ ¡Seed ejecutado por completo!');
 
   } catch (error) {

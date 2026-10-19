@@ -3,6 +3,7 @@ import Entrada from '../models/Entrada.js';
 import Evento from '../models/Evento.js';
 import Transaccion from '../models/Transaccion.js';
 import CancelacionLog from '../models/CancelacionLog.js';
+import Entidad from '../models/Entidad.js';
 import bcrypt from 'bcrypt';
 
 export const mostrarMenu = async (req, res) => {
@@ -85,12 +86,49 @@ export const cancelarEntrada = async (req, res) => {
   res.json({ success: true, message: 'Entrada cancelada correctamente.' });
 };
 
+// 🎟️ Cartelera con búsqueda inteligente por texto (incluyendo entidades/artistas) y filtro por fecha
 export const mostrarComprar = async (req, res) => {
-  const eventosDisponibles = await Evento.find({}).populate('sala entidad');
-  res.render('Cliente/comprar', { usuarioLogueado: req.session.usuario, eventos: eventosDisponibles, totalItemsCarrito: req.session.carrito?.length || 0, busqueda: '' });
+  try {
+    const { buscar, fecha } = req.query;
+    let query = {};
+
+    if (buscar) {
+      // Buscamos entidades coincidentes con el texto ingresado
+      const entidadesCoincidentes = await Entidad.find({
+        nombre: { $regex: buscar, $options: 'i' }
+      });
+      const entidadesIds = entidadesCoincidentes.map(e => e._id);
+
+      query.$or = [
+        { nombre: { $regex: buscar, $options: 'i' } },
+        { descripcion: { $regex: buscar, $options: 'i' } },
+        { entidad: { $in: entidadesIds } }
+      ];
+    }
+
+    if (fecha) {
+      const inicio = new Date(`${fecha}T03:00:00.000Z`);
+      const fin = new Date(new Date(`${fecha}T03:00:00.000Z`).getTime() + 24 * 60 * 60 * 1000 - 1);
+      
+      query.fecha = { $gte: inicio, $lte: fin };
+    }
+
+    const eventosDisponibles = await Evento.find(query).populate('sala entidad');
+
+    res.render('Cliente/comprar', { 
+      usuarioLogueado: req.session.usuario, 
+      eventos: eventosDisponibles, 
+      totalItemsCarrito: req.session.carrito?.length || 0, 
+      busqueda: buscar || '',
+      filtroFecha: fecha || ''
+    });
+  } catch (error) {
+    console.error('Error al mostrar cartelera:', error);
+    res.status(500).send('Error interno del servidor');
+  }
 };
 
-// ⚙️ Nuevas funciones de Configuración de Perfil
+// ⚙️ Configuración de Perfil
 export const mostrarConfiguracion = async (req, res) => {
   const usuario = await Usuario.findById(req.session.usuario._id);
   res.render('Cliente/configuracion', { 
