@@ -6,6 +6,7 @@ if (!global.crypto) {
 import mongoose from 'mongoose';
 import path from 'node:path';
 import { fileURLToPath } from 'url';
+import bcrypt from 'bcrypt';
 
 import Usuario from '../models/Usuario.js';
 import Sala from '../models/Sala.js';
@@ -71,13 +72,16 @@ async function poblarBaseDeDatos() {
     }
     console.log(`🎭 ${entidadesGuardadas.length} entidades culturales cargadas con éxito.`);
 
+    // Encriptamos una contraseña genérica ('123') para los usuarios del seed
+    const passwordHash = await bcrypt.hash('123', 10);
+
     await Usuario.findOneAndUpdate(
       { nombreUsuario: 'admin' },
       {
         nombre: 'Administrador',
         apellido: 'Principal',
         email: 'admin@email.com',
-        password: '123',
+        password: passwordHash,
         dni: '99887766',
         fechaNacimiento: new Date('1980-01-01'),
         telefono: '1100112233',
@@ -94,7 +98,7 @@ async function poblarBaseDeDatos() {
         nombre: 'Carlos',
         apellido: 'Gómez',
         email: 'supervisor@email.com',
-        password: '123',
+        password: passwordHash,
         dni: '33445566',
         fechaNacimiento: new Date('1988-03-20'),
         telefono: '1144556677',
@@ -111,7 +115,7 @@ async function poblarBaseDeDatos() {
         nombre: 'Lucía',
         apellido: 'Fernández',
         email: 'lector@email.com',
-        password: '123',
+        password: passwordHash,
         dni: '44556677',
         fechaNacimiento: new Date('1992-07-10'),
         telefono: '1155667788',
@@ -128,7 +132,7 @@ async function poblarBaseDeDatos() {
         nombre: 'Juan',
         apellido: 'Perez',
         email: 'juan.perez@email.com',
-        password: '123',
+        password: passwordHash,
         dni: '12345678',
         fechaNacimiento: new Date('1995-05-15'),
         telefono: '1122334455',
@@ -145,7 +149,7 @@ async function poblarBaseDeDatos() {
         nombre: 'Maria',
         apellido: 'Lopez',
         email: 'maria.lopez@email.com',
-        password: '123',
+        password: passwordHash,
         dni: '23456789',
         fechaNacimiento: new Date('2000-11-22'),
         telefono: '1133445566',
@@ -156,7 +160,6 @@ async function poblarBaseDeDatos() {
       { upsert: true, returnDocument: 'after', setDefaultsOnInsert: true }
     );
 
-    // --- SALAS Y EVENTOS (Corregido con findOneAndUpdate para evitar E11000 en Atlas) ---
     const salaTeatro = await Sala.findOneAndUpdate(
       { nombre: 'Teatro Gran Rex' },
       {

@@ -1,41 +1,38 @@
-doctype html
-html(lang="es")
-  head
-    meta(charset="UTF-8")
-    title Pasarela de Pago - Simulación
-  body(style="font-family: sans-serif; padding: 30px; max-width: 600px; margin: auto; background-color: #f4f6f9;")
-    div(style="background-color: #ffffff; padding: 25px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);")
-      h2(style="margin-top: 0; color: #2c3e50;") 💳 Simulación de Pago y Checkout
-      div(style="background: #e0f2fe; color: #0369a1; padding: 12px; border-radius: 6px; margin-bottom: 20px; font-weight: bold;") Total a pagar: $#{total}
+extends ../layoutCliente.pug
 
-      if error
-        div(style="background-color: #f8d7da; color: #721c24; padding: 12px; border-radius: 6px; margin-bottom: 20px; font-weight: bold; border: 1px solid #f5c6cb;")
-          = error
+block content
+  div(style="background-color: #ffffff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; max-width: 600px; margin: auto;")
+    h2(style="margin-top: 0; color: #0f172a; font-size: 20px;") 💳 Simulación de Pago y Checkout
+    div(style="background: #e0f2fe; color: #0369a1; padding: 12px; border-radius: 8px; margin-bottom: 20px; font-weight: bold;") Total a pagar: $#{total}
 
-      form(action="/cliente/carrito/procesar-pago" method="POST")
-        div(style="margin-bottom: 15px;")
-          label(style="display: block; font-weight: bold; font-size: 13px; margin-bottom: 5px;") Medio de Pago:
-          select(name="medioPago" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 5px;")
-            option(value="Tarjeta de Crédito" selected=(datos && datos.medioPago === 'Tarjeta de Crédito')) Tarjeta de Crédito
-            option(value="Tarjeta de Débito" selected=(datos && datos.medioPago === 'Tarjeta de Débito')) Tarjeta de Débito
-            option(value="Mercado Pago" selected=(datos && datos.medioPago === 'Mercado Pago')) Mercado Pago
-            
-        div(style="margin-bottom: 15px;")
-          label(style="display: block; font-weight: bold; font-size: 13px; margin-bottom: 5px;") Titular (Solo letras):
-          input(type="text" name="titular" required placeholder="Nombre y Apellido" value=(datos ? datos.titular : '') onkeypress="return (event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || event.charCode === 32 || event.charCode === 209 || event.charCode === 241" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 5px; box-sizing: border-box;")
+    if error
+      div(style="background-color: #fee2e2; color: #dc2626; padding: 12px; border-radius: 8px; margin-bottom: 20px; font-weight: bold; border: 1px solid #fecaca;")
+        = error
+
+    form(action="/cliente/carrito/procesar-pago" method="POST")
+      div(style="margin-bottom: 15px;")
+        label(style="display: block; font-weight: bold; font-size: 13px; margin-bottom: 5px; color: #475569;") Medio de Pago:
+        select(name="medioPago" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; background: white;")
+          option(value="Tarjeta de Crédito" selected=(datos && datos.medioPago === 'Tarjeta de Crédito')) Tarjeta de Crédito
+          option(value="Tarjeta de Débito" selected=(datos && datos.medioPago === 'Tarjeta de Débito')) Tarjeta de Débito
+          option(value="Mercado Pago" selected=(datos && datos.medioPago === 'Mercado Pago')) Mercado Pago
           
-        div(style="margin-bottom: 15px;")
-          label(style="display: block; font-weight: bold; font-size: 13px; margin-bottom: 5px;") Número de Tarjeta (16 dígitos):
-          input(type="text" name="numeroTarjeta" required maxlength="16" placeholder="4532XXXXXXXXXXXX" value=(datos ? datos.numeroTarjeta : '') onkeypress="return event.charCode >= 48 && event.charCode <= 57" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 5px; box-sizing: border-box;")
+      div(style="margin-bottom: 15px;")
+        label(style="display: block; font-weight: bold; font-size: 13px; margin-bottom: 5px; color: #475569;") Titular (Solo letras):
+        input(type="text" name="titular" required placeholder="Nombre y Apellido" value=(datos ? datos.titular : '') onkeypress="return (event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || event.charCode === 32 || event.charCode === 209 || event.charCode === 241" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box;")
+        
+      div(style="margin-bottom: 15px;")
+        label(style="display: block; font-weight: bold; font-size: 13px; margin-bottom: 5px; color: #475569;") Número de Tarjeta (16 dígitos):
+        input(type="text" name="numeroTarjeta" required maxlength="16" placeholder="4532XXXXXXXXXXXX" value=(datos ? datos.numeroTarjeta : '') onkeypress="return event.charCode >= 48 && event.charCode <= 57" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box;")
+        
+      div(style="display: flex; gap: 15px; margin-bottom: 20px;")
+        div(style="flex: 1;")
+          label(style="display: block; font-weight: bold; font-size: 13px; margin-bottom: 5px; color: #475569;") Vencimiento (MM/AA):
+          input(type="text" name="vencimiento" required placeholder="MM/AA" maxlength="5" value=(datos ? datos.vencimiento : '') onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode === 47" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box;")
+        div(style="flex: 1;")
+          label(style="display: block; font-weight: bold; font-size: 13px; margin-bottom: 5px; color: #475569;") CVV (3 números):
+          input(type="password" name="cvv" required maxlength="3" placeholder="123" value=(datos ? datos.cvv : '') onkeypress="return event.charCode >= 48 && event.charCode <= 57" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box;")
           
-        div(style="display: flex; gap: 15px; margin-bottom: 20px;")
-          div(style="flex: 1;")
-            label(style="display: block; font-weight: bold; font-size: 13px; margin-bottom: 5px;") Vencimiento (MM/AA):
-            input(type="text" name="vencimiento" required placeholder="MM/AA" maxlength="5" value=(datos ? datos.vencimiento : '') onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode === 47" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 5px; box-sizing: border-box;")
-          div(style="flex: 1;")
-            label(style="display: block; font-weight: bold; font-size: 13px; margin-bottom: 5px;") CVV (3 números):
-            input(type="password" name="cvv" required maxlength="3" placeholder="123" value=(datos ? datos.cvv : '') onkeypress="return event.charCode >= 48 && event.charCode <= 57" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 5px; box-sizing: border-box;")
-            
-        div(style="display: flex; justify-content: space-between; align-items: center;")
-          a(href="/cliente/carrito" style="color: #666; text-decoration: none; font-weight: bold;") ⬅️ Cancelar
-          button(type="submit" style="background-color: #16a34a; color: white; border: none; padding: 12px 20px; border-radius: 6px; font-weight: bold; cursor: pointer;") ✅ Confirmar Pago
+      div(style="display: flex; justify-content: space-between; align-items: center;")
+        a(href="/cliente/carrito" style="color: #64748b; text-decoration: none; font-weight: bold; font-size: 14px;") ⬅️ Cancelar
+        button(type="submit" style="background-color: #16a34a; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 15px;") ✅ Confirmar Pago

@@ -1,65 +1,61 @@
-doctype html
-html(lang="es")
-  head
-    meta(charset="UTF-8")
-    title Selección de Membresía
-  body(style="font-family: sans-serif; padding: 30px; max-width: 700px; margin: auto; background-color: #f4f6f9;")
-    div(style="background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);")
-      h2(style="margin-top: 0; color: #2c3e50;") ⭐ Elige tu Plan de Membresía
-      p(style="color: #666; font-size: 14px;") Selecciona una opción obligatoria para continuar. Si no seleccionas ninguna o prefieres la opción básica, se asignará el plan Estándar de manera gratuita.
+extends ../layoutCliente.pug
 
-      if error
-        div(style="background-color: #f8d7da; color: #721c24; padding: 12px; border-radius: 6px; margin-bottom: 20px; font-weight: bold; border: 1px solid #f5c6cb;")
-          = error
+block content
+  div(style="background-color: #ffffff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; max-width: 800px; margin: auto;")
+    h2(style="margin-top: 0; color: #0f172a; font-size: 20px;") ⭐ Elige tu Plan de Membresía
+    p(style="color: #64748b; font-size: 14px; margin-bottom: 20px;") Selecciona una opción para continuar. Si prefieres la opción básica, se asignará el plan Estándar de manera gratuita.
 
-      form(action="/cliente/procesar-membresia" method="POST")
-        div(style="display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px;")
+    if error
+      div(style="background-color: #fee2e2; color: #dc2626; padding: 12px; border-radius: 8px; margin-bottom: 20px; font-weight: bold; border: 1px solid #fecaca;")
+        = error
+
+    form(action="/cliente/procesar-membresia" method="POST")
+      div(style="display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px;")
+        
+        label(style="border: 2px solid #cbd5e1; padding: 15px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: space-between;")
+          div(style="display: flex; align-items: center; gap: 12px;")
+            input(type="radio" name="tipoCliente" value="ESTANDAR" checked=(datos ? datos.tipoCliente === 'ESTANDAR' : (!usuarioCompleto.tipoCliente || usuarioCompleto.tipoCliente === 'ESTANDAR')))
+            <div>
+              strong(style="font-size: 16px; color: #1e293b;") Plan Estándar (Gratis)
+              p(style="margin: 3px 0 0 0; font-size: 13px; color: #64748b;") Sin costo mensual, acceso estándar a la cartelera.
+            </div>
+          span(style="font-weight: bold; color: #16a34a;") $0 / mes
+
+        label(style="border: 2px solid #cbd5e1; padding: 15px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: space-between;")
+          div(style="display: flex; align-items: center; gap: 12px;")
+            input(type="radio" name="tipoCliente" value="PREMIUM" checked=(datos ? datos.tipoCliente === 'PREMIUM' : usuarioCompleto.tipoCliente === 'PREMIUM'))
+            <div>
+              strong(style="font-size: 16px; color: #0284c7;") Plan Premium (15% de Descuento)
+              p(style="margin: 3px 0 0 0; font-size: 13px; color: #64748b;") Obtené un 15% de descuento en todas tus compras de entradas.
+            </div>
+          span(style="font-weight: bold; color: #0284c7;") $2.000 / mes
+
+        label(style="border: 2px solid #cbd5e1; padding: 15px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: space-between;")
+          div(style="display: flex; align-items: center; gap: 12px;")
+            input(type="radio" name="tipoCliente" value="VIP" checked=(datos ? datos.tipoCliente === 'VIP' : usuarioCompleto.tipoCliente === 'VIP'))
+            <div>
+              strong(style="font-size: 16px; color: #9333ea;") Plan VIP (30% de Descuento)
+              p(style="margin: 3px 0 0 0; font-size: 13px; color: #64748b;") Máximo beneficio con 30% de descuento y soporte prioritario.
+            </div>
+          span(style="font-weight: bold; color: #9333ea;") $5.000 / mes
+
+      div(style="background: #f8fafc; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 20px;")
+        h4(style="margin-top: 0; color: #334155; font-size: 15px;") 💳 Simulación de Pago (Obligatorio si elegiste Premium o VIP)
+        
+        div(style="margin-bottom: 12px;")
+          label(style="display: block; font-size: 13px; font-weight: bold; margin-bottom: 4px; color: #475569;") Titular de la Tarjeta:
+          input(type="text" name="titular" placeholder="Nombre y Apellido" value=(datos ? datos.titular : '') onkeypress="return (event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || event.charCode === 32 || event.charCode === 209 || event.charCode === 241" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box;")
           
-          label(style="border: 2px solid #cbd5e1; padding: 15px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: space-between;")
-            div(style="display: flex; align-items: center; gap: 12px;")
-              input(type="radio" name="tipoCliente" value="ESTANDAR" checked=(datos ? datos.tipoCliente === 'ESTANDAR' : (!usuarioCompleto.tipoCliente || usuarioCompleto.tipoCliente === 'ESTANDAR')))
-              <div>
-                strong(style="font-size: 16px; color: #1e293b;") Plan Estándar (Gratis)
-                p(style="margin: 3px 0 0 0; font-size: 13px; color: #64748b;") Sin costo mensual, acceso estándar a la cartelera.
-              </div>
-            span(style="font-weight: bold; color: #16a34a;") $0 / mes
+        div(style="margin-bottom: 12px;")
+          label(style="display: block; font-size: 13px; font-weight: bold; margin-bottom: 4px; color: #475569;") Número de Tarjeta (16 dígitos):
+          input(type="text" name="numeroTarjeta" maxlength="16" placeholder="4532XXXXXXXXXXXX" value=(datos ? datos.numeroTarjeta : '') onkeypress="return event.charCode >= 48 && event.charCode <= 57" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box;")
 
-          label(style="border: 2px solid #cbd5e1; padding: 15px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: space-between;")
-            div(style="display: flex; align-items: center; gap: 12px;")
-              input(type="radio" name="tipoCliente" value="PREMIUM" checked=(datos ? datos.tipoCliente === 'PREMIUM' : usuarioCompleto.tipoCliente === 'PREMIUM'))
-              <div>
-                strong(style="font-size: 16px; color: #0284c7;") Plan Premium (15% de Descuento)
-                p(style="margin: 3px 0 0 0; font-size: 13px; color: #64748b;") Obtené un 15% de descuento en todas tus compras de entradas.
-              </div>
-            span(style="font-weight: bold; color: #0284c7;") $2.000 / mes
+        div(style="display: flex; gap: 15px;")
+          div(style="flex: 1;")
+            label(style="display: block; font-size: 13px; font-weight: bold; margin-bottom: 4px; color: #475569;") Vencimiento (MM/AA):
+            input(type="text" name="vencimiento" maxlength="5" placeholder="MM/AA" value=(datos ? datos.vencimiento : '') onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode === 47" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box;")
+          div(style="flex: 1;")
+            label(style="display: block; font-size: 13px; font-weight: bold; margin-bottom: 4px; color: #475569;") CVV (3 números):
+            input(type="password" name="cvv" maxlength="3" placeholder="123" value=(datos ? datos.cvv : '') onkeypress="return event.charCode >= 48 && event.charCode <= 57" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box;")
 
-          label(style="border: 2px solid #cbd5e1; padding: 15px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: space-between;")
-            div(style="display: flex; align-items: center; gap: 12px;")
-              input(type="radio" name="tipoCliente" value="VIP" checked=(datos ? datos.tipoCliente === 'VIP' : usuarioCompleto.tipoCliente === 'VIP'))
-              <div>
-                strong(style="font-size: 16px; color: #9333ea;") Plan VIP (30% de Descuento)
-                p(style="margin: 3px 0 0 0; font-size: 13px; color: #64748b;") Máximo beneficio con 30% de descuento en entradas y soporte prioritario.
-              </div>
-            span(style="font-weight: bold; color: #9333ea;") $5.000 / mes
-
-        //- Sección de simulación de pago con restricciones estrictas
-        div(style="background: #f8fafc; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 20px;")
-          h4(style="margin-top: 0; color: #334155; font-size: 15px;") 💳 Simulación de Pago (Obligatorio si elegiste Premium o VIP)
-          
-          div(style="margin-bottom: 12px;")
-            label(style="display: block; font-size: 13px; font-weight: bold; margin-bottom: 4px;") Titular de la Tarjeta (Solo letras):
-            input(type="text" name="titular" placeholder="Nombre y Apellido" value=(datos ? datos.titular : '') onkeypress="return (event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || event.charCode === 32 || event.charCode === 209 || event.charCode === 241" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px; box-sizing: border-box;")
-            
-          div(style="margin-bottom: 12px;")
-            label(style="display: block; font-size: 13px; font-weight: bold; margin-bottom: 4px;") Número de Tarjeta (16 dígitos):
-            input(type="text" name="numeroTarjeta" maxlength="16" placeholder="4532XXXXXXXXXXXX" value=(datos ? datos.numeroTarjeta : '') onkeypress="return event.charCode >= 48 && event.charCode <= 57" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px; box-sizing: border-box;")
-
-          div(style="display: flex; gap: 15px;")
-            div(style="flex: 1;")
-              label(style="display: block; font-size: 13px; font-weight: bold; margin-bottom: 4px;") Vencimiento (MM/AA):
-              input(type="text" name="vencimiento" maxlength="5" placeholder="MM/AA" value=(datos ? datos.vencimiento : '') onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode === 47" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px; box-sizing: border-box;")
-            div(style="flex: 1;")
-              label(style="display: block; font-size: 13px; font-weight: bold; margin-bottom: 4px;") CVV (3 números):
-              input(type="password" name="cvv" maxlength="3" placeholder="123" value=(datos ? datos.cvv : '') onkeypress="return event.charCode >= 48 && event.charCode <= 57" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px; box-sizing: border-box;")
-
-        button(type="submit" style="width: 100%; background: #16a34a; color: white; border: none; padding: 12px; border-radius: 6px; font-weight: bold; font-size: 16px; cursor: pointer;") ✅ Confirmar y Continuar al Menú
+      button(type="submit" style="width: 100%; background: #16a34a; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; font-size: 15px; cursor: pointer;") ✅ Confirmar y Continuar

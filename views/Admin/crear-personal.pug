@@ -1,3 +1,4 @@
+pug
 doctype html
 html(lang="es")
   head
@@ -62,32 +63,15 @@ html(lang="es")
               option(value="Regular") Regular
 
         div(style="display: flex; justify-content: space-between; align-items: center;")
-          a(href="/admin/dashboard" style="color: #666; text-decoration: none; font-weight: bold;") ⬅️ Volver al Menú Principal
+          a(href="/admin/usuarios" style="color: #666; text-decoration: none; font-weight: bold;") ⬅️ Volver a Usuarios
           button(type="submit" style="background-color: #16a34a; color: white; border: none; padding: 12px 20px; border-radius: 6px; font-weight: bold; cursor: pointer;") ✅ Crear Usuario
 
       script.
-        const bloquearNumeros = (e) => {
-          const char = String.fromCharCode(e.keyCode || e.which);
-          if (/[0-9]/.test(char)) {
-            e.preventDefault();
-          }
-        };
-        document.querySelectorAll('input[name="nombre"], input[name="apellido"]').forEach(input => {
-          input.addEventListener('keypress', bloquearNumeros);
-          input.addEventListener('input', function() {
-            this.value = this.value.replace(/[0-9]/g, '');
+        document.addEventListener('DOMContentLoaded', () => {
+          document.querySelectorAll('input[name="nombre"], input[name="apellido"]').forEach(input => {
+            input.addEventListener('input', function() { this.value = this.value.replace(/[0-9]/g, ''); });
           });
-        });
-
-        const bloquearLetras = (e) => {
-          const char = String.fromCharCode(e.keyCode || e.which);
-          if (!/[0-9]/.test(char)) {
-            e.preventDefault();
-          }
-        };
-        document.querySelectorAll('input[name="dni"], input[name="telefono"]').forEach(input => {
-          input.addEventListener('keypress', bloquearLetras);
-          input.addEventListener('input', function() {
-            this.value = this.value.replace(/[^0-9]/g, '');
+          document.querySelectorAll('input[name="dni"], input[name="telefono"]').forEach(input => {
+            input.addEventListener('input', function() { this.value = this.value.replace(/[^0-9]/g, ''); });
           });
         });

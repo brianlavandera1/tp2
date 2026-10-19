@@ -26,13 +26,10 @@ html(lang="es")
         input(
           type="text" 
           name="busqueda" 
-          placeholder="🔍 Buscar por evento, cliente, correo, DNI, comprobante o ID..." 
+          placeholder="🔍 Buscar por evento, cliente, correo, DNI o comprobante..." 
           value=busqueda || '' 
           style="flex: 1; min-width: 280px; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; box-sizing: border-box;"
         )
-        
-        if filtroActual === 'hoy'
-          input(type="hidden" name="filtro" value="hoy")
 
         button(type="submit" style="background-color: #16a34a; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px;") Buscar
         
@@ -102,20 +99,3 @@ html(lang="es")
                       span(style="color: #94a3b8;") Sin detalle
 
                   td(style="padding: 12px; font-size: 12px;")
-                    div(style="color: #475569;") Subtotal: 
-                      strong $#{c.subtotal ? c.subtotal.toLocaleString('es-AR') : '0'}
-                    if c.descuentoAplicado > 0
-                      div(style="color: #dc2626; font-weight: bold; margin-top: 2px;") Descuento: -$#{c.descuentoAplicado.toLocaleString('es-AR')}
-                    else
-                      div(style="color: #94a3b8; margin-top: 2px;") Sin descuento
-
-                  td(style="padding: 12px; color: #475569;")
-                    div(style="font-weight: bold; color: #334155;")= c.medioPago || 'Tarjeta'
-                    div(style="font-size: 11px; color: #64748b;") **** #{c.tarjetaUltimosDigitos || '****'}
-
-                  td(style="padding: 12px;")
-                    div(style="font-weight: bold; color: #16a34a; font-size: 15px;") $#{c.total ? c.total.toLocaleString('es-AR') : '0'}
-
-                  td(style="padding: 12px; color: #64748b; font-size: 12px;")= c.fechaCompra ? new Date(c.fechaCompra).toLocaleString('es-AR') : '-'
-      else
-        p(style="color: #64748b; text-align: center; padding: 20px;") No se encontraron transacciones que coincidan con la búsqueda o los filtros seleccionados.

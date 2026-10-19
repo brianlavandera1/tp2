@@ -3,6 +3,7 @@ import Entrada from '../models/Entrada.js';
 import Evento from '../models/Evento.js';
 import Transaccion from '../models/Transaccion.js';
 import CancelacionLog from '../models/CancelacionLog.js';
+import bcrypt from 'bcrypt';
 
 export const mostrarMenu = async (req, res) => {
   const usuarioCompleto = await Usuario.findById(req.session.usuario._id);
@@ -21,7 +22,6 @@ export const mostrarMembresia = async (req, res) => {
 export const procesarMembresia = async (req, res) => {
   const { tipoCliente, titular, numeroTarjeta, vencimiento, cvv } = req.body;
   
-  // Validamos datos de tarjeta si eligió un plan pago
   if (['PREMIUM', 'VIP'].includes(tipoCliente)) {
     if (!titular || !/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(titular.trim())) {
       return res.status(400).render('Cliente/membresia', {
@@ -72,7 +72,8 @@ export const procesarMembresia = async (req, res) => {
 export const mostrarMisCompras = async (req, res) => {
   const misEntradasCompradas = await Entrada.find({ cliente: req.session.usuario._id }).populate({ path: 'evento', populate: ['sala', 'entidad'] });
   const misCompras = await Transaccion.find({ cliente: req.session.usuario._id }).sort({ fechaCompra: -1 });
-  res.render('Cliente/compras', { usuarioLogueado: req.session.usuario, misEntradasCompradas, misCompras });
+  
+  res.render('Cliente/mis-compras', { usuarioLogueado: req.session.usuario, misEntradasCompradas, misCompras });
 };
 
 export const cancelarEntrada = async (req, res) => {
@@ -87,4 +88,71 @@ export const cancelarEntrada = async (req, res) => {
 export const mostrarComprar = async (req, res) => {
   const eventosDisponibles = await Evento.find({}).populate('sala entidad');
   res.render('Cliente/comprar', { usuarioLogueado: req.session.usuario, eventos: eventosDisponibles, totalItemsCarrito: req.session.carrito?.length || 0, busqueda: '' });
+};
+
+// ⚙️ Nuevas funciones de Configuración de Perfil
+export const mostrarConfiguracion = async (req, res) => {
+  const usuario = await Usuario.findById(req.session.usuario._id);
+  res.render('Cliente/configuracion', { 
+    usuarioLogueado: req.session.usuario, 
+    usuarioCompleto: usuario, 
+    usuario, 
+    mensajeExito: req.query.exito,
+    error: null 
+  });
+};
+
+export const actualizarConfiguracion = async (req, res) => {
+  try {
+    const { nombre, apellido, email, telefono, nuevaPassword } = req.body;
+    const regexLetras = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
+    const regexTelefono = /^\d{10,15}$/;
+    const usuarioId = req.session.usuario._id;
+
+    const usuarioActual = await Usuario.findById(usuarioId);
+
+    if (!nombre || !regexLetras.test(nombre.trim()) || !apellido || !regexLetras.test(apellido.trim())) {
+      return res.status(400).render('Cliente/configuracion', { 
+        usuarioLogueado: req.session.usuario, 
+        usuarioCompleto: usuarioActual, 
+        usuario: { ...usuarioActual.toObject(), ...req.body }, 
+        error: 'El nombre y el apellido solo deben contener letras.' 
+      });
+    }
+
+    if (!telefono || !regexTelefono.test(telefono.trim())) {
+      return res.status(400).render('Cliente/configuracion', { 
+        usuarioLogueado: req.session.usuario, 
+        usuarioCompleto: usuarioActual, 
+        usuario: { ...usuarioActual.toObject(), ...req.body }, 
+        error: 'El teléfono debe contener entre 10 y 15 números.' 
+      });
+    }
+
+    const datosActualizar = { 
+      nombre: nombre.trim(), 
+      apellido: apellido.trim(), 
+      email: email.trim(), 
+      telefono: telefono.trim() 
+    };
+
+    if (nuevaPassword && nuevaPassword.trim() !== '') {
+      const salt = await bcrypt.genSalt(10);
+      datosActualizar.password = await bcrypt.hash(nuevaPassword.trim(), salt);
+    }
+
+    await Usuario.findByIdAndUpdate(usuarioId, datosActualizar);
+    
+    req.session.usuario.nombreUsuario = req.body.nombreUsuario || req.session.usuario.nombreUsuario;
+
+    res.redirect('/cliente/configuracion?exito=Perfil actualizado correctamente.');
+  } catch (error) {
+    const usuarioActual = await Usuario.findById(req.session.usuario._id);
+    res.status(400).render('Cliente/configuracion', { 
+      usuarioLogueado: req.session.usuario, 
+      usuarioCompleto: usuarioActual, 
+      usuario: usuarioActual, 
+      error: 'Ocurrió un error al actualizar los datos.' 
+    });
+  }
 };

@@ -1,96 +1,118 @@
-doctype html
-html(lang="es")
-  head
-    meta(charset="UTF-8")
-    title Comprar Entradas - Cartelera
-    style.
-      @keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(1.25); } 100% { transform: scale(1); } }
-      .animar-contador { animation: pop 0.3s ease-in-out; }
-  body(style="font-family: sans-serif; padding: 30px; max-width: 1000px; margin: auto; background-color: #f4f6f9;")
-    
-    div(style="background-color: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center;")
-      <div>
-        h2(style="margin: 0; color: #2c3e50;") 🎟️ Cartelera de Eventos
-        p(style="margin: 5px 0 0 0; color: #666; font-size: 13px;") Selecciona tus entradas y paga cuando estés listo.
-      </div>
-      div(style="display: flex; gap: 15px; align-items: center;")
-        a(href="/cliente/carrito" style="background: #ffc107; color: #333; padding: 10px 18px; border-radius: 6px; text-decoration: none; font-size: 14px; font-weight: bold; display: flex; align-items: center; gap: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);") 
-          | 🛒 Carrito <span id="badge-carrito" style="background: #dc3545; color: white; padding: 2px 8px; border-radius: 10px; font-size: 12px;">#{totalItemsCarrito || 0}</span>
-        a(href="/cliente/carrito" style="background: #16a34a; color: white; padding: 10px 18px; border-radius: 6px; text-decoration: none; font-size: 14px; font-weight: bold;") 💳 Pagar
-        a(href="/cliente/menu" style="background: #6c757d; color: white; padding: 10px 15px; border-radius: 6px; text-decoration: none; font-size: 14px; font-weight: bold;") ⬅️ Menú
+extends ../layoutCliente.pug
 
-    form(action="/cliente/comprar" method="GET" style="margin-bottom: 25px; display: flex; gap: 10px; max-width: 600px;")
-      input(type="text" name="buscar" placeholder="Buscar por evento, artista, productora..." value=(busqueda || '') style="flex: 1; padding: 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 15px;")
-      button(type="submit" style="background: #0ea5e9; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: bold; cursor: pointer;") 🔍 Buscar
+block headStyles
+  style.
+    @keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(1.25); } 100% { transform: scale(1); } }
+    .animar-contador { animation: pop 0.3s ease-in-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+    .alerta-flotante { animation: fadeIn 0.3s ease-in-out; }
+
+block content
+  //- 1. TÍTULO DE LA CARTELERA
+  div(style="background-color: #ffffff; padding: 20px 30px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); margin-bottom: 25px; border: 1px solid #e2e8f0;")
+    h2(style="margin: 0; color: #0f172a; font-size: 20px;") 🎟️ Cartelera de Eventos
+    p(style="margin: 5px 0 0 0; color: #64748b; font-size: 13px;") Selecciona tus entradas y paga cuando estés listo.
+
+  //- 2. CARTEL / BANNER FLOTANTE DE NOTIFICACIÓN CLARO Y DETALLADO
+  #notificacion-carrito(style="display: none; background-color: #d1e7dd; color: #0f5132; padding: 15px 20px; border-radius: 12px; margin-bottom: 25px; border: 1px solid #badbcc; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;" class="alerta-flotante")
+    div(style="display: flex; align-items: center; gap: 10px;")
+      span(style="font-size: 20px;") ✅
+      div
+        strong#texto-notificacion ¡Entrada agregada con éxito!
+        p(id="detalle-carrito" style="margin: 2px 0 0 0; font-size: 13px; color: #155724;") Ya puedes proceder al pago o seguir explorando la cartelera.
+    div(style="display: flex; gap: 10px;")
+      a(href="/cliente/carrito" id="btn-ver-carrito" style="background: #0284c7; color: white; padding: 8px 14px; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: bold;") 🛒 Ver Carrito
+      a(href="/cliente/carrito/checkout" style="background: #16a34a; color: white; padding: 8px 14px; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: bold;") 💳 Pagar Ahora
+
+  //- 3. BARRA DE BÚSQUEDA
+  div(style="background-color: #ffffff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); margin-bottom: 25px; border: 1px solid #e2e8f0;")
+    form(action="/cliente/comprar" method="GET" style="display: flex; gap: 10px; flex-wrap: wrap;")
+      input(type="text" name="buscar" placeholder="🔍 Buscar por evento, artista, productora..." value=(busqueda || '') style="flex: 1; min-width: 260px; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px;")
+      button(type="submit" style="background: #0ea5e9; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px;") Buscar
       if busqueda
-        a(href="/cliente/comprar" style="background: #64748b; color: white; padding: 12px 20px; text-decoration: none; border-radius: 6px; font-weight: bold;") Limpiar
+        a(href="/cliente/comprar" style="background: #64748b; color: white; padding: 10px 16px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 14px; display: inline-flex; align-items: center;") Limpiar
 
-    div(style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;")
-      if eventos && eventos.length > 0
-        each evento in eventos
-          div(style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; flex-direction: column; justify-content: space-between;")
-            div
-              h3(style="margin-top: 0; color: #1e293b; margin-bottom: 5px;") #{evento.nombre}
-              if evento.entidad
-                p(style="margin: 0 0 10px 0; color: #0284c7; font-weight: bold; font-size: 14px;") 🎭 Presenta: #{evento.entidad.nombre}
-              
-              p(style="color: #64748b; font-size: 13px; margin-bottom: 5px;") 
-                | 📅 <strong>Stock:</strong> 
-                if evento.entradasDisponibles > 0
-                  span(style="color: #047857; font-weight: bold;") #{evento.entradasDisponibles} disponibles
-                else
-                  span(style="color: #dc2626; font-weight: bold; background: #fee2e2; padding: 2px 6px; border-radius: 4px;") 🚫 ¡Stock Agotado!
-
-              p(style="color: #475569; font-size: 14px; margin-bottom: 15px;") #{evento.descripcion || 'Sin descripción.'}
+  //- 4. GRILLA DE EVENTOS
+  div(style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;")
+    if eventos && eventos.length > 0
+      each evento in eventos
+        div(style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; display: flex; flex-direction: column; justify-content: space-between;")
+          div
+            h3(style="margin-top: 0; color: #0f172a; margin-bottom: 5px;") #{evento.nombre}
+            if evento.entidad
+              p(style="margin: 0 0 10px 0; color: #0284c7; font-weight: bold; font-size: 13px;") 🎭 Presenta: #{evento.entidad.nombre}
             
-            form(onsubmit="agregarAlCarrito(event, this)" action="/cliente/carrito/agregar" method="POST" style="background: #f8fafc; padding: 15px; border-radius: 6px; border: 1px solid #e2e8f0;")
-              input(type="hidden" name="eventoId" value=evento._id)
-              input(type="hidden" name="maxStock" value=evento.entradasDisponibles)
-              
-              div(style="margin-bottom: 10px;")
-                label(style="display: block; font-size: 12px; font-weight: bold; margin-bottom: 5px;") Sector:
-                select(name="tipoEntrada" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;")
-                  option(value="General") General
-                  option(value="Platea") Platea
-                  option(value="VIP") VIP
-              
-              div(style="display: flex; gap: 10px; margin-bottom: 15px;")
-                div(style="flex: 1;")
-                  label(style="display: block; font-size: 12px; font-weight: bold; margin-bottom: 5px;") Precio ($):
-                  input(type="number" value=(evento.precio || 5000) readonly style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px; background: #e2e8f0;")
-                div(style="flex: 1;")
-                  label(style="display: block; font-size: 12px; font-weight: bold; margin-bottom: 5px;") Cantidad:
-                  input(type="number" name="cantidad" value="1" min="1" max=evento.entradasDisponibles style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;")
-              
+            p(style="color: #64748b; font-size: 13px; margin-bottom: 8px;") 
+              | 📅 <strong>Stock:</strong> 
               if evento.entradasDisponibles > 0
-                button(type="submit" class="btn-agregar" style="width: 100%; background: #0ea5e9; color: white; border: none; padding: 10px; border-radius: 4px; font-weight: bold; cursor: pointer;") ➕ Agregar al Carrito
+                span(style="color: #10b981; font-weight: bold;") #{evento.entradasDisponibles} disponibles
               else
-                button(type="button" disabled style="width: 100%; background: #94a3b8; color: white; border: none; padding: 10px; border-radius: 4px; font-weight: bold; cursor: not-allowed;") 🚫 Agotado
-      else
-        div(style="grid-column: 1 / -1; text-align: center; padding: 40px; background: white; border-radius: 8px;")
-          p(style="color: #666; font-size: 16px;") No se encontraron eventos para tu búsqueda.
+                span(style="color: #dc2626; font-weight: bold; background: #fee2e2; padding: 2px 6px; border-radius: 4px;") 🚫 ¡Agotado!
 
-    script.
-      async function agregarAlCarrito(event, form) {
-        event.preventDefault();
-        const cantidadInput = form.querySelector('input[name="cantidad"]');
-        const cantVal = parseInt(cantidadInput.value) || 0;
-        const maxStock = parseInt(form.querySelector('input[name="maxStock"]').value) || 0;
-        if (cantVal <= 0) { alert('Debes ingresar al menos 1 entrada.'); return; }
-        if (cantVal > maxStock) { alert(`El máximo disponible en stock es ${maxStock}.`); return; }
-        const formData = new URLSearchParams(new FormData(form));
-        const boton = form.querySelector('.btn-agregar');
-        try {
-          const response = await fetch(form.action, { method: 'POST', headers: { 'Accept': 'application/json' }, body: formData });
-          const data = await response.json();
-          if (data.success) {
-            const badge = document.getElementById('badge-carrito');
-            badge.innerText = data.totalItems;
-            badge.classList.add('animar-contador');
-            setTimeout(() => badge.classList.remove('animar-contador'), 300);
-            const textoOriginal = boton.innerHTML;
-            boton.innerHTML = '✅ ¡Agregado!'; boton.style.background = '#16a34a';
-            setTimeout(() => { boton.innerHTML = textoOriginal; boton.style.background = '#0ea5e9'; }, 1200);
-          } else { alert(data.message || 'Error al agregar al carrito.'); }
-        } catch (error) { alert('Ocurrió un error de conexión.'); }
-      }
+            p(style="color: #475569; font-size: 13px; margin-bottom: 15px; line-height: 1.4;") #{evento.descripcion || 'Sin descripción.'}
+          
+          form(onsubmit="agregarAlCarrito(event, this)" action="/cliente/carrito/agregar" method="POST" style="background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0;")
+            input(type="hidden" name="eventoId" value=evento._id)
+            input(type="hidden" name="maxStock" value=evento.entradasDisponibles)
+            
+            div(style="margin-bottom: 10px;")
+              label(style="display: block; font-size: 12px; font-weight: bold; margin-bottom: 4px; color: #475569;") Sector:
+              select(name="tipoEntrada" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; background: white;")
+                option(value="General") General
+                option(value="Platea") Platea
+                option(value="VIP") VIP
+            
+            div(style="display: flex; gap: 10px; margin-bottom: 12px;")
+              div(style="flex: 1;")
+                label(style="display: block; font-size: 12px; font-weight: bold; margin-bottom: 4px; color: #475569;") Precio ($):
+                input(type="number" value=(evento.precio || 5000) readonly style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; background: #e2e8f0; box-sizing: border-box;")
+              div(style="flex: 1;")
+                label(style="display: block; font-size: 12px; font-weight: bold; margin-bottom: 4px; color: #475569;") Cantidad:
+                input(type="number" name="cantidad" value="1" min="1" max=evento.entradasDisponibles style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; background: white; box-sizing: border-box;")
+            
+            if evento.entradasDisponibles > 0
+              button(type="submit" class="btn-agregar" style="width: 100%; background: #0ea5e9; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 13px;") ➕ Agregar al Carrito
+            else
+              button(type="button" disabled style="width: 100%; background: #94a3b8; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: not-allowed; font-size: 13px;") 🚫 Agotado
+    else
+      div(style="grid-column: 1 / -1; text-align: center; padding: 40px; background: white; border-radius: 12px; border: 1px solid #e2e8f0;")
+        p(style="color: #64748b; font-size: 15px;") No se encontraron eventos para tu búsqueda.
+
+  script.
+    async function agregarAlCarrito(event, form) {
+      event.preventDefault();
+      const cantidadInput = form.querySelector('input[name="cantidad"]');
+      const cantVal = parseInt(cantidadInput.value) || 0;
+      const maxStock = parseInt(form.querySelector('input[name="maxStock"]').value) || 0;
+      if (cantVal <= 0) { alert('Debes ingresar al menos 1 entrada.'); return; }
+      if (cantVal > maxStock) { alert(`El máximo disponible en stock es ${maxStock}.`); return; }
+      
+      const tarjeta = form.closest('div[style*="background: white"]');
+      const nombreEvento = tarjeta.querySelector('h3').innerText;
+
+      const formData = new URLSearchParams(new FormData(form));
+      const boton = form.querySelector('.btn-agregar');
+      try {
+        const response = await fetch(form.action, { method: 'POST', headers: { 'Accept': 'application/json' }, body: formData });
+        const data = await response.json();
+        if (data.success) {
+          const notificacion = document.getElementById('notificacion-carrito');
+          const textoNotif = document.getElementById('texto-notificacion');
+          const detalleCarrito = document.getElementById('detalle-carrito');
+          const btnVerCarrito = document.getElementById('btn-ver-carrito');
+
+          // Mensajes claros y descriptivos para el usuario
+          textoNotif.innerText = `¡Agregaste ${cantVal} entrada(s) de "${nombreEvento}"!`;
+          detalleCarrito.innerText = `🛒 En total tienes ${data.totalItems} entrada(s) acumuladas en tu carrito listo para pagar.`;
+          btnVerCarrito.innerText = `🛒 Ver Carrito (${data.totalItems})`;
+          
+          notificacion.style.display = 'flex';
+
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+
+          const textoOriginal = boton.innerHTML;
+          boton.innerHTML = '✅ ¡Agregado!'; boton.style.background = '#16a34a';
+          setTimeout(() => { boton.innerHTML = textoOriginal; boton.style.background = '#0ea5e9'; }, 1500);
+        } else { alert(data.message || 'Error al agregar al carrito.'); }
+      } catch (error) { alert('Ocurrió un error de conexión.'); }
+    }

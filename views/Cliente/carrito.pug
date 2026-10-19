@@ -1,47 +1,42 @@
-doctype html
-html(lang="es")
-  head
-    meta(charset="UTF-8")
-    title Carrito de Compras
-  body(style="font-family: sans-serif; padding: 30px; max-width: 900px; margin: auto; background-color: #f4f6f9;")
-    div(style="background-color: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center;")
-      h2(style="margin: 0; color: #2c3e50;") 🛒 Tu Carrito de Entradas
-      a(href="/cliente/menu" style="background: #6c757d; color: white; padding: 10px 15px; border-radius: 5px; text-decoration: none; font-weight: bold;") ⬅️ Volver al Menú
+extends ../layoutCliente.pug
+
+block content
+  div(style="background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;")
+    h2(style="margin-top: 0; color: #0f172a; margin-bottom: 20px; font-size: 20px;") 🛒 Tu Carrito de Entradas
     
-    div(style="background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);")
-      if carrito && carrito.length > 0
-        table(style="width: 100%; border-collapse: collapse; margin-bottom: 20px;")
-          thead
-            tr(style="background-color: #e2e8f0; text-align: left; font-size: 14px;")
-              th(style="padding: 12px; border: 1px solid #cbd5e1;") Evento
-              th(style="padding: 12px; border: 1px solid #cbd5e1;") Tipo
-              th(style="padding: 12px; border: 1px solid #cbd5e1;") Precio U.
-              th(style="padding: 12px; border: 1px solid #cbd5e1;") Cantidad
-              th(style="padding: 12px; border: 1px solid #cbd5e1;") Subtotal
-              th(style="padding: 12px; border: 1px solid #cbd5e1; text-align: center;") Acción
-          tbody
-            each item, index in carrito
-              tr(style="font-size: 13px;")
-                td(style="padding: 12px; border: 1px solid #e2e8f0; font-weight: bold;") #{item.nombreEvento}
-                td(style="padding: 12px; border: 1px solid #e2e8f0;") #{item.tipoEntrada}
-                td(style="padding: 12px; border: 1px solid #e2e8f0;") $#{item.precio}
-                td(style="padding: 12px; border: 1px solid #e2e8f0;") #{item.cantidad}
-                td(style="padding: 12px; border: 1px solid #e2e8f0; font-weight: bold; color: #0284c7;") $#{item.precio * item.cantidad}
-                td(style="padding: 12px; border: 1px solid #e2e8f0; text-align: center;")
-                  a(href=`/cliente/carrito/quitar/${index}` style="background-color: #dc3545; color: white; text-decoration: none; padding: 6px 12px; border-radius: 4px; font-weight: bold;") ❌ Quitar
-        
-        div(style="border-top: 2px solid #eee; padding-top: 15px; text-align: right; font-size: 15px; color: #334155;")
-          p(style="margin: 4px 0;") Subtotal: $#{subtotal}
-          if porcentajeDescuento > 0
-            p(style="margin: 4px 0; color: #16a34a; font-weight: bold;") Descuento por Membresía (#{porcentajeDescuento}%): -$#{descuentoAplicado}
-          h3(style="margin: 10px 0 20px 0; color: #2c3e50;") Total a Pagar: 
-            span(style="color: #16a34a; font-size: 22px;") $#{total}
-            
-        div(style="display: flex; justify-content: space-between; align-items: center;")
-          a(href="/cliente/comprar" style="color: #0284c7; text-decoration: none; font-weight: bold;") ➕ Seguir comprando
-          a(href="/cliente/carrito/checkout" style="background-color: #16a34a; color: white; padding: 12px 25px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 16px;") 💳 Ir a Pagar
+    if carrito && carrito.length > 0
+      table(style="width: 100%; border-collapse: collapse; margin-bottom: 20px;")
+        thead
+          tr(style="background-color: #f1f5f9; text-align: left; font-size: 13px; color: #475569;")
+            th(style="padding: 12px; border-bottom: 2px solid #cbd5e1;") Evento
+            th(style="padding: 12px; border-bottom: 2px solid #cbd5e1;") Tipo
+            th(style="padding: 12px; border-bottom: 2px solid #cbd5e1;") Precio U.
+            th(style="padding: 12px; border-bottom: 2px solid #cbd5e1;") Cantidad
+            th(style="padding: 12px; border-bottom: 2px solid #cbd5e1;") Subtotal
+            th(style="padding: 12px; border-bottom: 2px solid #cbd5e1; text-align: center;") Acción
+        tbody
+          each item, index in carrito
+            tr(style="font-size: 13px; border-bottom: 1px solid #e2e8f0;")
+              td(style="padding: 12px; font-weight: bold; color: #1e293b;") #{item.nombreEvento}
+              td(style="padding: 12px; color: #475569;") #{item.tipoEntrada}
+              td(style="padding: 12px; color: #475569;") $#{item.precio}
+              td(style="padding: 12px; color: #475569;") #{item.cantidad}
+              td(style="padding: 12px; font-weight: bold; color: #0284c7;") $#{item.precio * item.cantidad}
+              td(style="padding: 12px; text-align: center;")
+                a(href=`/cliente/carrito/quitar/${index}` style="background-color: #dc2626; color: white; text-decoration: none; padding: 6px 12px; border-radius: 6px; font-weight: bold; font-size: 12px;") ❌ Quitar
       
-      else
-        div(style="text-align: center; padding: 40px;")
-          p(style="color: #666; font-size: 16px; margin-bottom: 20px;") Tu carrito de compras está vacío.
-          a(href="/cliente/comprar" style="background: #007bff; color: white; padding: 12px 25px; border-radius: 5px; text-decoration: none; font-weight: bold;") 🎟️ Ir a la Cartelera
+      div(style="border-top: 2px solid #e2e8f0; padding-top: 15px; text-align: right; font-size: 15px; color: #334155;")
+        p(style="margin: 4px 0;") Subtotal: $#{subtotal}
+        if porcentajeDescuento > 0
+          p(style="margin: 4px 0; color: #10b981; font-weight: bold;") Descuento por Membresía (#{porcentajeDescuento}%): -$#{descuentoAplicado}
+        h3(style="margin: 10px 0 20px 0; color: #0f172a;") Total a Pagar: 
+          span(style="color: #16a34a; font-size: 22px;") $#{total}
+          
+      div(style="display: flex; justify-content: space-between; align-items: center;")
+        a(href="/cliente/comprar" style="color: #0284c7; text-decoration: none; font-weight: bold; font-size: 14px;") ➕ Seguir comprando
+        a(href="/cliente/carrito/checkout" style="background-color: #16a34a; color: white; padding: 12px 25px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 15px;") 💳 Ir a Pagar
+    
+    else
+      div(style="text-align: center; padding: 40px;")
+        p(style="color: #64748b; font-size: 15px; margin-bottom: 20px;") Tu carrito de compras está vacío.
+        a(href="/cliente/comprar" style="background: #0ea5e9; color: white; padding: 12px 25px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 14px;") 🎟️ Ir a la Cartelera

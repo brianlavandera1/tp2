@@ -1,40 +1,33 @@
-doctype html
-html(lang="es")
-  head
-    meta(charset="UTF-8")
-    title Menú Principal - Cliente
-  body(style="font-family: sans-serif; padding: 30px; max-width: 900px; margin: auto; background-color: #f4f6f9;")
-    
-    div(style="background-color: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 40px; display: flex; justify-content: space-between; align-items: center;")
-      div
-        p(style="margin: 0; color: #555; font-size: 16px;") Bienvenido de nuevo, 
-          strong(style="color: #333;") #{usuarioLogueado.nombreUsuario}
-        if usuarioCompleto
-          p(style="margin: 5px 0 0 0; font-size: 14px; color: #777;") Membresía actual: 
-            span(style="background: #e2e8f0; padding: 2px 8px; border-radius: 4px; font-weight: bold; color: #0284c7;") #{usuarioCompleto.tipoCliente}
+extends ../layoutCliente.pug
+
+block content
+  if mensajeExito
+    div(style="background-color: #d1e7dd; color: #0f5132; padding: 12px; margin-bottom: 25px; border-radius: 8px; font-weight: bold; border: 1px solid #badbcc;")
+      = mensajeExito
+
+  div(style="background-color: #ffffff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; margin-bottom: 30px;")
+    h2(style="margin-top: 0; color: #0f172a; font-size: 22px;") 👋 Bienvenido, #{usuarioLogueado.nombreUsuario}
+    p(style="color: #64748b; margin: 5px 0 0 0; font-size: 14px;") Selecciona una opción para gestionar tus compras, entradas o membresía.
+
+  h3(style="color: #0f172a; margin-bottom: 20px; font-size: 18px;") ⚡ Accesos Rápidos
+
+  div(style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px;")
+    a(href="/cliente/comprar" style="background: #ffffff; padding: 25px; border-radius: 12px; text-decoration: none; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.02); display: flex; flex-direction: column; align-items: center; text-align: center;") 
+      span(style="font-size: 40px; margin-bottom: 10px;") 🎟️
+      h4(style="margin: 0 0 5px 0; color: #0f172a; font-size: 16px;") Ver Cartelera
+      p(style="margin: 0; font-size: 13px; color: #64748b;") Explora eventos y compra entradas
+
+    a(href="/cliente/carrito" style="background: #ffffff; padding: 25px; border-radius: 12px; text-decoration: none; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.02); display: flex; flex-direction: column; align-items: center; text-align: center;") 
+      span(style="font-size: 40px; margin-bottom: 10px;") 🛒
+      h4(style="margin: 0 0 5px 0; color: #0f172a; font-size: 16px;") Mi Carrito
+      p(style="margin: 0; font-size: 13px; color: #64748b;") Revisa tus ítems seleccionados
       
-      div
-        a(href="/auth/logout" style="background: #dc3545; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none; font-weight: bold; font-size: 14px;") 🚪 Cerrar Sesión
+    a(href="/cliente/mis-compras" style="background: #ffffff; padding: 25px; border-radius: 12px; text-decoration: none; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.02); display: flex; flex-direction: column; align-items: center; text-align: center;") 
+      span(style="font-size: 40px; margin-bottom: 10px;") 📦
+      h4(style="margin: 0 0 5px 0; color: #0f172a; font-size: 16px;") Mis Entradas
+      p(style="margin: 0; font-size: 13px; color: #64748b;") Historial y tickets vigentes
 
-    if mensajeExito
-      div(style="background-color: #d4edda; color: #155724; padding: 12px; margin-bottom: 25px; border-radius: 6px; font-weight: bold;")
-        = mensajeExito
-
-    h1(style="color: #2c3e50; text-align: center; margin-bottom: 40px;") Panel Principal
-
-    div(style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;")
-      a(href="/cliente/comprar" style="background-color: #007bff; color: white; padding: 35px 20px; text-align: center; text-decoration: none; border-radius: 12px; font-size: 18px; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.1); display: flex; flex-direction: column; align-items: center; justify-content: center;") 
-        div(style="font-size: 40px; margin-bottom: 15px;") 🎟️
-        | Ver Cartelera
-      
-      a(href="/cliente/carrito" style="background-color: #ffc107; color: #333; padding: 35px 20px; text-align: center; text-decoration: none; border-radius: 12px; font-size: 18px; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.1); display: flex; flex-direction: column; align-items: center; justify-content: center;") 
-        div(style="font-size: 40px; margin-bottom: 15px;") 🛒
-        | Mi Carrito
-        
-      a(href="/cliente/mis-compras" style="background-color: #28a745; color: white; padding: 35px 20px; text-align: center; text-decoration: none; border-radius: 12px; font-size: 18px; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.1); display: flex; flex-direction: column; align-items: center; justify-content: center;") 
-        div(style="font-size: 40px; margin-bottom: 15px;") 📦
-        | Mis Entradas y Recibos
-
-      a(href="/cliente/membresia" style="background-color: #8b5cf6; color: white; padding: 35px 20px; text-align: center; text-decoration: none; border-radius: 12px; font-size: 18px; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.1); display: flex; flex-direction: column; align-items: center; justify-content: center;") 
-        div(style="font-size: 40px; margin-bottom: 15px;") ⭐
-        | Cambiar Membresía / Beneficios
+    a(href="/cliente/membresia" style="background: #ffffff; padding: 25px; border-radius: 12px; text-decoration: none; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.02); display: flex; flex-direction: column; align-items: center; text-align: center;") 
+      span(style="font-size: 40px; margin-bottom: 10px;") ⭐
+      h4(style="margin: 0 0 5px 0; color: #0f172a; font-size: 16px;") Membresía
+      p(style="margin: 0; font-size: 13px; color: #64748b;") Cambia de plan y obtén beneficios

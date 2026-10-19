@@ -1,0 +1,47 @@
+extends ../layoutCliente.pug
+
+block content
+  div(style="background-color: #ffffff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; max-width: 650px; margin: auto;")
+    h2(style="margin-top: 0; color: #0f172a; font-size: 20px;") ⚙️ Configuración de Perfil
+    p(style="color: #64748b; font-size: 13px; margin-bottom: 20px;") Actualiza tus datos personales o cambia tu contraseña.
+
+    if mensajeExito
+      div(style="background-color: #d1e7dd; color: #0f5132; padding: 12px; border-radius: 8px; margin-bottom: 20px; font-weight: bold; border: 1px solid #badbcc; font-size: 13px;")
+        = mensajeExito
+
+    if error
+      div(style="background-color: #fee2e2; color: #dc2626; padding: 12px; border-radius: 8px; margin-bottom: 20px; font-weight: bold; border: 1px solid #fecaca; font-size: 13px;")
+        = error
+
+    form(action="/cliente/configuracion" method="POST")
+      
+      div(style="margin-bottom: 15px;")
+        label(style="display: block; font-size: 13px; font-weight: bold; margin-bottom: 5px; color: #475569;") Nombre de Usuario (No modificable):
+        input(type="text" value=usuario.nombreUsuario disabled style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; background: #f1f5f9; color: #64748b; box-sizing: border-box;")
+
+      div(style="display: flex; gap: 15px; margin-bottom: 15px;")
+        div(style="flex: 1;")
+          label(style="display: block; font-size: 13px; font-weight: bold; margin-bottom: 5px; color: #475569;") Nombre:
+          input(type="text" name="nombre" value=usuario.nombre required onkeypress="return (event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || event.charCode === 32 || event.charCode === 209 || event.charCode === 241" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box;")
+        
+        div(style="flex: 1;")
+          label(style="display: block; font-size: 13px; font-weight: bold; margin-bottom: 5px; color: #475569;") Apellido:
+          input(type="text" name="apellido" value=usuario.apellido required onkeypress="return (event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || event.charCode === 32 || event.charCode === 209 || event.charCode === 241" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box;")
+
+      div(style="margin-bottom: 15px;")
+        label(style="display: block; font-size: 13px; font-weight: bold; margin-bottom: 5px; color: #475569;") Correo Electrónico:
+        input(type="email" name="email" value=usuario.email required style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box;")
+
+      div(style="margin-bottom: 20px;")
+        label(style="display: block; font-size: 13px; font-weight: bold; margin-bottom: 5px; color: #475569;") Teléfono (10 a 15 dígitos):
+        input(type="text" name="telefono" value=usuario.telefono required minlength="10" maxlength="15" onkeypress="return event.charCode >= 48 && event.charCode <= 57" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box;")
+
+      div(style="background: #f8fafc; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 20px;")
+        h4(style="margin-top: 0; color: #1e293b; font-size: 14px; margin-bottom: 10px;") 🔒 Cambiar Contraseña (Opcional)
+        p(style="margin: 0 0 12px 0; font-size: 12px; color: #64748b;") Déjalo en blanco si no deseas modificar tu contraseña actual.
+        
+        div(style="margin-bottom: 12px;")
+          label(style="display: block; font-size: 13px; font-weight: bold; margin-bottom: 5px; color: #475569;") Nueva Contraseña:
+          input(type="password" name="nuevaPassword" placeholder="••••••••" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box;")
+
+      button(type="submit" style="width: 100%; background: #0ea5e9; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; font-size: 15px; cursor: pointer;") 💾 Guardar Cambios

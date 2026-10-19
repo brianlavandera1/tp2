@@ -1,0 +1,37 @@
+doctype html
+html(lang="es")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1")
+    title Sistema de Gestión
+  body(style="font-family: 'Segoe UI', system-ui, sans-serif; padding: 30px; max-width: 1200px; margin: auto; background-color: #f8fafc; color: #1e293b;")
+    
+    //- HEADER GLOBAL (Muestra quién está logueado)
+    header(style="background-color: #ffffff; padding: 20px 30px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0;")
+      div(style="display: flex; align-items: center; gap: 10px;")
+        span(style="font-size: 24px;") 🏢
+        h1(style="margin: 0; color: #0f172a; font-size: 22px;") Mi Empresa - Gestión
+      
+      if usuarioLogueado
+        div(style="display: flex; align-items: center; gap: 15px;")
+          div(style="text-align: right;")
+            span(style="display: block; font-size: 14px; font-weight: bold; color: #1e293b;")= usuarioLogueado.nombreUsuario
+            span(style="display: block; font-size: 12px; color: #64748b; background: #f1f5f9; padding: 2px 6px; border-radius: 4px; display: inline-block;")= usuarioLogueado.rol
+          a(href="/auth/logout" style="background: #fee2e2; color: #dc2626; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: bold; border: 1px solid #fecaca;") 🚪 Salir
+
+    //- NAV GLOBAL (El menú de botones que siempre se verá)
+    nav(style="background: #ffffff; padding: 12px 20px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); margin-bottom: 25px; display: flex; gap: 10px; flex-wrap: wrap; border: 1px solid #e2e8f0; align-items: center;")
+      span(style="font-size: 12px; font-weight: bold; color: #94a3b8; text-transform: uppercase; margin-right: 5px;") 📌 Menú:
+      a(href="/admin/dashboard" style="color: #475569; text-decoration: none; font-size: 13px; font-weight: 600; padding: 7px 12px; border-radius: 6px; background: #f1f5f9;") 🏠 Panel
+      if usuarioLogueado && ['Administrador', 'Supervisor'].includes(usuarioLogueado.rol)
+        a(href="/admin/boleteria" style="color: #475569; text-decoration: none; font-size: 13px; font-weight: 600; padding: 7px 12px; border-radius: 6px; background: #f1f5f9;") 🎫 Boletería
+      a(href="/admin/usuarios" style="color: #475569; text-decoration: none; font-size: 13px; font-weight: 600; padding: 7px 12px; border-radius: 6px; background: #f1f5f9;") 👥 Usuarios
+      a(href="/admin/pagos" style="color: #475569; text-decoration: none; font-size: 13px; font-weight: 600; padding: 7px 12px; border-radius: 6px; background: #f1f5f9;") 💳 Pagos
+      a(href="/admin/informe" style="color: #475569; text-decoration: none; font-size: 13px; font-weight: 600; padding: 7px 12px; border-radius: 6px; background: #f1f5f9;") 📊 Informes
+      a(href="/admin/eventos" style="color: #475569; text-decoration: none; font-size: 13px; font-weight: 600; padding: 7px 12px; border-radius: 6px; background: #f1f5f9;") 🎭 Eventos
+      a(href="/admin/salas" style="color: #475569; text-decoration: none; font-size: 13px; font-weight: 600; padding: 7px 12px; border-radius: 6px; background: #f1f5f9;") 🏢 Salas
+      a(href="/admin/cancelaciones" style="color: #475569; text-decoration: none; font-size: 13px; font-weight: 600; padding: 7px 12px; border-radius: 6px; background: #f1f5f9;") 🛡️ Cancelaciones
+
+    //- ÁREA DINÁMICA (Acá se carga el resto de las páginas)
+    main
+      block content

@@ -1,51 +1,64 @@
+<ElicitationsGroup>
+
 doctype html
 html(lang="es")
   head
     meta(charset="UTF-8")
-    title Registro de Usuario
-  body(style="font-family: sans-serif; max-width: 500px; margin: 30px auto;")
-    h2 Registro de Usuario
+    meta(name="viewport" content="width=device-width, initial-scale=1")
+    title Registro de Usuario - Mi Empresa
+  body(style="font-family: 'Segoe UI', system-ui, sans-serif; background-color: #f8fafc; color: #1e293b; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box;")
     
-    if error
-      div(style="background-color: #f8d7da; color: #721c24; padding: 10px; margin-bottom: 15px; border-radius: 4px; border: 1px solid #f5c6cb;")
-        strong ⚠️ Error: 
-        = error
-
-    form(action="/auth/registro" method="POST")
-      div(style="margin-bottom: 10px;")
-        label(for="nombreUsuario") Nombre de Usuario:
-        input#nombreUsuario(type="text" name="nombreUsuario" value=(datos ? datos.nombreUsuario : '') required style="width: 100%; padding: 6px;")
-
-      div(style="margin-bottom: 10px;")
-        label(for="nombre") Nombre:
-        input#nombre(type="text" name="nombre" value=(datos ? datos.nombre : '') required style="width: 100%; padding: 6px;" onkeypress="return event.charCode < 48 || event.charCode > 57")
-        
-      div(style="margin-bottom: 10px;")
-        label(for="apellido") Apellido:
-        input#apellido(type="text" name="apellido" value=(datos ? datos.apellido : '') required style="width: 100%; padding: 6px;" onkeypress="return event.charCode < 48 || event.charCode > 57")
-        
-      div(style="margin-bottom: 10px;")
-        label(for="email") Email:
-        input#email(type="email" name="email" value=(datos ? datos.email : '') required style="width: 100%; padding: 6px;" placeholder="correo@ejemplo.com")
-        
-      div(style="margin-bottom: 10px;")
-        label(for="password") Contraseña:
-        input#password(type="password" name="password" required style="width: 100%; padding: 6px;")
-        
-      div(style="margin-bottom: 10px;")
-        label(for="dni") DNI:
-        input#dni(type="text" name="dni" value=(datos ? datos.dni : '') required maxlength="8" style="width: 100%; padding: 6px;" placeholder="Ej: 12345678" onkeypress="return event.charCode >= 48 && event.charCode <= 57")
-        
-      div(style="margin-bottom: 10px;")
-        label(for="fechaNacimiento") Fecha de Nacimiento:
-        input#fechaNacimiento(type="date" name="fechaNacimiento" value=(datos ? datos.fechaNacimiento : '') required style="width: 100%; padding: 6px;")
-        
-      div(style="margin-bottom: 15px;")
-        label(for="telefono") Teléfono:
-        input#telefono(type="tel" name="telefono" value=(datos ? datos.telefono : '') required pattern="[0-9]{10}" maxlength="10" style="width: 100%; padding: 6px;" placeholder="Ej: 1123456789" onkeypress="return event.charCode >= 48 && event.charCode <= 57")
-
-      div
-        button(type="submit" style="width: 100%; padding: 10px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer;") Registrarse
+    div(style="background-color: #ffffff; padding: 35px; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05), 0 4px 6px -2px rgba(0,0,0,0.025); border: 1px solid #e2e8f0; width: 100%; max-width: 450px;")
       
-      p(style="margin-top: 15px;") ¿Ya tienes cuenta? 
-        a(href="/auth/login") Inicia sesión aquí
+      div(style="text-align: center; margin-bottom: 25px;")
+        span(style="font-size: 32px;") 📝
+        h2(style="margin: 10px 0 5px 0; color: #0f172a; font-size: 22px;") Crear una cuenta
+        p(style="margin: 0; color: #64748b; font-size: 13px;") Completa tus datos para registrarte en el sistema.
+
+      if error
+        div(style="background-color: #fee2e2; color: #dc2626; padding: 12px; margin-bottom: 20px; border-radius: 8px; font-size: 13px; font-weight: bold; border: 1px solid #fecaca; display: flex; align-items: center; gap: 8px;")
+          span ⚠️
+          span= error
+
+      form(action="/auth/registro" method="POST")
+        
+        div(style="margin-bottom: 15px;")
+          label(for="nombreUsuario" style="display: block; font-size: 13px; font-weight: bold; margin-bottom: 5px; color: #475569;") Nombre de Usuario:
+          input#nombreUsuario(type="text" name="nombreUsuario" value=(datos ? datos.nombreUsuario : '') required placeholder="Ej: juanperez" style="width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; box-sizing: border-box; outline: none;")
+
+        div(style="display: flex; gap: 12px; margin-bottom: 15px;")
+          div(style="flex: 1;")
+            label(for="nombre" style="display: block; font-size: 13px; font-weight: bold; margin-bottom: 5px; color: #475569;") Nombre:
+            input#nombre(type="text" name="nombre" value=(datos ? datos.nombre : '') required placeholder="Solo letras" onkeypress="return (event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || event.charCode === 32 || event.charCode === 209 || event.charCode === 241" style="width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; box-sizing: border-box; outline: none;")
+          
+          div(style="flex: 1;")
+            label(for="apellido" style="display: block; font-size: 13px; font-weight: bold; margin-bottom: 5px; color: #475569;") Apellido:
+            input#apellido(type="text" name="apellido" value=(datos ? datos.apellido : '') required placeholder="Solo letras" onkeypress="return (event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || event.charCode === 32 || event.charCode === 209 || event.charCode === 241" style="width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; box-sizing: border-box; outline: none;")
+          
+        div(style="margin-bottom: 15px;")
+          label(for="email" style="display: block; font-size: 13px; font-weight: bold; margin-bottom: 5px; color: #475569;") Correo Electrónico:
+          input#email(type="email" name="email" value=(datos ? datos.email : '') required placeholder="correo@ejemplo.com" style="width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; box-sizing: border-box; outline: none;")
+          
+        div(style="margin-bottom: 15px;")
+          label(for="password" style="display: block; font-size: 13px; font-weight: bold; margin-bottom: 5px; color: #475569;") Contraseña:
+          input#password(type="password" name="password" required placeholder="••••••••" style="width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; box-sizing: border-box; outline: none;")
+        
+        div(style="display: flex; gap: 12px; margin-bottom: 15px;")
+          div(style="flex: 1;")
+            label(for="dni" style="display: block; font-size: 13px; font-weight: bold; margin-bottom: 5px; color: #475569;") DNI (7 a 8 dígitos):
+            input#dni(type="text" name="dni" value=(datos ? datos.dni : '') required minlength="7" maxlength="8" placeholder="Ej: 35123456" onkeypress="return event.charCode >= 48 && event.charCode <= 57" style="width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; box-sizing: border-box; outline: none;")
+          
+          div(style="flex: 1;")
+            label(for="telefono" style="display: block; font-size: 13px; font-weight: bold; margin-bottom: 5px; color: #475569;") Teléfono (10 a 15):
+            input#telefono(type="text" name="telefono" value=(datos ? datos.telefono : '') required minlength="10" maxlength="15" placeholder="Ej: 1123456789" onkeypress="return event.charCode >= 48 && event.charCode <= 57" style="width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; box-sizing: border-box; outline: none;")
+        
+        div(style="margin-bottom: 25px;")
+          label(for="fechaNacimiento" style="display: block; font-size: 13px; font-weight: bold; margin-bottom: 5px; color: #475569;") Fecha de Nacimiento (+18 años):
+          input#fechaNacimiento(type="date" name="fechaNacimiento" value=(datos ? datos.fechaNacimiento : '') required style="width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; box-sizing: border-box; outline: none; background: white;")
+
+        div(style="margin-bottom: 20px;")
+          button(type="submit" style="width: 100%; padding: 12px; background-color: #16a34a; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 15px; cursor: pointer; transition: background 0.2s;") Registrarse
+      
+      div(style="text-align: center; border-top: 1px solid #e2e8f0; padding-top: 20px;")
+        p(style="margin: 0; font-size: 13px; color: #64748b;") ¿Ya tienes cuenta? 
+          a(href="/auth/login" style="color: #0284c7; text-decoration: none; font-weight: bold;") Inicia sesión aquí

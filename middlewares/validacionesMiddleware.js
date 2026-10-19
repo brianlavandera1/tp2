@@ -24,10 +24,11 @@ const validarRegistro = (req, res, next) => {
     });
   }
 
-  const regexTelefono = /^\d{10}$/;
+  // ✅ Actualizado: Teléfono de 10 a 15 dígitos numéricos
+  const regexTelefono = /^\d{10,15}$/;
   if (!telefono || !regexTelefono.test(telefono.trim())) {
     return res.status(400).render('auth/registro', { 
-      error: 'El teléfono debe contener exactamente 10 números.',
+      error: 'El teléfono debe contener entre 10 y 15 números.',
       datos: req.body 
     });
   }
