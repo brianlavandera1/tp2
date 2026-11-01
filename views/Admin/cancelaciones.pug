@@ -1,4 +1,5 @@
 extends ../layout.pug
+include ../partials/paginacion.pug
 
 block titulo
   | Cancelaciones · Urbana Cult
@@ -35,6 +36,7 @@ block content
                   span.codigo= cancel.codigoBoleto
                 td.num= cancel.cantidad
                 td= new Date(cancel.fechaCancelacion).toLocaleString('es-AR')
+      +paginacion(paginacion, "cancelaciones")
     else
       .vacio
         .icono-vacio ↩️

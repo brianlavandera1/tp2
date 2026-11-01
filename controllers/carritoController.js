@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import Evento from '../models/Evento.js';
 import Entrada from '../models/Entrada.js';
 import Transaccion from '../models/Transaccion.js';
+import { conTransaccion } from '../utils/transaccion.js';
 
 export const verCarrito = (req, res) => {
   const carrito = req.session.carrito || [];
@@ -135,53 +136,47 @@ export const procesarPago = async (req, res) => {
     return volverAlCheckout(`Algunos precios cambiaron desde que agregaste las entradas: ${cambios.join(', ')}. Revisá el nuevo total y confirmá el pago.`);
   }
 
-  const entradasCreadas = [];
-  const reservasRealizadas = [];
+  const subtotal = carrito.reduce((a, b) => a + (b.precio * b.cantidad), 0);
+  const descuentoAplicado = Number((subtotal * (req.session.usuario.porcentajeDescuento || 0)).toFixed(2));
+  // Solo se guardan los últimos 4 dígitos de la tarjeta
+  const numTarjeta = req.body.numeroTarjeta ? req.body.numeroTarjeta.trim() : '';
+  const ultimosDigitos = numTarjeta.length >= 4 ? numTarjeta.slice(-4) : '****';
 
   try {
-    const subtotal = carrito.reduce((a, b) => a + (b.precio * b.cantidad), 0);
-    const descuentoAplicado = Number((subtotal * (req.session.usuario.porcentajeDescuento || 0)).toFixed(2));
-    // Id generado de antemano para vincular cada entrada con su transacción
-    const transaccionId = new mongoose.Types.ObjectId();
+    // Reserva de cupos + entradas + transacción: o se guarda todo, o nada
+    const nuevaTransaccion = await conTransaccion(async ({ session, alDeshacer }) => {
+      // Id generado de antemano para vincular cada entrada con su transacción
+      const transaccionId = new mongoose.Types.ObjectId();
 
-    for (const item of carrito) {
-      // 1. Reservamos la zona
-      await Evento.reservarZona(item.eventoId, item.tipoEntrada, item.cantidad);
-      reservasRealizadas.push({ eventoId: item.eventoId, zona: item.tipoEntrada, cantidad: item.cantidad });
+      for (const item of carrito) {
+        await Evento.reservarZona(item.eventoId, item.tipoEntrada, item.cantidad, session);
+        alDeshacer(() => Evento.liberarZona(item.eventoId, item.tipoEntrada, item.cantidad));
 
-      // 2. Creamos la entrada
-      const nuevaEntrada = await Entrada.create({
-        cliente: req.session.usuario._id, evento: item.eventoId, transaccion: transaccionId, nombre: item.nombreEvento,
-        precio: item.precio, cantidad: item.cantidad, sector: item.tipoEntrada
-      });
-      entradasCreadas.push(nuevaEntrada._id);
-    }
+        const entrada = await new Entrada({
+          cliente: req.session.usuario._id, evento: item.eventoId, transaccion: transaccionId, nombre: item.nombreEvento,
+          precio: item.precio, cantidad: item.cantidad, sector: item.tipoEntrada
+        }).save({ session });
+        alDeshacer(() => Entrada.findByIdAndDelete(entrada._id));
+      }
 
-    // Extraemos los últimos 4 dígitos de la tarjeta para guardarlos correctamente
-    const numTarjeta = req.body.numeroTarjeta ? req.body.numeroTarjeta.trim() : '';
-    const ultimosDigitos = numTarjeta.length >= 4 ? numTarjeta.slice(-4) : '****';
-
-    const nuevaTransaccion = await Transaccion.create({
-      _id: transaccionId,
-      canal: 'Online',
-      cliente: req.session.usuario._id,
-      nombreCliente: req.session.usuario.nombreUsuario, 
-      items: carrito,
-      subtotal, 
-      descuentoAplicado, 
-      total: Number((subtotal - descuentoAplicado).toFixed(2)),
-      medioPago: req.body.medioPago || 'Tarjeta', 
-      tarjetaUltimosDigitos: ultimosDigitos,
-      comprobanteId: 'REC-' + Date.now()
+      return new Transaccion({
+        _id: transaccionId,
+        canal: 'Online',
+        cliente: req.session.usuario._id,
+        nombreCliente: req.session.usuario.nombreUsuario,
+        items: carrito,
+        subtotal,
+        descuentoAplicado,
+        total: Number((subtotal - descuentoAplicado).toFixed(2)),
+        medioPago: req.body.medioPago || 'Tarjeta',
+        tarjetaUltimosDigitos: ultimosDigitos,
+        comprobanteId: 'REC-' + Date.now()
+      }).save({ session });
     });
 
     req.session.carrito = [];
     res.render('Cliente/comprobante', { usuarioLogueado: req.session.usuario, transaccion: nuevaTransaccion });
   } catch (error) {
-    // 🔄 ROLLBACK MANUAL: Si algo falla, borramos lo que creamos
-    for (const entradaId of entradasCreadas) await Entrada.findByIdAndDelete(entradaId);
-    for (const resv of reservasRealizadas) await Evento.liberarZona(resv.eventoId, resv.zona, resv.cantidad);
-    
-    res.status(400).send('No se pudo completar la transacción: ' + error.message);
+    volverAlCheckout(`No se pudo completar la compra: ${error.message}`);
   }
 };

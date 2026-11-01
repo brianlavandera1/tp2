@@ -3,7 +3,11 @@ import CancelacionLog from '../models/CancelacionLog.js';
 import Transaccion from '../models/Transaccion.js';
 import Evento from '../models/Evento.js';
 import Entrada from '../models/Entrada.js';
+import mongoose from 'mongoose';
 import crypto from 'crypto';
+import { conTransaccion } from '../utils/transaccion.js';
+import { generarQR, urlValidacion } from '../utils/qr.js';
+import { paginar } from '../utils/paginar.js';
 import bcrypt from 'bcrypt';
 import { escapeRegex } from '../utils/escapeRegex.js';
 import { ZONAS } from '../models/Sala.js';
@@ -75,8 +79,8 @@ export const registrarPersonalInterno = async (req, res) => {
 };
 
 export const listarUsuarios = async (req, res) => {
-  const usuarios = await Usuario.find().sort({ createdAt: -1 });
-  res.render('Admin/usuarios', { usuarioLogueado: req.session.usuario, usuarios, exito: req.query.exito });
+  const { docs: usuarios, paginacion } = await paginar(Usuario, {}, req, { orden: { createdAt: -1 } });
+  res.render('Admin/usuarios', { usuarioLogueado: req.session.usuario, usuarios, paginacion, exito: req.query.exito });
 };
 
 export const mostrarFormularioEditarUsuario = async (req, res) => {
@@ -150,11 +154,12 @@ export const listarAuditoriaPagos = async (req, res) => {
       }
     }
 
-    const compras = await Transaccion.find(query).populate('cliente').sort({ fechaCompra: -1 });
+    const { docs: compras, paginacion } = await paginar(Transaccion, query, req, { orden: { fechaCompra: -1 }, populate: 'cliente' });
 
-    res.render('Admin/auditoriaPagos', { 
-      usuarioLogueado: req.session.usuario, 
-      compras, 
+    res.render('Admin/auditoriaPagos', {
+      usuarioLogueado: req.session.usuario,
+      compras,
+      paginacion,
       busqueda: busqueda || '',
       filtroActual: filtro || ''
     });
@@ -179,9 +184,9 @@ export const listarCancelaciones = async (req, res) => {
       query = { $or: condiciones };
     }
 
-    const cancelaciones = await CancelacionLog.find(query).sort({ fechaCancelacion: -1 });
+    const { docs: cancelaciones, paginacion } = await paginar(CancelacionLog, query, req, { orden: { fechaCancelacion: -1 } });
 
-    res.render('Admin/cancelaciones', { usuarioLogueado: req.session.usuario, cancelaciones, busqueda: busqueda || '' });
+    res.render('Admin/cancelaciones', { usuarioLogueado: req.session.usuario, cancelaciones, paginacion, busqueda: busqueda || '' });
   } catch (error) {
     console.error('Error al listar cancelaciones:', error);
     res.status(500).send('Error interno al obtener el historial de cancelaciones');
@@ -235,53 +240,41 @@ export const procesarVentaFisica = async (req, res) => {
       });
     }
 
-    // Reserva atómica del cupo: misma lógica que la compra online, evita sobreventa
-    const evento = await Evento.reservarZona(eventoId, tipoEntrada, cantidad);
-    const transaccionId = new Transaccion()._id;
-    let entradaCreada = null;
-    try {
-      entradaCreada = await Entrada.create({
+    const subtotal = parseFloat(precioUnitario) * cantidad;
+    // El pago en efectivo tiene 25% de descuento
+    const descuentoAplicado = medioPago === 'Efectivo' ? subtotal * 0.25 : 0;
+    const total = subtotal - descuentoAplicado;
+
+    // Reserva del cupo + entrada + venta en una sola transacción (misma lógica que la compra online)
+    const { nuevaVenta, entradaCreada } = await conTransaccion(async ({ session, alDeshacer }) => {
+      const evento = await Evento.reservarZona(eventoId, tipoEntrada, cantidad, session);
+      alDeshacer(() => Evento.liberarZona(eventoId, tipoEntrada, cantidad));
+      const transaccionId = new mongoose.Types.ObjectId();
+
+      const entrada = await new Entrada({
         cliente: cliente._id, evento: evento._id, transaccion: transaccionId, nombre: evento.nombre,
         precio: parseFloat(precioUnitario), cantidad, sector: tipoEntrada
-      });
-    } catch (error) {
-      await Evento.liberarZona(eventoId, tipoEntrada, cantidad);
-      throw error;
-    }
+      }).save({ session });
+      alDeshacer(() => Entrada.findByIdAndDelete(entrada._id));
 
-    const subtotal = parseFloat(precioUnitario) * cantidad;
-    let descuentoAplicado = 0;
-    let total = subtotal;
+      const venta = await new Transaccion({
+        _id: transaccionId,
+        comprobanteId: `SUC-${Date.now()}`,
+        cliente: cliente._id,
+        nombreCliente: `${cliente.nombre} ${cliente.apellido} (Cajero: ${cajeroActivo})`,
+        medioPago,
+        subtotal,
+        descuentoAplicado,
+        total,
+        canal: 'Sucursal',
+        items: [{ eventoId: evento._id, nombreEvento: evento.nombre, tipoEntrada, cantidad, precio: parseFloat(precioUnitario) }]
+      }).save({ session });
 
-    if (medioPago === 'Efectivo') {
-      descuentoAplicado = subtotal * 0.25; 
-      total = subtotal - descuentoAplicado;
-    }
-
-    const nuevaVenta = await Transaccion.create({
-      _id: transaccionId,
-      comprobanteId: `SUC-${Date.now()}`,
-      cliente: cliente._id,
-      nombreCliente: `${cliente.nombre} ${cliente.apellido} (Cajero: ${cajeroActivo})`, 
-      medioPago: medioPago,
-      subtotal: subtotal,
-      descuentoAplicado: descuentoAplicado, 
-      total: total,                         
-      canal: 'Sucursal',
-      items: [{
-        eventoId: evento._id,
-        nombreEvento: evento.nombre,
-        tipoEntrada: tipoEntrada,
-        cantidad,
-        precio: parseFloat(precioUnitario)
-      }]
-    }).catch(async (error) => {
-      await Entrada.findByIdAndDelete(entradaCreada._id);
-      await Evento.liberarZona(eventoId, tipoEntrada, cantidad);
-      throw error;
+      return { nuevaVenta: venta, entradaCreada: entrada };
     });
 
-    res.render('Admin/imprimirTicket', { venta: nuevaVenta, cajero: cajeroActivo, entrada: entradaCreada });
+    const qr = await generarQR(urlValidacion(req, entradaCreada.codigoBoleto));
+    res.render('Admin/imprimirTicket', { venta: nuevaVenta, cajero: cajeroActivo, entrada: entradaCreada, qr });
   } catch (error) {
     try {
       const eventos = await Evento.find();

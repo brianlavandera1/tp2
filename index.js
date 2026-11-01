@@ -1,5 +1,7 @@
 import express from 'express';
 import session from 'express-session';
+import MongoStore from 'connect-mongo';
+import helmet from 'helmet';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -28,6 +30,26 @@ const app = express();
 app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, 'views'));
 
+// La conexión arranca primero: el almacén de sesiones usa la misma conexión (Atlas o local)
+const conexion = conectarDB();
+
+// Encabezados de seguridad HTTP. Las vistas usan estilos y scripts escritos dentro de Pug,
+// por eso se permiten 'unsafe-inline'; todo lo demás queda limitado al propio sitio.
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrcAttr: ["'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", 'data:', 'blob:'],
+      formAction: ["'self'"],
+      frameAncestors: ["'none'"],
+      upgradeInsecureRequests: config.esProduccion ? [] : null
+    }
+  }
+}));
+
 app.use(requestLogger);
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -42,6 +64,13 @@ app.use(session({
   secret: config.sessionSecret,
   resave: false,
   saveUninitialized: false,
+  // Las sesiones se guardan en MongoDB (colección "sesiones"): sobreviven a un reinicio del servidor
+  // y MongoDB borra solas las vencidas (índice TTL)
+  store: MongoStore.create({
+    clientPromise: conexion.then(m => m.connection.getClient()),
+    collectionName: 'sesiones',
+    ttl: Math.round(config.sessionMaxAgeMs / 1000)
+  }),
   cookie: {
     httpOnly: true,               // el JavaScript del navegador no puede leer la cookie
     sameSite: 'lax',              // protección básica contra CSRF
@@ -75,7 +104,7 @@ app.get('/', (req, res) => {
 app.use(notFoundHandler);
 app.use(errorHandler);
 
-conectarDB()
+conexion
   .then(() => {
     // El seed borra la base: se ejecuta solo a mano con `npm run seed`
     app.listen(config.port, '0.0.0.0', () => {

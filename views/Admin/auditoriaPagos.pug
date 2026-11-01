@@ -1,4 +1,5 @@
 extends ../layout.pug
+include ../partials/paginacion.pug
 
 block titulo
   | Pagos · Urbana Cult
@@ -30,7 +31,7 @@ block content
           span.insignia.insignia-info 🕒 Solo hoy
         if busqueda
           span.insignia.insignia-neutra Buscando: “#{busqueda}”
-        span.texto-tenue #{compras ? compras.length : 0} resultado(s)
+        span.texto-tenue #{paginacion ? paginacion.total : 0} resultado(s)
 
     if compras && compras.length > 0
       .tabla-contenedor
@@ -85,6 +86,7 @@ block content
                 td
                   = new Date(c.fechaCompra).toLocaleDateString('es-AR')
                   .texto-tenue= new Date(c.fechaCompra).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })
+      +paginacion(paginacion, "transacciones")
     else
       .vacio
         .icono-vacio 💳

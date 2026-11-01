@@ -106,10 +106,19 @@ Se pueden crear más usuarios de personal desde el panel del administrador, en *
 | Ver salas, eventos y artistas | | ✅ | ✅ | ✅ |
 | Crear, editar y eliminar salas, eventos y artistas | | | ✅ | ✅ |
 | Boletería física (venta en sucursal) | | | ✅ | ✅ |
+| Validar entradas en la puerta (QR) | | | ✅ | ✅ |
 | Crear, editar y eliminar usuarios y personal | | | | ✅ |
 | API `/entradas`: alta, modificación y baja | | | | ✅ |
 
-La autenticación usa **sesiones** (`express-session`) con contraseñas encriptadas con **bcrypt**. La autorización se resuelve con los middlewares `verificarAutenticacion` y `verificarRol(roles)`.
+La autenticación usa **sesiones** (`express-session`) guardadas en **MongoDB** (`connect-mongo`), con contraseñas encriptadas con **bcrypt**. La autorización se resuelve con los middlewares `verificarAutenticacion` y `verificarRol(roles)`.
+
+### 🛡️ Seguridad
+
+- **Encabezados HTTP seguros** con `helmet`: política de contenido (CSP) que solo permite recursos del propio sitio, protección contra *clickjacking* (`frame-ancestors 'none'`) y `X-Content-Type-Options: nosniff`.
+- **Límite de intentos de login** (middleware propio `limiteLogin`): después de 5 intentos fallidos en 15 minutos para la misma IP y usuario, se bloquea temporalmente (HTTP 429).
+- **Sesiones persistentes en MongoDB**: sobreviven a reinicios del servidor y MongoDB borra solas las vencidas. Al iniciar sesión se genera un id nuevo (previene la fijación de sesión) y al salir se borra la sesión y la cookie.
+- **Cookie de sesión** `httpOnly`, `sameSite=lax` y `secure` en producción.
+- **Validación en el servidor** de todos los formularios y de los archivos subidos (tipo real de imagen por sus primeros bytes y tamaño máximo).
 
 ---
 
@@ -122,10 +131,13 @@ La autenticación usa **sesiones** (`express-session`) con contraseñas encripta
 - **Cartelera:** búsqueda por texto (nombre, descripción o artista) y filtro por fecha. Cuando el artista tiene foto, la tarjeta del evento la usa de fondo con efecto duotono (a todo color al pasar el mouse), y la portada muestra al artista destacado.
 - **Carrito y pago simulado:** validación de stock por sector, descuento según la membresía, validación de tarjeta en el servidor y comprobante de compra.
 - **Reserva atómica de cupos:** dos compras simultáneas no pueden sobrevender un sector.
+- **Transacciones de MongoDB:** la compra (reserva de cupos, entradas y pago), la venta en boletería y la cancelación se guardan completas o no se guardan. En Atlas se usan transacciones nativas; con un MongoDB local *standalone* (que no las admite) se revierten los pasos automáticamente si algo falla (`utils/transaccion.js`).
 - **Membresías:** Estándar (0 %), Premium (15 %) y VIP (30 %) de descuento.
 - **Mis compras y cancelaciones:** el cliente cancela sus entradas, el cupo vuelve al evento y la cancelación queda registrada para auditoría.
-- **Boletería física:** venta en sucursal con descuento por pago en efectivo e impresión del ticket.
+- **Entradas con código QR:** cada entrada (online y de boletería) tiene un QR con su URL de validación. En la puerta, el personal lo escanea con el celular y la marca como usada; una entrada usada no se puede volver a usar ni cancelar.
+- **Boletería física:** venta en sucursal con descuento por pago en efectivo e impresión del ticket con QR.
 - **Auditoría e informes:** historial de pagos con búsqueda y filtro del día, historial de cancelaciones e informe de ventas por evento con filtro de fechas.
+- **Paginación** de usuarios, pagos y cancelaciones (15 por página), conservando la búsqueda y los filtros.
 - **Manejo de errores:** página 403 para accesos denegados, respuestas JSON para la API y página de error genérica.
 
 ---
@@ -145,6 +157,7 @@ La autenticación usa **sesiones** (`express-session`) con contraseñas encripta
 │   ├── validacionesMiddleware.js  # Validación del registro
 │   ├── validateSala.js            # Validación de salas y sectores
 │   ├── subirFoto.middleware.js    # Recepción de fotos con multer (tipo y tamaño)
+│   ├── limiteLogin.middleware.js  # Límite de intentos de login (fuerza bruta)
 │   └── index.js                   # Exporta los middlewares generales
 ├── models/                # Esquemas de Mongoose (M de MVC)
 ├── routes/                # Definición de rutas por módulo
@@ -157,7 +170,8 @@ La autenticación usa **sesiones** (`express-session`) con contraseñas encripta
 ├── scripts/
 │   ├── seed.js                # Carga de datos de prueba
 │   └── seed-fotos/            # Fotos de artistas (Creative Commons) y sus créditos (CREDITOS.md)
-├── utils/                 # Funciones auxiliares
+├── utils/                 # Transacciones, paginación, QR y escape de búsquedas
+├── docs/API.md            # Documentación de la API JSON
 ├── index.js               # Punto de entrada de la aplicación
 └── .env.example           # Plantilla de variables de entorno
 ```
@@ -165,6 +179,97 @@ La autenticación usa **sesiones** (`express-session`) con contraseñas encripta
 ---
 
 ## 🧩 Modelo de datos
+
+```mermaid
+erDiagram
+    USUARIO ||--o{ TRANSACCION : "realiza"
+    USUARIO ||--o{ ENTRADA : "es titular de"
+    USUARIO ||--o{ CANCELACIONLOG : "cancela"
+    SALA ||--o{ EVENTO : "aloja"
+    ENTIDAD ||--o{ EVENTO : "presenta"
+    EVENTO ||--o{ ENTRADA : "emite"
+    EVENTO ||--o{ CANCELACIONLOG : "registra"
+    TRANSACCION ||--|{ ENTRADA : "genera"
+    TRANSACCION ||--|{ ITEM : "contiene"
+    EVENTO ||--o{ ITEM : "se vende en"
+
+    USUARIO {
+        ObjectId _id
+        string nombreUsuario UK
+        string email UK
+        string password "bcrypt"
+        string dni
+        string rol "Cliente | Administrador | Supervisor | Lector"
+        string tipoCliente "ESTANDAR | PREMIUM | VIP"
+        number porcentajeDescuento
+    }
+    SALA {
+        ObjectId _id
+        string nombre UK
+        number capacidad "suma de las zonas"
+        object zonas "General, Platea, VIP"
+        string ubicacion
+    }
+    ENTIDAD {
+        ObjectId _id
+        string nombre UK
+        buffer foto "imagen en la base"
+        date fotoActualizada
+        object fotoCredito "autor, licencia, fuente"
+    }
+    EVENTO {
+        ObjectId _id
+        string nombre
+        date fecha
+        string hora
+        number precio "General"
+        number precioPlatea
+        number precioVIP
+        number entradasDisponibles
+        object vendidosPorZona
+        ObjectId sala FK
+        ObjectId entidad FK
+    }
+    TRANSACCION {
+        ObjectId _id
+        string comprobanteId UK
+        ObjectId cliente FK
+        string canal "Online | Sucursal"
+        number subtotal
+        number descuentoAplicado
+        number total
+        string medioPago
+        date fechaCompra
+    }
+    ITEM {
+        ObjectId eventoId FK
+        string tipoEntrada
+        number cantidad
+        number cantidadCancelada
+        number precio
+    }
+    ENTRADA {
+        ObjectId _id
+        string codigoBoleto UK "va en el QR"
+        ObjectId cliente FK
+        ObjectId evento FK
+        ObjectId transaccion FK
+        string sector
+        number cantidad
+        string estado "Completado | Usado"
+        date usadaEn
+    }
+    CANCELACIONLOG {
+        ObjectId _id
+        ObjectId cliente FK
+        ObjectId evento FK
+        string codigoBoleto
+        number cantidad
+        date fechaCancelacion
+    }
+```
+
+> `ITEM` no es una colección aparte: son los ítems embebidos dentro de cada `TRANSACCION`. Las sesiones de usuario se guardan además en la colección `sesiones`.
 
 | Colección | Descripción | Relaciones |
 |---|---|---|
@@ -187,10 +292,11 @@ Las validaciones se aplican en los esquemas (campos obligatorios, formatos de em
 | `/auth` | `GET/POST /login`, `GET/POST /registro`, `GET /logout` |
 | `/cliente` | `menu`, `comprar`, `membresia`, `mis-compras`, `configuracion`, `POST cancelar-entrada/:id` |
 | `/cliente/carrito` | Ver carrito, `POST agregar`, `POST quitar/:index`, `checkout`, `POST procesar-pago` |
-| `/admin` | `dashboard`, `usuarios`, `crear-personal`, `pagos`, `cancelaciones`, `informe`, `boleteria`, `entidades` |
+| `/admin` | `dashboard`, `usuarios`, `crear-personal`, `pagos`, `cancelaciones`, `informe`, `boleteria`, `entidades`, `validar` |
+| `/admin/validar` | `GET /:codigo` muestra la entrada (URL del QR), `POST /:codigo` la marca como usada |
 | `/admin/salas` | CRUD de salas |
 | `/admin/eventos` | CRUD de eventos |
-| `/entradas` | API JSON: `GET /`, `GET /:id`, `POST /`, `PUT /:id`, `DELETE /:id` |
+| `/entradas` | API JSON: `GET /`, `GET /:id`, `POST /`, `PUT /:id`, `DELETE /:id` — ver [docs/API.md](docs/API.md) |
 | `/media` | `GET /artistas/:id`: foto de un artista (requiere sesión iniciada) |
 
 ---
@@ -201,6 +307,9 @@ Las validaciones se aplican en los esquemas (campos obligatorios, formatos de em
 |---|---|
 | `express` | Servidor web y ruteo |
 | `express-session` | Manejo de sesiones de usuario |
+| `connect-mongo` | Guarda las sesiones en MongoDB |
+| `helmet` | Encabezados HTTP de seguridad |
+| `qrcode` | Genera el código QR (SVG) de cada entrada |
 | `mongoose` | Modelado y acceso a MongoDB |
 | `pug` | Motor de plantillas para las vistas |
 | `bcrypt` | Encriptado de contraseñas |
@@ -229,4 +338,4 @@ Las fotos de los artistas de ejemplo provienen de [Wikimedia Commons](https://co
 ## 🔮 Mejoras pendientes
 
 - [ ] **Mapa de asientos:** configurar filas y asientos por sala y elegir la ubicación al comprar.
-- [ ] **Entradas con código QR:** diseño de ticket con un QR único para validar el ingreso.
+- [x] **Entradas con código QR:** cada ticket tiene un QR único que se valida en la puerta.

@@ -1,0 +1,19 @@
+//- Controles de paginación (datos generados por utils/paginar.js)
+mixin paginacion(p, nombre)
+  if p && p.total > 0
+    nav.paginacion(aria-label=`Páginas de ${nombre}`)
+      span.texto-tenue Mostrando #{p.desde}–#{p.hasta} de #{p.total} #{nombre}
+      if p.totalPaginas > 1
+        .paginas
+          if p.pagina > 1
+            a.btn.btn-chico.btn-secundario(href=p.url(p.pagina - 1) rel="prev") ← Anterior
+          //- Ventana de hasta 5 páginas alrededor de la actual
+          - const desde = Math.max(1, Math.min(p.pagina - 2, p.totalPaginas - 4))
+          - const hasta = Math.min(p.totalPaginas, desde + 4)
+          - for (let n = desde; n <= hasta; n++)
+            if n === p.pagina
+              span.btn.btn-chico(aria-current="page")= n
+            else
+              a.btn.btn-chico.btn-secundario(href=p.url(n))= n
+          if p.pagina < p.totalPaginas
+            a.btn.btn-chico.btn-secundario(href=p.url(p.pagina + 1) rel="next") Siguiente →

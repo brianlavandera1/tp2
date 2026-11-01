@@ -1,5 +1,13 @@
 import mongoose from 'mongoose';
 import config from './config.js';
+import { detectarTransacciones, modoTransacciones } from '../utils/transaccion.js';
+
+// Informa si el servidor conectado admite transacciones nativas
+const informarTransacciones = async (conexion) => {
+  await detectarTransacciones();
+  console.log(`🔒 Transacciones: ${modoTransacciones()}`);
+  return conexion;
+};
 
 export const conectarDB = async () => {
   const uriAtlas = config.mongoUri;
@@ -11,7 +19,7 @@ export const conectarDB = async () => {
       console.log('🌐 Intentando conectar a MongoDB Atlas...');
       const conexion = await mongoose.connect(uriAtlas, { serverSelectionTimeoutMS: 5000 }); // Timeout de 5 segundos para no quedar esperando
       console.log(`📦 Conectado exitosamente a MongoDB Atlas: ${conexion.connection.host}`);
-      return conexion;
+      return informarTransacciones(conexion);
     } catch (errorAtlas) {
       console.warn('⚠️ No se pudo conectar a MongoDB Atlas. Intentando con la base de datos local...');
     }
@@ -22,7 +30,7 @@ export const conectarDB = async () => {
     console.log('💻 Intentando conectar a MongoDB Local...');
     const conexionLocal = await mongoose.connect(uriLocal);
     console.log(`📦 Conectado exitosamente a MongoDB Local: ${conexionLocal.connection.host}`);
-    return conexionLocal;
+    return informarTransacciones(conexionLocal);
   } catch (errorLocal) {
     console.error('❌ Error crítico: No se pudo conectar ni a Atlas ni a la base de datos local.', errorLocal.message);
     process.exit(1);

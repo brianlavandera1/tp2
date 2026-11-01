@@ -40,6 +40,9 @@ html(lang="es")
           p
             strong Código de ingreso:
             |  #{entrada.codigoBoleto}
+          if qr
+            .qr(style="width:150px;margin:10px auto 0" role="img" aria-label="Código QR para el ingreso")!= qr
+            p.centro(style="font-size:11px") Presentá este QR en el acceso
         hr
         if venta.descuentoAplicado > 0
           p Subtotal: $#{venta.subtotal.toLocaleString('es-AR')}

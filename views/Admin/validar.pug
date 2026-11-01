@@ -1,0 +1,78 @@
+extends ../layout.pug
+
+block titulo
+  | Validar entradas · Urbana Cult
+
+block headStyles
+  style.
+    .resultado { text-align: center; padding: 28px 20px; border-radius: var(--radio); color: #fff; margin-bottom: 20px; }
+    .resultado .icono { font-size: 56px; line-height: 1; }
+    .resultado h2 { color: #fff; margin: 10px 0 4px; font-size: 26px; }
+    .resultado p { margin: 0; color: rgba(255, 255, 255, .85); }
+    .resultado.puede { background: linear-gradient(135deg, #12a150, #34d399); }
+    .resultado.usada { background: linear-gradient(135deg, #c27803, #f59e0b); }
+    .resultado.invalida { background: linear-gradient(135deg, #dc2f45, #fb7185); }
+
+block content
+  .encabezado-pagina
+    div
+      h1 Validar entradas
+      p Escaneá el QR de la entrada con la cámara del celular o ingresá el código a mano.
+
+  .tarjeta.estrecha
+    form.fila.mb(action="/admin/validar" method="GET" role="search")
+      input(type="search" name="codigo" value=codigo placeholder="TICK-XXXXXXXXXX" aria-label="Código de la entrada" autocomplete="off" style="flex:1;min-width:200px;text-transform:uppercase" autofocus=!codigo)
+      button.btn(type="submit") Buscar
+
+    if codigo
+      if !entrada
+        .resultado.invalida(role="alert")
+          .icono ✖
+          h2 Entrada inválida
+          p No existe una entrada con el código #[strong= codigo].
+      else
+        - const usada = entrada.estado === 'Usado'
+        if validada
+          .resultado.puede(role="status")
+            .icono ✔
+            h2 ¡Puede ingresar!
+            p Entrada validada a las #{new Date(entrada.usadaEn).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false })} hs
+        else if usada
+          .resultado.usada(role="alert")
+            .icono ⚠
+            h2 Entrada ya usada
+            p Se validó el #{new Date(entrada.usadaEn).toLocaleString('es-AR')} (por #{entrada.validadaPor || 'personal'}).
+        else
+          .resultado.puede(style="background:linear-gradient(135deg,#5b3df5,#7c5cff)")
+            .icono 🎟️
+            h2 Entrada válida
+            p Todavía no se usó. Confirmá el ingreso.
+
+        if error
+          .alerta.alerta-error(role="alert") ⚠️ #{error}
+
+        .datos-lista
+          .dato
+            small Evento
+            strong= entrada.evento ? entrada.evento.nombre : entrada.nombre
+          .dato
+            small Función
+            strong= entrada.evento ? `${new Date(entrada.evento.fecha).toLocaleDateString('es-AR')} · ${entrada.evento.hora || ''} hs` : '—'
+          .dato
+            small Sala
+            strong= entrada.evento && entrada.evento.sala ? entrada.evento.sala.nombre : '—'
+          .dato
+            small Sector y cantidad
+            strong #{entrada.sector} · #{entrada.cantidad} persona(s)
+          .dato
+            small Titular
+            strong= entrada.cliente ? `${entrada.cliente.nombre} ${entrada.cliente.apellido}` : '—'
+          .dato
+            small Código
+            strong.codigo= entrada.codigoBoleto
+
+        if !usada
+          form(action=`/admin/validar/${encodeURIComponent(entrada.codigoBoleto)}` method="POST")
+            button.btn.btn-exito.btn-bloque.btn-grande(type="submit") ✔ Marcar como usada y dejar pasar
+        else
+          a.btn.btn-secundario.btn-bloque(href="/admin/validar") Validar otra entrada

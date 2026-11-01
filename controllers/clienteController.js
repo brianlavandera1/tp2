@@ -2,10 +2,10 @@ import Usuario from '../models/Usuario.js';
 import Entrada from '../models/Entrada.js';
 import Evento from '../models/Evento.js';
 import Transaccion from '../models/Transaccion.js';
-import CancelacionLog from '../models/CancelacionLog.js';
 import Entidad from '../models/Entidad.js';
 import bcrypt from 'bcrypt';
 import { escapeRegex } from '../utils/escapeRegex.js';
+import { generarQR, urlValidacion } from '../utils/qr.js';
 
 export const mostrarMenu = async (req, res) => {
   const usuarioCompleto = await Usuario.findById(req.session.usuario._id);
@@ -74,16 +74,19 @@ export const procesarMembresia = async (req, res) => {
 export const mostrarMisCompras = async (req, res) => {
   const misEntradasCompradas = await Entrada.find({ cliente: req.session.usuario._id }).populate({ path: 'evento', populate: ['sala', 'entidad'] });
   const misCompras = await Transaccion.find({ cliente: req.session.usuario._id }).sort({ fechaCompra: -1 });
-  
-  res.render('Cliente/mis-compras', { usuarioLogueado: req.session.usuario, misEntradasCompradas, misCompras });
+
+  // Un QR por entrada con la URL de validación (se muestra en la puerta del evento)
+  const qrs = {};
+  await Promise.all(misEntradasCompradas.map(async (entrada) => {
+    qrs[entrada._id] = await generarQR(urlValidacion(req, entrada.codigoBoleto));
+  }));
+
+  res.render('Cliente/mis-compras', { usuarioLogueado: req.session.usuario, misEntradasCompradas, misCompras, qrs });
 };
 
 export const cancelarEntrada = async (req, res) => {
-  const entradaCancelada = await Entrada.cancelarEntradaZona(req.params.id, req.session.usuario._id);
-  await CancelacionLog.create({
-    cliente: entradaCancelada.cliente, evento: entradaCancelada.evento, nombreCliente: req.session.usuario.nombreUsuario,
-    eventoNombre: entradaCancelada.nombre, codigoBoleto: entradaCancelada.codigoBoleto, cantidad: entradaCancelada.cantidad
-  });
+  // La cancelación y su registro de auditoría se guardan juntos, dentro de la misma transacción
+  await Entrada.cancelarEntradaZona(req.params.id, req.session.usuario._id, req.session.usuario.nombreUsuario);
   res.json({ success: true, message: 'Entrada cancelada correctamente.' });
 };
 

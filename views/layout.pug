@@ -17,7 +17,7 @@ html(lang="es")
 
         - const rol = usuarioLogueado ? usuarioLogueado.rol : ''
         - const puedeVender = ['Administrador', 'Supervisor'].includes(rol)
-        - const grupos = [['General', [['/admin/dashboard', '🏠', 'Panel'], puedeVender && ['/admin/boleteria', '🎫', 'Boletería']]], ['Cartelera', [['/admin/eventos', '🎭', 'Eventos'], ['/admin/salas', '🏛️', 'Salas'], ['/admin/entidades', '🎤', 'Artistas']]], ['Control', [['/admin/informe', '📊', 'Informes'], ['/admin/pagos', '💳', 'Pagos'], ['/admin/cancelaciones', '↩️', 'Cancelaciones'], ['/admin/usuarios', '👥', 'Usuarios']]]]
+        - const grupos = [['General', [['/admin/dashboard', '🏠', 'Panel'], puedeVender && ['/admin/boleteria', '🎫', 'Boletería'], puedeVender && ['/admin/validar', '📷', 'Validar entradas']]], ['Cartelera', [['/admin/eventos', '🎭', 'Eventos'], ['/admin/salas', '🏛️', 'Salas'], ['/admin/entidades', '🎤', 'Artistas']]], ['Control', [['/admin/informe', '📊', 'Informes'], ['/admin/pagos', '💳', 'Pagos'], ['/admin/cancelaciones', '↩️', 'Cancelaciones'], ['/admin/usuarios', '👥', 'Usuarios']]]]
         nav.menu-lateral(aria-label="Menú del panel")
           each grupo in grupos
             span.titulo-grupo= grupo[0]

@@ -2,6 +2,45 @@ import Entrada from '../models/Entrada.js';
 import Transaccion from '../models/Transaccion.js';
 import Evento from '../models/Evento.js';
 
+// ---------- Validación de entradas en la puerta (QR) ----------
+const normalizarCodigo = (codigo) => String(codigo || '').trim().toUpperCase();
+
+// GET /admin/validar y /admin/validar/:codigo — busca la entrada y muestra si puede ingresar
+export const mostrarValidacion = async (req, res) => {
+  // El formulario manual envía ?codigo=...: se redirige a la URL "linda", igual a la del QR
+  if (req.query.codigo) return res.redirect(`/admin/validar/${encodeURIComponent(normalizarCodigo(req.query.codigo))}`);
+
+  const codigo = normalizarCodigo(req.params.codigo);
+  const entrada = codigo
+    ? await Entrada.findOne({ codigoBoleto: codigo }).populate({ path: 'evento', populate: 'sala' }).populate('cliente', 'nombre apellido dni')
+    : null;
+
+  res.status(codigo && !entrada ? 404 : 200).render('Admin/validar', {
+    usuarioLogueado: req.session.usuario,
+    codigo,
+    entrada,
+    validada: req.query.validada === '1',
+    error: req.query.error || null
+  });
+};
+
+// POST /admin/validar/:codigo — marca la entrada como usada (una sola vez)
+export const validarEntrada = async (req, res) => {
+  const codigo = normalizarCodigo(req.params.codigo);
+  // Operación atómica: solo cambia si todavía no se usó, así dos escaneos simultáneos no la validan dos veces
+  const entrada = await Entrada.findOneAndUpdate(
+    { codigoBoleto: codigo, estado: { $ne: 'Usado' } },
+    { estado: 'Usado', usadaEn: new Date(), validadaPor: req.session.usuario.nombreUsuario },
+    { new: true }
+  );
+  if (!entrada) {
+    const existe = await Entrada.exists({ codigoBoleto: codigo });
+    const mensaje = existe ? 'Esta entrada ya fue usada.' : 'No existe una entrada con ese código.';
+    return res.redirect(`/admin/validar/${encodeURIComponent(codigo)}?error=${encodeURIComponent(mensaje)}`);
+  }
+  res.redirect(`/admin/validar/${encodeURIComponent(codigo)}?validada=1`);
+};
+
 export const mostrarGestionEntradas = async (req, res) => {
   try {
     const { fechaInicio, fechaFin } = req.query;
@@ -69,7 +108,14 @@ export const mostrarGestionEntradas = async (req, res) => {
   }
 };
 
-export const getEntradas = async (req, res) => res.json(await Entrada.find(req.session.usuario.rol === 'Cliente' ? { cliente: req.session.usuario._id } : {}).populate('evento cliente'));
+// Del cliente solo se exponen datos públicos (nunca la contraseña encriptada)
+const CAMPOS_PUBLICOS_CLIENTE = 'nombreUsuario nombre apellido email';
+
+export const getEntradas = async (req, res) => res.json(
+  await Entrada.find(req.session.usuario.rol === 'Cliente' ? { cliente: req.session.usuario._id } : {})
+    .populate('evento', 'nombre fecha hora sala')
+    .populate('cliente', CAMPOS_PUBLICOS_CLIENTE)
+);
 // Un cliente solo puede ver sus propias entradas
 export const getEntradaById = async (req, res) => {
   const filtro = { _id: req.params.id };

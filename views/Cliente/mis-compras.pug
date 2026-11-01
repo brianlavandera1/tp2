@@ -32,11 +32,17 @@ block content
                 .fila(style="margin-top:12px")
                   span.insignia.insignia-marca 💺 #{entrada.sector || 'General'}
                   span.insignia.insignia-neutra 🎟️ #{entrada.cantidad || 1} entrada(s)
+                  if entrada.estado === 'Usado'
+                    span.insignia.insignia-aviso ✔ Usada el #{new Date(entrada.usadaEn).toLocaleDateString('es-AR')}
               .ticket-talon
+                //- QR generado en el servidor (SVG) con la URL de validación de esta entrada
+                if qrs && qrs[entrada._id]
+                  .qr(role="img" aria-label=`Código QR de la entrada ${entrada.codigoBoleto}`)!= qrs[entrada._id]
                 div
                   .texto-tenue Código
                   .codigo= entrada.codigoBoleto
-                button.btn.btn-chico.btn-peligro-suave(type="button" onclick=`cancelarEntrada('${entrada._id}')`) Cancelar
+                if entrada.estado !== 'Usado'
+                  button.btn.btn-chico.btn-peligro-suave(type="button" onclick=`cancelarEntrada('${entrada._id}')`) Cancelar
       else
         .tarjeta.vacio
           .icono-vacio 🎟️

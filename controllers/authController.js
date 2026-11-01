@@ -36,6 +36,9 @@ export const procesarLogin = async (req, res) => {
       });
     }
 
+    // Se genera un id de sesión nuevo al iniciar sesión (evita la fijación de sesión)
+    await new Promise((resolve, reject) => req.session.regenerate(error => error ? reject(error) : resolve()));
+
     req.session.usuario = {
       _id: usuario._id,
       nombreUsuario: usuario.nombreUsuario,
@@ -44,11 +47,10 @@ export const procesarLogin = async (req, res) => {
       porcentajeDescuento: usuario.porcentajeDescuento
     };
 
-    if (usuario.rol === 'Cliente') {
-      return res.redirect('/cliente/menu');
-    } else {
-      return res.redirect('/admin/dashboard');
-    }
+    // Se guarda en MongoDB antes de redirigir, para que la próxima página ya encuentre la sesión
+    await new Promise((resolve, reject) => req.session.save(error => error ? reject(error) : resolve()));
+
+    return res.redirect(usuario.rol === 'Cliente' ? '/cliente/menu' : '/admin/dashboard');
 
   } catch (error) {
     console.error('Error en el login:', error);

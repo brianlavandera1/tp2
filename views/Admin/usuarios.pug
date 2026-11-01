@@ -1,4 +1,5 @@
 extends ../layout.pug
+include ../partials/paginacion.pug
 
 block titulo
   | Usuarios · Urbana Cult
@@ -47,6 +48,7 @@ block content
                       a.btn.btn-chico.btn-secundario(href=`/admin/usuarios/editar/${user._id}`) Editar
                       form.en-linea(action=`/admin/usuarios/eliminar/${user._id}` method="POST" onsubmit="return confirm('¿Seguro que querés eliminar este usuario?');")
                         button.btn.btn-chico.btn-peligro-suave(type="submit") Eliminar
+      +paginacion(paginacion, "usuarios")
     else
       .vacio
         .icono-vacio 👥
