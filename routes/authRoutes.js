@@ -5,7 +5,7 @@ import asyncHandler from '../middlewares/asyncHandler.middleware.js';
 
 const router = express.Router();
 
-router.get('/login', (req, res) => res.render('auth/login', { error: req.query.error }));
+router.get('/login', (req, res) => res.render('auth/login', { error: req.query.error, exito: req.query.exito }));
 router.post('/login', asyncHandler(procesarLogin));
 router.get('/registro', (req, res) => res.render('auth/registro', { error: req.query.error, datos: {} }));
 router.post('/registro', validarRegistro, asyncHandler(registrarCliente));

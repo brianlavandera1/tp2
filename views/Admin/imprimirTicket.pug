@@ -1,64 +1,58 @@
 doctype html
 html(lang="es")
   head
-    meta(charset="UTF-8")
-    title Ticket de Venta - #{venta.comprobanteId}
+    include ../partials/head.pug
+    title Ticket #{venta.comprobanteId} · Urbana Cult
     style.
-      body { font-family: 'Courier New', Courier, monospace; background-color: #f4f6f9; padding: 20px; display: flex; flex-direction: column; align-items: center; }
-      .ticket { background-color: white; padding: 20px; width: 300px; border: 1px dashed #333; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-      .center { text-align: center; }
-      hr { border-top: 1px dashed #333; border-bottom: none; }
-      
-      /* Botones de acción */
-      .acciones { margin-top: 30px; display: flex; gap: 15px; }
-      .btn { padding: 12px 20px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 16px; text-decoration: none; }
-      .btn-imprimir { background-color: #0f766e; color: white; }
-      .btn-volver { background-color: #64748b; color: white; }
-
-      /* Ocultar botones a la hora de imprimir en papel */
-      @media print {
-        body { background-color: white; padding: 0; }
-        .ticket { box-shadow: none; border: none; width: 100%; }
-        .acciones { display: none; }
-      }
-
+      /* Ticket térmico de boletería */
+      .ticket-impreso { font-family: ui-monospace, 'Courier New', monospace; background: #fff; width: 320px; padding: 22px; border: 1px dashed #333; box-shadow: var(--sombra-alta); font-size: 13px; color: #111; }
+      .ticket-impreso h2 { font-family: var(--fuente); text-align: center; margin: 0; }
+      .ticket-impreso .centro { text-align: center; }
+      .ticket-impreso hr { border: 0; border-top: 1px dashed #333; margin: 12px 0; }
+      .ticket-impreso p { margin: 4px 0; }
+      .ticket-impreso .total { font-size: 18px; font-weight: 800; text-align: right; }
+      @media print { .ticket-impreso { box-shadow: none; border: 0; width: 100%; } body { background: #fff; } }
   body
-    //- EL TICKET
-    div.ticket
-      h2.center(style="margin-bottom: 5px;") SISTEMA DE VENTAS
-      p.center(style="margin-top: 0; font-size: 12px;") Sucursal Principal
-      hr
-      p 
-        strong Ticket #: 
-        | #{venta.comprobanteId}
-      p 
-        strong Fecha: 
-        | #{venta.fechaCompra.toLocaleString('es-AR')}
-      p 
-        strong Cajero: 
-        | #{cajero}
-      hr
-      p 
-        strong Cliente: 
-        | #{venta.nombreCliente}
-      hr
-      
-      each item in venta.items
-        p(style="margin-bottom: 0;") 
-          strong Evento: 
-          | #{item.nombreEvento}
-        p(style="margin: 0;") #{item.cantidad}x #{item.tipoEntrada} ($#{item.precio})
-        
-      hr
-      h3(style="text-align: right;") TOTAL: $#{venta.total}
-      p.center 
-        strong Medio: 
-        | #{venta.medioPago}
-      hr
-      p.center(style="font-size: 12px;") ¡Gracias por su compra!
-      p.center(style="font-size: 12px;") Conservar este ticket para el ingreso.
+    .acceso-formulario(style="min-height:100vh;background:var(--color-fondo);align-content:center;gap:24px")
+      .ticket-impreso
+        h2 🎭 URBANA CULT
+        p.centro Boletería · Sucursal principal
+        hr
+        p
+          strong Ticket:
+          |  #{venta.comprobanteId}
+        p
+          strong Fecha:
+          |  #{venta.fechaCompra.toLocaleString('es-AR')}
+        p
+          strong Cajero:
+          |  #{cajero}
+        hr
+        p
+          strong Cliente:
+          |  #{venta.nombreCliente}
+        hr
+        each item in venta.items
+          p
+            strong= item.nombreEvento
+          p #{item.cantidad} × #{item.tipoEntrada} ($#{item.precio.toLocaleString('es-AR')})
+        if entrada
+          p
+            strong Código de ingreso:
+            |  #{entrada.codigoBoleto}
+        hr
+        if venta.descuentoAplicado > 0
+          p Subtotal: $#{venta.subtotal.toLocaleString('es-AR')}
+          p Descuento: −$#{venta.descuentoAplicado.toLocaleString('es-AR')}
+        p.total TOTAL: $#{venta.total.toLocaleString('es-AR')}
+        p.centro
+          strong Medio:
+          |  #{venta.medioPago}
+        hr
+        p.centro ¡Gracias por su compra!
+        p.centro Conserve este ticket para el ingreso.
+        p.centro(style="font-size:11px;margin-top:10px") Sistema desarrollado por Sintaxia
 
-    //- BOTONES DE ACCIÓN (Se ocultan al imprimir)
-    div.acciones
-      button.btn.btn-imprimir(onclick="window.print()") 🖨️ Imprimir Ticket
-      a.btn.btn-volver(href="/admin/boleteria") ⬅️ Volver a la Boletería
+      .fila.no-imprimir(style="justify-content:center")
+        button.btn(type="button" onclick="window.print()") 🖨️ Imprimir ticket
+        a.btn.btn-secundario(href="/admin/boleteria") Nueva venta

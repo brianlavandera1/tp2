@@ -1,90 +1,23 @@
-doctype html
-html(lang="es")
-  head
-    meta(charset="UTF-8")
-    title Editar Usuario
-  body(style="font-family: sans-serif; padding: 30px; max-width: 600px; margin: auto; background-color: #f4f6f9;")
-    div(style="background-color: #ffffff; padding: 25px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);")
-      h2(style="margin-top: 0; color: #2c3e50;") ✏️ Editar Usuario
+extends ../layout.pug
+include ../partials/formUsuario.pug
 
-      if error
-        div(style="background-color: #f8d7da; color: #721c24; padding: 12px; border-radius: 6px; margin-bottom: 20px; border: 1px solid #f5c6cb; font-weight: bold; font-size: 14px;")
-          | ⚠️ #{error}
-      
-      form(action=`/admin/usuarios/editar/${usuarioAEditar._id}` method="POST")
-        div(style="margin-bottom: 15px;")
-          label(style="display: block; font-weight: bold; font-size: 13px; margin-bottom: 5px;") Nombre de Usuario:
-          input(type="text" name="nombreUsuario" value=usuarioAEditar.nombreUsuario required style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 5px; box-sizing: border-box;")
-        
-        div(style="display: flex; gap: 10px; margin-bottom: 15px;")
-          div(style="flex: 1;")
-            label(style="display: block; font-weight: bold; font-size: 13px; margin-bottom: 5px;") Nombre:
-            input(type="text" name="nombre" value=usuarioAEditar.nombre required pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\\s]+" title="Solo se permiten letras y espacios, sin números" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 5px; box-sizing: border-box;")
-          div(style="flex: 1;")
-            label(style="display: block; font-weight: bold; font-size: 13px; margin-bottom: 5px;") Apellido:
-            input(type="text" name="apellido" value=usuarioAEditar.apellido required pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\\s]+" title="Solo se permiten letras y espacios, sin números" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 5px; box-sizing: border-box;")
+block titulo
+  | Editar usuario · Urbana Cult
 
-        div(style="margin-bottom: 15px;")
-          label(style="display: block; font-weight: bold; font-size: 13px; margin-bottom: 5px;") Correo Electrónico (Email real):
-          input(type="email" name="email" value=usuarioAEditar.email required style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 5px; box-sizing: border-box;")
+block content
+  .encabezado-pagina
+    div
+      .miga
+        a(href="/admin/usuarios") Usuarios
+        |  / Editar
+      h1 Editar usuario
 
-        div(style="display: flex; gap: 10px; margin-bottom: 15px;")
-          div(style="flex: 1;")
-            label(style="display: block; font-weight: bold; font-size: 13px; margin-bottom: 5px;") DNI (7 u 8 dígitos, solo números):
-            input(type="text" name="dni" value=usuarioAEditar.dni required pattern="\\d{7,8}" title="El DNI debe tener exactamente 7 u 8 números sin letras" minlength="7" maxlength="8" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 5px; box-sizing: border-box;")
-          div(style="flex: 1;")
-            label(style="display: block; font-weight: bold; font-size: 13px; margin-bottom: 5px;") Teléfono (exactamente 10 números):
-            input(type="text" name="telefono" value=usuarioAEditar.telefono required pattern="\\d{10}" title="Solo números, exactamente 10 dígitos" maxlength="10" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 5px; box-sizing: border-box;")
+  .tarjeta.media
+    if error
+      .alerta.alerta-error(role="alert") ⚠️ #{error}
 
-        div(style="margin-bottom: 15px;")
-          label(style="display: block; font-weight: bold; font-size: 13px; margin-bottom: 5px;") Fecha de Nacimiento:
-          - const fechaFormateada = usuarioAEditar.fechaNacimiento ? new Date(usuarioAEditar.fechaNacimiento).toISOString().split('T')[0] : ''
-          - const maxFechaPermitida = new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split('T')[0]
-          input(type="date" name="fechaNacimiento" value=fechaFormateada required min="1900-01-01" max=maxFechaPermitida style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 5px; box-sizing: border-box;")
-
-        div(style="display: flex; gap: 10px; margin-bottom: 20px;")
-          div(style="flex: 1;")
-            label(style="display: block; font-weight: bold; font-size: 13px; margin-bottom: 5px;") Rol del Sistema:
-            select(name="rol" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 5px;")
-              option(value="Cliente" selected=(usuarioAEditar.rol === 'Cliente')) Cliente
-              option(value="Administrador" selected=(usuarioAEditar.rol === 'Administrador')) Administrador
-              option(value="Supervisor" selected=(usuarioAEditar.rol === 'Supervisor')) Supervisor
-              option(value="Lector" selected=(usuarioAEditar.rol === 'Lector')) Lector
-          div(style="flex: 1;")
-            label(style="display: block; font-weight: bold; font-size: 13px; margin-bottom: 5px;") Tipo de Cliente:
-            select(name="tipoCliente" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 5px;")
-              option(value="ESTANDAR" selected=(usuarioAEditar.tipoCliente === 'ESTANDAR')) ESTANDAR
-              option(value="PREMIUM" selected=(usuarioAEditar.tipoCliente === 'PREMIUM')) PREMIUM
-              option(value="VIP" selected=(usuarioAEditar.tipoCliente === 'VIP')) VIP
-              option(value="Regular" selected=(usuarioAEditar.tipoCliente === 'Regular')) Regular
-
-        div(style="display: flex; justify-content: space-between; align-items: center;")
-          a(href="/admin/usuarios" style="color: #666; text-decoration: none; font-weight: bold;") ⬅️ Volver
-          button(type="submit" style="background-color: #0284c7; color: white; border: none; padding: 12px 20px; border-radius: 6px; font-weight: bold; cursor: pointer;") 💾 Guardar Cambios
-
-      script.
-        const bloquearNumeros = (e) => {
-          const char = String.fromCharCode(e.keyCode || e.which);
-          if (/[0-9]/.test(char)) {
-            e.preventDefault();
-          }
-        };
-        document.querySelectorAll('input[name="nombre"], input[name="apellido"]').forEach(input => {
-          input.addEventListener('keypress', bloquearNumeros);
-          input.addEventListener('input', function() {
-            this.value = this.value.replace(/[0-9]/g, '');
-          });
-        });
-
-        const bloquearLetras = (e) => {
-          const char = String.fromCharCode(e.keyCode || e.which);
-          if (!/[0-9]/.test(char)) {
-            e.preventDefault();
-          }
-        };
-        document.querySelectorAll('input[name="dni"], input[name="telefono"]').forEach(input => {
-          input.addEventListener('keypress', bloquearLetras);
-          input.addEventListener('input', function() {
-            this.value = this.value.replace(/[^0-9]/g, '');
-          });
-        });
+    form(action=`/admin/usuarios/editar/${usuarioAEditar._id}` method="POST")
+      +camposUsuario(usuarioAEditar, false)
+      .acciones-formulario.entre
+        a.btn.btn-enlace(href="/admin/usuarios") ← Volver
+        button.btn(type="submit") Guardar cambios

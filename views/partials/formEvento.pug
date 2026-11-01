@@ -1,0 +1,70 @@
+//- Campos compartidos por "Nuevo evento" y "Editar evento".
+//- ev: evento a precargar (vacío al crear) · entidades y salas: opciones de los selectores
+mixin camposEvento(ev, entidades, salas)
+  - ev = ev || {}
+  - const nombreEntidad = ev.entidad ? String(ev.entidad.nombre || '') : ''
+  - const salaId = String((ev.sala && ev.sala._id) || ev.sala || '')
+  //- La fecha se muestra en hora local (igual que se guarda)
+  - const f = ev.fecha ? new Date(ev.fecha) : null
+  - const fechaValor = f ? `${f.getFullYear()}-${String(f.getMonth() + 1).padStart(2, '0')}-${String(f.getDate()).padStart(2, '0')}` : ''
+
+  .campos
+    .campo
+      label(for="nombre") Nombre del evento
+      input#nombre(type="text" name="nombre" value=ev.nombre required)
+    .campo
+      .fila-entre(style="margin-bottom:6px")
+        label.etiqueta(for="nombreEntidadSelect" style="margin:0") Artista / compañía
+        a.texto-tenue(href="/admin/entidades") Administrar artistas
+      select#nombreEntidadSelect(name="nombreEntidadSelect" onchange="toggleNuevoArtista(this)")
+        option(value="") Seleccionar de la lista...
+        each ent in entidades || []
+          option(value=ent.nombre selected=(nombreEntidad === ent.nombre))= ent.nombre
+        option(value="OTRO_NUEVO") + Escribir uno nuevo...
+      input#nombreEntidadTexto.oculto(type="text" name="nombreEntidadTexto" placeholder="Nombre del nuevo artista o compañía" autocomplete="off" style="margin-top:8px")
+
+    .campo.ancho
+      label(for="descripcion") Descripción
+      textarea#descripcion(name="descripcion" rows="3" required)= ev.descripcion
+
+  .campos-3
+    .campo
+      label(for="sala") Sala
+      select#sala(name="sala" required)
+        option(value="") Seleccionar sala...
+        each s in salas || []
+          option(value=s._id selected=(salaId === String(s._id))) #{s.nombre} (#{s.capacidad} lugares)
+    .campo
+      label(for="fecha") Fecha
+      input#fecha(type="date" name="fecha" value=fechaValor required)
+    .campo
+      label(for="hora") Hora
+      input#hora(type="time" name="hora" value=ev.hora required)
+
+  .seccion-suave.mb
+    h4 Precios y cupo
+    .campos
+      .campo
+        label(for="precio") Precio General ($)
+        input#precio(type="number" name="precio" min="0" value=ev.precio required)
+      .campo
+        label(for="entradasDisponibles") Entradas disponibles
+        input#entradasDisponibles(type="number" name="entradasDisponibles" min="0" step="1" value=ev.entradasDisponibles required)
+        .ayuda No puede superar la capacidad de la sala.
+      .campo.mb-0
+        label(for="precioPlatea") Precio Platea ($)
+        input#precioPlatea(type="number" name="precioPlatea" min="0" value=ev.precioPlatea placeholder="Igual a General")
+      .campo.mb-0
+        label(for="precioVIP") Precio VIP ($)
+        input#precioVIP(type="number" name="precioVIP" min="0" value=ev.precioVIP placeholder="Igual a General")
+
+  script.
+    // Muestra el campo de texto cuando se elige "Escribir uno nuevo" y evita enviar ese valor como nombre
+    function toggleNuevoArtista(select) {
+      const texto = document.getElementById('nombreEntidadTexto');
+      const nuevo = select.value === 'OTRO_NUEVO';
+      texto.classList.toggle('oculto', !nuevo);
+      texto.required = nuevo;
+      if (nuevo) { texto.focus(); select.removeAttribute('name'); }
+      else { texto.value = ''; select.setAttribute('name', 'nombreEntidadSelect'); }
+    }

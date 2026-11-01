@@ -1,0 +1,28 @@
+doctype html
+html(lang="es")
+  head
+    include partials/head.pug
+    title
+      block titulo
+        | Urbana Cult · Ingresar
+  body
+    .acceso
+      //- Panel ilustrativo con la propuesta del sitio
+      section.acceso-arte
+        a.marca(href="/auth/login")
+          span.marca-icono 🎭
+          span Urbana Cult
+            small Entradas
+        div
+          h1 Las mejores funciones, a un clic.
+          p Teatro, música y espectáculos en un solo lugar. Elegí tu sector, pagá online y llevá tu entrada en el celular.
+        .destacados
+          span 🎟️ Entradas digitales
+          span ⭐ Descuentos por membresía
+          span ↩️ Cancelación online
+        p.credito-panel Desarrollado por #[strong Sintaxia]
+
+      //- Formulario de cada vista
+      section.acceso-formulario
+        .caja
+          block content

@@ -1,44 +1,41 @@
-doctype html
-html(lang="es")
-  head
-    meta(charset="UTF-8")
-    title Cancelaciones - Panel
-  body(style="font-family: 'Segoe UI', system-ui, sans-serif; padding: 30px; max-width: 1100px; margin: auto; background-color: #f8fafc; color: #1e293b;")
-    
-    div(style="background-color: #ffffff; padding: 20px 30px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0;")
-      h2(style="margin: 0; color: #0f172a; font-size: 20px;") 🛡️ Historial de Cancelaciones
-      a(href="/admin/dashboard" style="background: #007bff; color: white; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: bold;") ⬅️ Volver al Panel
+extends ../layout.pug
 
-    nav(style="background: #ffffff; padding: 12px 20px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); margin-bottom: 25px; display: flex; gap: 10px; flex-wrap: wrap; border: 1px solid #e2e8f0; align-items: center;")
-      span(style="font-size: 12px; font-weight: bold; color: #94a3b8; text-transform: uppercase; margin-right: 5px;") 📌 Menú:
-      a(href="/admin/dashboard" style="color: #475569; text-decoration: none; font-size: 13px; font-weight: 600; padding: 7px 12px; border-radius: 6px; background: #f1f5f9;") 🏠 Panel
-      a(href="/admin/boleteria" style="color: #475569; text-decoration: none; font-size: 13px; font-weight: 600; padding: 7px 12px; border-radius: 6px; background: #f1f5f9;") 🎫 Boletería
-      a(href="/admin/usuarios" style="color: #475569; text-decoration: none; font-size: 13px; font-weight: 600; padding: 7px 12px; border-radius: 6px; background: #f1f5f9;") 👥 Usuarios
-      a(href="/admin/pagos" style="color: #475569; text-decoration: none; font-size: 13px; font-weight: 600; padding: 7px 12px; border-radius: 6px; background: #f1f5f9;") 💳 Pagos
-      a(href="/admin/informe" style="color: #475569; text-decoration: none; font-size: 13px; font-weight: 600; padding: 7px 12px; border-radius: 6px; background: #f1f5f9;") 📊 Informes
-      a(href="/admin/eventos" style="color: #475569; text-decoration: none; font-size: 13px; font-weight: 600; padding: 7px 12px; border-radius: 6px; background: #f1f5f9;") 🎭 Eventos
-      a(href="/admin/salas" style="color: #475569; text-decoration: none; font-size: 13px; font-weight: 600; padding: 7px 12px; border-radius: 6px; background: #f1f5f9;") 🏢 Salas
-      a(href="/admin/cancelaciones" style="color: #ffffff; text-decoration: none; font-size: 13px; font-weight: 600; padding: 7px 12px; border-radius: 6px; background: #dc2626;") 🛡️ Cancelaciones (Actual)
+block titulo
+  | Cancelaciones · Urbana Cult
 
-    div(style="background-color: #ffffff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;")
-      h3(style="margin-top: 0; color: #0f172a;") Registro de Entradas Canceladas
-      
-      if cancelaciones && cancelaciones.length > 0
-        table(style="width: 100%; border-collapse: collapse; margin-top: 15px;")
+block content
+  .encabezado-pagina
+    div
+      h1 Cancelaciones
+      p Registro de auditoría de las entradas canceladas por los clientes.
+
+  form.tarjeta.fila.mb(action="/admin/cancelaciones" method="GET")
+    input(type="search" name="busqueda" placeholder="🔍 Cliente, evento o código de boleto" value=busqueda || '' aria-label="Buscar cancelaciones" style="flex:1;min-width:240px")
+    button.btn(type="submit") Buscar
+    if busqueda
+      a.btn.btn-enlace(href="/admin/cancelaciones") Limpiar
+
+  .tarjeta
+    if cancelaciones && cancelaciones.length > 0
+      .tabla-contenedor
+        table.tabla
           thead
-            tr(style="background-color: #f1f5f9; text-align: left; font-size: 14px; color: #475569;")
-              th(style="padding: 12px; border-bottom: 2px solid #cbd5e1;") Cliente
-              th(style="padding: 12px; border-bottom: 2px solid #cbd5e1;") Evento
-              th(style="padding: 12px; border-bottom: 2px solid #cbd5e1;") Código de Boleto
-              th(style="padding: 12px; border-bottom: 2px solid #cbd5e1;") Cantidad
-              th(style="padding: 12px; border-bottom: 2px solid #cbd5e1;") Fecha
+            tr
+              th Cliente
+              th Evento
+              th Código
+              th.num Cantidad
+              th Fecha
           tbody
             each cancel in cancelaciones
-              tr(style="border-bottom: 1px solid #e2e8f0; font-size: 13px;")
-                td(style="padding: 12px; font-weight: bold; color: #1e293b;")= cancel.nombreCliente
-                td(style="padding: 12px; color: #475569;")= cancel.eventoNombre
-                td(style="padding: 12px; color: #475569;")= cancel.codigoBoleto
-                td(style="padding: 12px; color: #475569;")= cancel.cantidad
-                td(style="padding: 12px; color: #475569;")= new Date(cancel.fechaCancelacion).toLocaleString()
-      else
-        p(style="color: #64748b; text-align: center; padding: 20px;") No hay cancelaciones registradas.
+              tr
+                td.negrita= cancel.nombreCliente
+                td= cancel.eventoNombre
+                td
+                  span.codigo= cancel.codigoBoleto
+                td.num= cancel.cantidad
+                td= new Date(cancel.fechaCancelacion).toLocaleString('es-AR')
+    else
+      .vacio
+        .icono-vacio ↩️
+        p No hay cancelaciones registradas.

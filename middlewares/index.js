@@ -1,17 +1,7 @@
-/*const requestLogger = require('./logger.middleware');
-const { notFoundHandler, errorHandler } = require('./errorHandler.middleware');
-const asyncHandler = require('./asyncHandler.middleware');*/
-
-import  requestLogger  from './logger.middleware.js';
+// Punto de entrada único de los middlewares generales de la aplicación
+import requestLogger from './logger.middleware.js';
 import { notFoundHandler, errorHandler } from './errorHandler.middleware.js';
-import asyncHandler  from './asyncHandler.middleware.js';
-
-/*module.exports = {
-  requestLogger,
-  notFoundHandler,
-  errorHandler,
-  asyncHandler
-};*/
+import asyncHandler from './asyncHandler.middleware.js';
 
 export {
   requestLogger,

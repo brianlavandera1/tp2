@@ -1,26 +1,25 @@
-doctype html
-html(lang="es")
-  head
-    meta(charset="UTF-8")
-    title Iniciar Sesión
-  body(style="font-family: sans-serif; max-width: 400px; margin: 40px auto;")
-    h2 Iniciar Sesión
-    
-    if error
-      div(style="background-color: #f8d7da; color: #721c24; padding: 10px; margin-bottom: 15px; border-radius: 4px;")
-        = error
+extends ../layoutAcceso.pug
 
-    form(action="/auth/login" method="POST")
-      div(style="margin-bottom: 10px;")
-        label(for="identificador") Email o Nombre de Usuario:
-        input#identificador(type="text" name="identificador" required style="width: 100%; padding: 6px;" placeholder="ej: admin o correo@email.com")
-        
-      div(style="margin-bottom: 15px;")
-        label(for="password") Contraseña:
-        input#password(type="password" name="password" required style="width: 100%; padding: 6px;")
+block titulo
+  | Iniciar sesión · Urbana Cult
 
-      div
-        button(type="submit" style="width: 100%; padding: 10px; background-color: #007bff; color: white; border: none; border-radius: 4px;") Entrar
+block content
+  h1(style="font-size:28px") Iniciar sesión
+  p.texto-suave Ingresá para comprar entradas o gestionar el sistema.
 
-    p(style="margin-top: 15px;") ¿No tienes cuenta? 
-      a(href="/auth/registro") Regístrate aquí
+  if exito
+    .alerta.alerta-exito ✅ #{exito}
+  if error
+    .alerta.alerta-error(role="alert") ⚠️ #{error}
+
+  form(action="/auth/login" method="POST")
+    .campo
+      label(for="identificador") Email o nombre de usuario
+      input#identificador(type="text" name="identificador" required autocomplete="username" placeholder="ej: cliente1 o correo@email.com" value=(typeof datos !== 'undefined' && datos ? datos.identificador : ''))
+    .campo
+      label(for="password") Contraseña
+      input#password(type="password" name="password" required autocomplete="current-password" placeholder="••••••••")
+    button.btn.btn-bloque.btn-grande(type="submit") Entrar
+
+  p.centrado.texto-suave.mt
+    | ¿No tenés cuenta? #[a.negrita(href="/auth/registro") Registrate gratis]

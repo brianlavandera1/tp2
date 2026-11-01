@@ -1,0 +1,14 @@
+doctype html
+html(lang="es")
+  head
+    include ../partials/head.pug
+    title Acceso denegado · Urbana Cult
+  body
+    .acceso-formulario(style="min-height:100vh;background:var(--color-fondo)")
+      .tarjeta.centrado(style="max-width:460px;padding:40px 30px")
+        .vacio(style="padding:0")
+          .icono-vacio 🚫
+          h1(style="font-size:24px")= mensaje || 'Acceso denegado'
+          p No tenés permisos para acceder a esta sección.
+          - const volver = usuarioLogueado && usuarioLogueado.rol === 'Cliente' ? '/cliente/menu' : '/admin/dashboard'
+          a.btn(href=volver) Volver al inicio

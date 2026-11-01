@@ -9,6 +9,9 @@ const eventoSchema = new mongoose.Schema({
   fecha: { type: Date, required: true },
   hora: { type: String },
   precio: { type: Number, required: true, default: 5000, min: 0 },
+  // Precios opcionales por sector; si no se cargan se usa `precio` (General)
+  precioPlatea: { type: Number, min: 0, default: null },
+  precioVIP: { type: Number, min: 0, default: null },
   entradasDisponibles: { type: Number, default: 0, min: 0 },
   vendidosPorZona: { type: mongoose.Schema.Types.Mixed, default: undefined },
   sala: { type: mongoose.Schema.Types.ObjectId, ref: 'Sala' },
@@ -26,6 +29,12 @@ eventoSchema.methods.venderEntradas = async function(cantidad) {
   if (!reservado) throw new Error('No hay suficientes entradas disponibles.');
   this.entradasDisponibles = reservado.entradasDisponibles;
   return true;
+};
+
+eventoSchema.methods.precioDeZona = function(zona) {
+  if (zona === 'Platea' && this.precioPlatea != null) return this.precioPlatea;
+  if (zona === 'VIP' && this.precioVIP != null) return this.precioVIP;
+  return this.precio;
 };
 
 async function prepararStockZonas(eventoId, session = null) {

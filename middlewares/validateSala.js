@@ -12,7 +12,7 @@ export const validarSalaId = (req, res, next) => {
   if (/^[a-fA-F0-9]{24}$/.test(req.params.id)) return next();
   
   if (isHtmlRequest(req)) {
-    return res.redirect('/salas?error=ID+inválido.');
+    return res.redirect('/admin/salas?error=ID+inválido.');
   }
   return next(Object.assign(new Error('ID inválido.'), { status: 400 }));
 };
@@ -23,7 +23,7 @@ export const validarSalaBody = async (req, res, next) => {
   if (!body || typeof body !== 'object') {
     if (isHtmlRequest(req)) {
       const salas = await Sala.find();
-      return res.status(400).render('salas', {
+      return res.status(400).render('Admin/salas', {
         usuarioLogueado: req.session?.usuario || null,
         salas,
         datos: req.body,
@@ -68,14 +68,14 @@ export const validarSalaBody = async (req, res, next) => {
             VIP: req.body.vip !== undefined ? req.body.vip : 0
           }
         };
-        return res.status(400).render('editarSala', {
+        return res.status(400).render('Admin/editarSala', {
           usuarioLogueado: req.session?.usuario || null,
           sala: salaObj,
           error: error.message
         });
       } else {
         // Si no tiene ID, estábamos creando una nueva sala
-        return res.status(400).render('salas', {
+        return res.status(400).render('Admin/salas', {
           usuarioLogueado: req.session?.usuario || null,
           salas,
           datos: req.body,

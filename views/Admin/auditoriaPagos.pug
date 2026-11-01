@@ -1,101 +1,91 @@
-doctype html
-html(lang="es")
-  head
-    meta(charset="UTF-8")
-    meta(name="viewport" content="width=device-width, initial-scale=1")
-    title Auditoría de Pagos y Ventas
-  body(style="font-family: 'Segoe UI', system-ui, sans-serif; padding: 30px; max-width: 1200px; margin: auto; background-color: #f8fafc; color: #1e293b;")
-    
-    div(style="background-color: #ffffff; padding: 20px 30px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0;")
-      h2(style="margin: 0; color: #16a34a; font-size: 20px;") 💳 Auditoría de Pagos y Compras
-      a(href="/admin/dashboard" style="background: #007bff; color: white; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: bold;") ⬅️ Volver al Panel
+extends ../layout.pug
 
-    nav(style="background: #ffffff; padding: 12px 20px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); margin-bottom: 25px; display: flex; gap: 10px; flex-wrap: wrap; border: 1px solid #e2e8f0; align-items: center;")
-      span(style="font-size: 12px; font-weight: bold; color: #94a3b8; text-transform: uppercase; margin-right: 5px;") 📌 Menú:
-      a(href="/admin/dashboard" style="color: #475569; text-decoration: none; font-size: 13px; font-weight: 600; padding: 7px 12px; border-radius: 6px; background: #f1f5f9;") 🏠 Panel
-      a(href="/admin/boleteria" style="color: #475569; text-decoration: none; font-size: 13px; font-weight: 600; padding: 7px 12px; border-radius: 6px; background: #f1f5f9;") 🎫 Boletería
-      a(href="/admin/usuarios" style="color: #475569; text-decoration: none; font-size: 13px; font-weight: 600; padding: 7px 12px; border-radius: 6px; background: #f1f5f9;") 👥 Usuarios
-      a(href="/admin/pagos" style="color: #ffffff; text-decoration: none; font-size: 13px; font-weight: 600; padding: 7px 12px; border-radius: 6px; background: #16a34a;") 💳 Pagos (Actual)
-      a(href="/admin/informe" style="color: #475569; text-decoration: none; font-size: 13px; font-weight: 600; padding: 7px 12px; border-radius: 6px; background: #f1f5f9;") 📊 Informes
-      a(href="/admin/eventos" style="color: #475569; text-decoration: none; font-size: 13px; font-weight: 600; padding: 7px 12px; border-radius: 6px; background: #f1f5f9;") 🎭 Eventos
-      a(href="/admin/salas" style="color: #475569; text-decoration: none; font-size: 13px; font-weight: 600; padding: 7px 12px; border-radius: 6px; background: #f1f5f9;") 🏢 Salas
-      a(href="/admin/cancelaciones" style="color: #475569; text-decoration: none; font-size: 13px; font-weight: 600; padding: 7px 12px; border-radius: 6px; background: #f1f5f9;") 🛡️ Cancelaciones
+block titulo
+  | Pagos · Urbana Cult
 
-    div(style="background-color: #ffffff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); margin-bottom: 20px; border: 1px solid #e2e8f0;")
-      form(action="/admin/pagos" method="GET" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;")
-        input(
-          type="text" 
-          name="busqueda" 
-          placeholder="🔍 Buscar por evento, cliente, correo, DNI o comprobante..." 
-          value=busqueda || '' 
-          style="flex: 1; min-width: 280px; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; box-sizing: border-box;"
-        )
+block content
+  .encabezado-pagina
+    div
+      h1 Auditoría de pagos
+      p Todas las compras online y ventas en boletería.
 
-        button(type="submit" style="background-color: #16a34a; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px;") Buscar
-        
+  //- BUSCADOR Y FILTRO DEL DÍA
+  form.tarjeta.fila.mb(action="/admin/pagos" method="GET")
+    if filtroActual === 'hoy'
+      input(type="hidden" name="filtro" value="hoy")
+    input(type="search" name="busqueda" placeholder="🔍 Evento, cliente, email, DNI o comprobante" value=busqueda || '' aria-label="Buscar pagos" style="flex:1;min-width:240px")
+    button.btn(type="submit") Buscar
+    if filtroActual === 'hoy'
+      a.btn.btn-suave(href=`/admin/pagos${busqueda ? '?busqueda=' + encodeURIComponent(busqueda) : ''}`) Ver todos
+    else
+      a.btn.btn-secundario(href=`/admin/pagos?filtro=hoy${busqueda ? '&busqueda=' + encodeURIComponent(busqueda) : ''}`) Solo hoy
+    if busqueda || filtroActual === 'hoy'
+      a.btn.btn-enlace(href="/admin/pagos") Limpiar
+
+  .tarjeta
+    .tarjeta-titulo
+      h2 Transacciones
+      .fila
         if filtroActual === 'hoy'
-          a(href="/admin/pagos" style="background-color: #0284c7; color: white; padding: 10px 16px; border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: bold;") 📅 Ver Todos
-        else
-          a(href="/admin/pagos?filtro=hoy" style="background-color: #0284c7; color: white; padding: 10px 16px; border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: bold;") 📅 Ver Pagos de Hoy
+          span.insignia.insignia-info 🕒 Solo hoy
+        if busqueda
+          span.insignia.insignia-neutra Buscando: “#{busqueda}”
+        span.texto-tenue #{compras ? compras.length : 0} resultado(s)
 
-        if busqueda || filtroActual === 'hoy'
-          a(href="/admin/pagos" style="background-color: #64748b; color: white; padding: 10px 16px; border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: bold;") 🧹 Limpiar Filtros
-
-    div(style="background-color: #ffffff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;")
-      div(style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;")
-        h3(style="margin: 0; color: #0f172a;") 📋 Historial Completo de Transacciones
-        div(style="display: flex; gap: 8px; align-items: center;")
-          if filtroActual === 'hoy'
-            span(style="font-size: 13px; color: #0284c7; background: #e0f2fe; padding: 4px 10px; border-radius: 6px; font-weight: bold;") 🕒 Mostrando solo pagos de hoy
-          if busqueda
-            span(style="font-size: 13px; color: #475569; background: #e2e8f0; padding: 4px 10px; border-radius: 6px;") Filtrando por: 
-              strong "#{busqueda}"
-
-      if compras && compras.length > 0
-        div(style="overflow-x: auto; max-width: 100%;")
-          table(style="width: 100%; border-collapse: collapse; margin-top: 10px;")
-            thead
-              tr(style="background-color: #f1f5f9; text-align: left; font-size: 13px; color: #475569;")
-                th(style="padding: 12px; border-bottom: 2px solid #cbd5e1;") Comprobante
-                th(style="padding: 12px; border-bottom: 2px solid #cbd5e1;") Cliente / Datos
-                th(style="padding: 12px; border-bottom: 2px solid #cbd5e1;") Detalle de Entradas
-                th(style="padding: 12px; border-bottom: 2px solid #cbd5e1;") Desglose Económico
-                th(style="padding: 12px; border-bottom: 2px solid #cbd5e1;") Medio Pago
-                th(style="padding: 12px; border-bottom: 2px solid #cbd5e1;") Total Pagado
-                th(style="padding: 12px; border-bottom: 2px solid #cbd5e1;") Fecha y Hora
-            tbody
-              each c in compras
-                tr(style="border-bottom: 1px solid #e2e8f0; font-size: 13px; vertical-align: top;")
-                  td(style="padding: 12px;")
-                    div(style="font-weight: bold; color: #1e293b;")= c.comprobanteId || 'REC-SYS'
-                    span(style="display: inline-block; margin-top: 4px; background: #d1e7dd; color: #0f5132; padding: 2px 6px; border-radius: 6px; font-size: 10px; font-weight: bold;") COMPLETADO
-                  
-                  td(style="padding: 12px;")
-                    div(style="color: #0284c7; font-weight: bold;")= c.nombreCliente || (c.cliente ? c.cliente.nombreUsuario : 'Cliente')
-                    if c.cliente
-                      div(style="font-size: 11px; color: #475569; margin-top: 2px;") 📧 #{c.cliente.email}
-                      div(style="font-size: 11px; color: #475569;") 🪪 DNI: #{c.cliente.dni || 'N/A'}
-                      div(style="margin-top: 4px;")
-                        if c.cliente.tipoCliente === 'VIP'
-                          span(style="background: #fef3c7; color: #92400e; padding: 1px 5px; border-radius: 4px; font-size: 10px; font-weight: bold;") VIP (#{c.cliente.porcentajeDescuento ? (c.cliente.porcentajeDescuento * 100) + '%' : '30%'} Desc.)
-                        else
-                          span(style="background: #f1f5f9; color: #475569; padding: 1px 5px; border-radius: 4px; font-size: 10px; font-weight: bold;") ESTÁNDAR
-                    else
-                      div(style="font-size: 11px; color: #94a3b8;") Cliente sin vincular
-
-                  td(style="padding: 12px;")
-                    if c.items && c.items.length > 0
-                      details
-                        summary(style="cursor: pointer; color: #2563eb; font-weight: bold; font-size: 12px;") Ver #{c.items.length} ítem(s)
-                        div(style="margin-top: 8px; background: #f8fafc; padding: 8px; border-radius: 6px; border: 1px solid #e2e8f0; min-width: 220px;")
-                          each item in c.items
-                            div(style="font-size: 12px; color: #334155; margin-bottom: 6px; padding-bottom: 4px; border-bottom: 1px dashed #cbd5e1;")
-                              strong • #{item.nombreEvento}
-                              div(style="color: #64748b; font-size: 11px;") Sector / Tipo: 
-                                span(style="font-weight: bold; color: #1e293b;") #{item.tipoEntrada}
-                              div(style="color: #475569; font-size: 11px;") Cantidad: #{item.cantidad} x $#{item.precio ? item.precio.toLocaleString('es-AR') : '0'} = 
-                                strong(style="color: #0f766e;") $#{((item.precio || 0) * (item.cantidad || 1)).toLocaleString('es-AR')}
-                    else
-                      span(style="color: #94a3b8;") Sin detalle
-
-                  td(style="padding: 12px; font-size: 12px;")
+    if compras && compras.length > 0
+      .tabla-contenedor
+        table.tabla
+          thead
+            tr
+              th Comprobante
+              th Cliente
+              th Detalle
+              th Medio de pago
+              th.num Total
+              th Fecha
+          tbody
+            each c in compras
+              - const canceladas = (c.items || []).reduce((acc, item) => acc + (item.cantidadCancelada || 0), 0)
+              tr
+                td
+                  .codigo= c.comprobanteId || 'REC-SYS'
+                  .fila(style="gap:4px;margin-top:4px")
+                    span.insignia(class=c.canal === 'Sucursal' ? 'insignia-info' : 'insignia-marca')= c.canal || 'Online'
+                    if canceladas
+                      span.insignia.insignia-aviso #{canceladas} cancelada(s)
+                td
+                  .negrita= c.nombreCliente || (c.cliente ? c.cliente.nombreUsuario : 'Cliente')
+                  if c.cliente
+                    .texto-tenue= c.cliente.email
+                    .texto-tenue DNI #{c.cliente.dni || 'N/A'} · #{c.cliente.tipoCliente || 'ESTANDAR'}
+                  else
+                    .texto-tenue Cliente sin vincular
+                td
+                  if c.items && c.items.length > 0
+                    details
+                      summary #{c.items.length} ítem(s)
+                      each item in c.items
+                        .texto-tenue(style="margin-bottom:6px")
+                          strong(style="color:var(--color-texto)")= item.nombreEvento
+                          br
+                          | #{item.tipoEntrada} · #{item.cantidad} × $#{(item.precio || 0).toLocaleString('es-AR')}
+                          if item.cantidadCancelada
+                            |  (#{item.cantidadCancelada} cancelada/s)
+                  else
+                    span.texto-tenue Sin detalle
+                td
+                  = c.medioPago
+                  if c.tarjetaUltimosDigitos
+                    .texto-tenue •••• #{c.tarjetaUltimosDigitos}
+                td.num
+                  .negrita $#{(c.total || 0).toLocaleString('es-AR')}
+                  if c.descuentoAplicado > 0
+                    .texto-tenue Subtotal $#{(c.subtotal || 0).toLocaleString('es-AR')}
+                    .texto-exito(style="font-size:12px") −$#{c.descuentoAplicado.toLocaleString('es-AR')} desc.
+                td
+                  = new Date(c.fechaCompra).toLocaleDateString('es-AR')
+                  .texto-tenue= new Date(c.fechaCompra).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })
+    else
+      .vacio
+        .icono-vacio 💳
+        p No se encontraron transacciones.

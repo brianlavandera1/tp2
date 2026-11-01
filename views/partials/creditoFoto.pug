@@ -1,0 +1,16 @@
+//- Atribución de una foto con licencia Creative Commons: "📷 Autor · Licencia" con enlace a la fuente
+//- (los separadores van como texto entre comillas para que no se pierdan los espacios)
+mixin creditoFoto(credito, clase)
+  if credito && credito.autor
+    span.credito-foto(class=clase)
+      = '📷 '
+      if credito.fuente
+        a(href=credito.fuente target="_blank" rel="noopener noreferrer" title="Ver la foto original en Wikimedia Commons")= credito.autor
+      else
+        = credito.autor
+      if credito.licencia
+        = ' · '
+        if credito.licenciaUrl
+          a(href=credito.licenciaUrl target="_blank" rel="noopener noreferrer")= credito.licencia
+        else
+          = credito.licencia

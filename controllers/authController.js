@@ -6,6 +6,13 @@ export const procesarLogin = async (req, res) => {
   try {
     const { identificador, password } = req.body;
 
+    if (typeof identificador !== 'string' || typeof password !== 'string' || !identificador.trim() || !password) {
+      return res.status(400).render('auth/login', {
+        error: 'Completá usuario y contraseña.',
+        datos: req.body
+      });
+    }
+
     const usuario = await Usuario.findOne({ 
       $or: [
         { nombreUsuario: identificador.trim() }, 

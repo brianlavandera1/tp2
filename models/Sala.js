@@ -1,4 +1,3 @@
-//const mongoose = require('mongoose');
 import mongoose from 'mongoose';
 
 export const ZONAS = Object.freeze(['General', 'Platea', 'VIP']);
@@ -73,6 +72,5 @@ salaSchema.statics.eliminarConEventos = async function(id) {
   return await this.findByIdAndDelete(id);
 };
 
-//module.exports = mongoose.model('Sala', salaSchema);
 
 export default mongoose.model('Sala', salaSchema);

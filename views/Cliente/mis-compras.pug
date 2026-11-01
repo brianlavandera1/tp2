@@ -1,58 +1,76 @@
 extends ../layoutCliente.pug
 
+block titulo
+  | Mis entradas · Urbana Cult
+
 block content
-  div(style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;")
-    
-    div(style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;")
-      h3(style="margin-top: 0; color: #0f172a; border-bottom: 2px solid #e2e8f0; padding-bottom: 12px; font-size: 18px;") 📜 Tu Historial de Compras
+  .encabezado-pagina
+    div
+      h1 Mis entradas
+      p Mostrá el código de tu entrada en el acceso. Podés cancelarla si no vas a asistir.
+
+  .grilla.grilla-lateral
+    //- ENTRADAS ACTIVAS
+    section
+      h2 Entradas activas
+      if misEntradasCompradas && misEntradasCompradas.length > 0
+        .lista
+          each entrada in misEntradasCompradas
+            article.ticket(id=`ticket-${entrada._id}`)
+              .ticket-principal
+                if entrada.evento
+                  h4= entrada.evento.nombre
+                  if entrada.evento.entidad
+                    p.texto-suave.mb-0 🎤 #{entrada.evento.entidad.nombre}
+                  .evento-meta.mt(style="margin-top:10px")
+                    span 📅 #{new Date(entrada.evento.fecha).toLocaleDateString('es-AR')}
+                    span ⏰ #{entrada.evento.hora || '21:00'} hs
+                    if entrada.evento.sala
+                      span 📍 #{entrada.evento.sala.nombre}
+                else
+                  h4= entrada.nombre
+                .fila(style="margin-top:12px")
+                  span.insignia.insignia-marca 💺 #{entrada.sector || 'General'}
+                  span.insignia.insignia-neutra 🎟️ #{entrada.cantidad || 1} entrada(s)
+              .ticket-talon
+                div
+                  .texto-tenue Código
+                  .codigo= entrada.codigoBoleto
+                button.btn.btn-chico.btn-peligro-suave(type="button" onclick=`cancelarEntrada('${entrada._id}')`) Cancelar
+      else
+        .tarjeta.vacio
+          .icono-vacio 🎟️
+          h3 No tenés entradas activas
+          p Cuando compres, tus entradas van a aparecer acá.
+          a.btn(href="/cliente/comprar") Ver cartelera
+
+    //- HISTORIAL DE COMPRAS
+    aside.tarjeta
+      h3 Historial de compras
       if misCompras && misCompras.length > 0
-        div(style="display: flex; flex-direction: column; gap: 15px; margin-top: 15px;")
+        .lista
           each compra in misCompras
             - const totalEntradas = compra.items ? compra.items.reduce((acc, item) => acc + (item.cantidad || 0), 0) : 0
-            
-            div(style="background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; border-left: 4px solid #16a34a;")
-              div(style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;")
-                span(style="font-weight: bold; color: #16a34a; font-size: 14px;") 🧾 Recibo: #{compra.comprobanteId}
-                span(style="font-size: 12px; color: #64748b; font-weight: bold;") #{new Date(compra.fechaCompra).toLocaleDateString()}
-              
-              p(style="margin: 4px 0; font-size: 13px; color: #334155;") 🎟️ <strong>Entradas Compradas:</strong> #{totalEntradas} ticket(s)
-              p(style="margin: 4px 0; font-size: 13px; color: #334155;") 💳 <strong>Medio de Pago:</strong> #{compra.medioPago || 'Tarjeta'}
-              p(style="margin: 4px 0; font-size: 14px; font-weight: bold; color: #16a34a;") 💵 Total Abonado: $#{compra.total}
+            - const canceladas = compra.items ? compra.items.reduce((acc, item) => acc + (item.cantidadCancelada || 0), 0) : 0
+            .item-lista
+              .fila-entre
+                span.codigo= compra.comprobanteId
+                span.texto-tenue= new Date(compra.fechaCompra).toLocaleDateString('es-AR')
+              .texto-suave(style="font-size:13px;margin:6px 0") #{totalEntradas} entrada(s) · #{compra.medioPago || 'Tarjeta'}
+              .fila-entre
+                strong $#{compra.total.toLocaleString('es-AR')}
+                if canceladas
+                  span.insignia.insignia-aviso #{canceladas} cancelada(s)
       else
-        p(style="color: #64748b; font-style: italic; margin-top: 15px;") No hay compras registradas en el historial.
-
-    div(style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;")
-      h3(style="margin-top: 0; color: #0f172a; border-bottom: 2px solid #e2e8f0; padding-bottom: 12px; font-size: 18px;") 🌟 Entradas Activas
-      if misEntradasCompradas && misEntradasCompradas.length > 0
-        div(style="display: flex; flex-direction: column; gap: 15px; margin-top: 15px;")
-          each entrada in misEntradasCompradas
-            div(id=`ticket-${entrada._id}` style="background: #ffffff; border: 2px dashed #0ea5e9; border-radius: 10px; padding: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);")
-              div(style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px; margin-bottom: 8px;")
-                span(style="background: #0ea5e9; color: white; font-size: 11px; font-weight: bold; padding: 3px 8px; border-radius: 4px;") Entrada Digital 🎟️
-                span(style="font-size: 12px; color: #10b981; font-weight: bold;") Ticket: #{entrada.codigoBoleto}
-
-              if entrada.evento
-                h4(style="margin: 0 0 4px 0; color: #0f172a; font-size: 15px;") #{entrada.evento.nombre}
-                if entrada.evento.entidad
-                  p(style="margin: 0 0 6px 0; color: #0284c7; font-weight: bold; font-size: 13px;") 🎭 Presenta: #{entrada.evento.entidad.nombre}
-                p(style="margin: 0 0 4px 0; font-size: 13px; color: #475569;") 📅 <strong>Fecha:</strong> #{new Date(entrada.evento.fecha).toLocaleDateString()}
-
-              p(style="margin: 0 0 4px 0; font-size: 12px; color: #64748b;") 🎟️ <strong>Cantidad:</strong> #{entrada.cantidad || 1}
-              p(style="margin: 0 0 10px 0; font-size: 12px; color: #64748b;") 💺 <strong>Sector:</strong> #{entrada.sector || 'General'}
-
-              div(style="display: flex; gap: 6px; border-top: 1px solid #f1f5f9; padding-top: 8px;")
-                button(onclick=`cancelarEntrada('${entrada._id}')`, style="background-color: #dc2626; color: white; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: bold;") ❌ Cancelar
-      else
-        p(style="color: #64748b; font-style: italic; margin-top: 15px;") No tienes entradas activas.
+        p.texto-tenue No hay compras registradas.
 
   script.
     async function cancelarEntrada(id) {
-      if (confirm('¿Está seguro que quiere cancelar?')) {
-        try {
-          const respuesta = await fetch('/cliente/cancelar-entrada/' + id, { method: 'POST' });
-          const resultado = await respuesta.json();
-          if (resultado.success) { alert('Entrada cancelada.'); location.reload(); }
-          else { alert(resultado.message); }
-        } catch (e) { alert('Error al cancelar.'); }
-      }
+      if (!confirm('¿Seguro que querés cancelar esta entrada? El cupo se libera para otra persona.')) return;
+      try {
+        const respuesta = await fetch('/cliente/cancelar-entrada/' + id, { method: 'POST', headers: { 'Accept': 'application/json' } });
+        const resultado = await respuesta.json();
+        if (resultado.success) { location.reload(); }
+        else { alert(resultado.message || 'No se pudo cancelar la entrada.'); }
+      } catch (e) { alert('Error al cancelar.'); }
     }

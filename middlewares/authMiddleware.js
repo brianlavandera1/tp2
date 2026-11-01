@@ -17,7 +17,7 @@ const verificarRol = (rolesPermitidos) => (req, res, next) => {
   if (!rolesPermitidos.includes(usuario.rol)) {
     return isApi 
       ? res.status(403).json({ error: 'Permisos insuficientes.' }) 
-      : res.status(403).render('errores/403', { mensaje: 'Acceso Denegado' });
+      : res.status(403).render('errores/403', { mensaje: 'Acceso Denegado', usuarioLogueado: usuario });
   }
   next();
 };

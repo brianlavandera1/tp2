@@ -10,13 +10,21 @@ export const mostrarGestionEntradas = async (req, res) => {
     if (fechaInicio) matchFiltro.fechaCompra = { $gte: new Date(fechaInicio + 'T00:00:00') };
     if (fechaFin) matchFiltro.fechaCompra = { ...matchFiltro.fechaCompra, $lte: new Date(fechaFin + 'T23:59:59.999') };
 
-    const inicioHoy = new Date(); 
+    const inicioHoy = new Date();
     inicioHoy.setHours(0, 0, 0, 0);
+
+    // Entradas vendidas netas (sin las canceladas) y lo efectivamente cobrado:
+    // se aplica a cada ítem el mismo descuento que tuvo la compra (total / subtotal)
+    const vendidasNetas = { $subtract: ["$items.cantidad", { $ifNull: ["$items.cantidadCancelada", 0] }] };
+    const recaudadoNeto = { $multiply: [
+      vendidasNetas, "$items.precio",
+      { $cond: [{ $gt: ["$subtotal", 0] }, { $divide: ["$total", "$subtotal"] }, 1] }
+    ] };
 
     const statsHoy = await Transaccion.aggregate([
       { $match: { fechaCompra: { $gte: inicioHoy } } },
       { $unwind: "$items" },
-      { $group: { _id: null, totalTx: { $addToSet: "$_id" }, vendidas: { $sum: "$items.cantidad" }, recaudado: { $sum: { $multiply: ["$items.cantidad", "$items.precio"] } } } }
+      { $group: { _id: null, totalTx: { $addToSet: "$_id" }, vendidas: { $sum: vendidasNetas }, recaudado: { $sum: recaudadoNeto } } }
     ]);
 
     // Usamos el filtro de fechas (si existe) para la agregación histórica
@@ -26,7 +34,7 @@ export const mostrarGestionEntradas = async (req, res) => {
     }
     etapasAgregacion.push(
       { $unwind: "$items" },
-      { $group: { _id: "$items.eventoId", vendidas: { $sum: "$items.cantidad" }, recaudado: { $sum: { $multiply: ["$items.cantidad", "$items.precio"] } } } }
+      { $group: { _id: "$items.eventoId", vendidas: { $sum: vendidasNetas }, recaudado: { $sum: recaudadoNeto } } }
     );
 
     const statsFiltro = await Transaccion.aggregate(etapasAgregacion);
@@ -38,11 +46,14 @@ export const mostrarGestionEntradas = async (req, res) => {
     const eventos = eventosBD.map(ev => {
       const stats = statsFiltro.find(s => s._id.toString() === ev._id.toString()) || { vendidas: 0, recaudado: 0 };
       totalV += stats.vendidas; totalR += stats.recaudado;
-      const cupo = Number(ev.entradasDisponibles || 0);
+      // entradasDisponibles ya es lo que queda: el cupo total es lo que queda + todo lo vendido (sin canceladas)
+      const disponibles = Number(ev.entradasDisponibles || 0);
+      const vendidasTotales = Object.values(ev.vendidosPorZona || {}).reduce((suma, n) => suma + (Number(n) || 0), 0);
+      const cupo = disponibles + vendidasTotales;
       return {
         id: ev._id, nombre: ev.nombre, sala: ev.sala?.nombre || 'Sin sala',
-        cupo, vendidas: stats.vendidas, disponibles: Math.max(0, cupo - stats.vendidas),
-        recaudado: Math.round(stats.recaudado), porcentaje: cupo > 0 ? Math.round((stats.vendidas/cupo)*100) : 0
+        cupo, vendidas: stats.vendidas, disponibles,
+        recaudado: Math.round(stats.recaudado), porcentaje: cupo > 0 ? Math.round((vendidasTotales / cupo) * 100) : 0
       };
     });
 
@@ -54,12 +65,55 @@ export const mostrarGestionEntradas = async (req, res) => {
       filtrosApli: { fechaInicio, fechaFin }
     });
   } catch (error) { 
-    res.status(500).render('Admin/dashboard', { error: 'Error al consultar transacciones: ' + error.message });
+    res.status(500).render('Admin/dashboard', { usuarioLogueado: req.session.usuario, error: 'Error al consultar transacciones: ' + error.message });
   }
 };
 
 export const getEntradas = async (req, res) => res.json(await Entrada.find(req.session.usuario.rol === 'Cliente' ? { cliente: req.session.usuario._id } : {}).populate('evento cliente'));
-export const getEntradaById = async (req, res) => res.json(await Entrada.findById(req.params.id));
-export const createEntrada = async (req, res) => res.status(201).json(await Entrada.create({ ...req.body, cliente: req.session.usuario._id }));
-export const updateEntrada = async (req, res) => res.json(await Entrada.findByIdAndUpdate(req.params.id, req.body, { new: true }));
-export const deleteEntrada = async (req, res) => res.json(await Entrada.findByIdAndDelete(req.params.id));
+// Un cliente solo puede ver sus propias entradas
+export const getEntradaById = async (req, res) => {
+  const filtro = { _id: req.params.id };
+  if (req.session.usuario.rol === 'Cliente') filtro.cliente = req.session.usuario._id;
+  const entrada = await Entrada.findOne(filtro);
+  if (!entrada) return res.status(404).json({ error: 'Entrada no encontrada.' });
+  res.json(entrada);
+};
+
+// Alta manual (solo Administrador): descuenta stock y toma el precio del evento, no del body
+export const createEntrada = async (req, res) => {
+  const { cliente, evento: eventoId, sector = 'General' } = req.body;
+  const cantidad = parseInt(req.body.cantidad, 10) || 1;
+  if (!cliente || !eventoId) return res.status(400).json({ error: 'Faltan cliente o evento.' });
+
+  const evento = await Evento.reservarZona(eventoId, sector, cantidad);
+  try {
+    const entrada = await Entrada.create({
+      cliente, evento: evento._id, nombre: evento.nombre,
+      precio: evento.precioDeZona(sector), cantidad, sector
+    });
+    res.status(201).json(entrada);
+  } catch (error) {
+    await Evento.liberarZona(eventoId, sector, cantidad);
+    throw error;
+  }
+};
+
+// Solo se permiten cambiar datos que no afectan stock ni precio
+export const updateEntrada = async (req, res) => {
+  const cambios = {};
+  for (const campo of ['fila', 'asiento', 'estado']) {
+    if (req.body[campo] !== undefined) cambios[campo] = req.body[campo];
+  }
+  const entrada = await Entrada.findByIdAndUpdate(req.params.id, cambios, { new: true, runValidators: true });
+  if (!entrada) return res.status(404).json({ error: 'Entrada no encontrada.' });
+  res.json(entrada);
+};
+
+// Al borrar una entrada se devuelve el cupo al evento
+export const deleteEntrada = async (req, res) => {
+  const entrada = await Entrada.findByIdAndDelete(req.params.id);
+  if (!entrada) return res.status(404).json({ error: 'Entrada no encontrada.' });
+  await Evento.liberarZona(entrada.evento, entrada.sector, entrada.cantidad);
+  await Entrada.registrarCancelacionEnTransaccion(entrada);
+  res.json(entrada);
+};

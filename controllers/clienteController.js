@@ -5,6 +5,7 @@ import Transaccion from '../models/Transaccion.js';
 import CancelacionLog from '../models/CancelacionLog.js';
 import Entidad from '../models/Entidad.js';
 import bcrypt from 'bcrypt';
+import { escapeRegex } from '../utils/escapeRegex.js';
 
 export const mostrarMenu = async (req, res) => {
   const usuarioCompleto = await Usuario.findById(req.session.usuario._id);
@@ -80,7 +81,7 @@ export const mostrarMisCompras = async (req, res) => {
 export const cancelarEntrada = async (req, res) => {
   const entradaCancelada = await Entrada.cancelarEntradaZona(req.params.id, req.session.usuario._id);
   await CancelacionLog.create({
-    cliente: entradaCancelada.cliente, nombreCliente: req.session.usuario.nombreUsuario,
+    cliente: entradaCancelada.cliente, evento: entradaCancelada.evento, nombreCliente: req.session.usuario.nombreUsuario,
     eventoNombre: entradaCancelada.nombre, codigoBoleto: entradaCancelada.codigoBoleto, cantidad: entradaCancelada.cantidad
   });
   res.json({ success: true, message: 'Entrada cancelada correctamente.' });
@@ -93,15 +94,16 @@ export const mostrarComprar = async (req, res) => {
     let query = {};
 
     if (buscar) {
+      const patron = escapeRegex(buscar);
       // Buscamos entidades coincidentes con el texto ingresado
       const entidadesCoincidentes = await Entidad.find({
-        nombre: { $regex: buscar, $options: 'i' }
+        nombre: { $regex: patron, $options: 'i' }
       });
       const entidadesIds = entidadesCoincidentes.map(e => e._id);
 
       query.$or = [
-        { nombre: { $regex: buscar, $options: 'i' } },
-        { descripcion: { $regex: buscar, $options: 'i' } },
+        { nombre: { $regex: patron, $options: 'i' } },
+        { descripcion: { $regex: patron, $options: 'i' } },
         { entidad: { $in: entidadesIds } }
       ];
     }
@@ -113,7 +115,8 @@ export const mostrarComprar = async (req, res) => {
       query.fecha = { $gte: inicio, $lte: fin };
     }
 
-    const eventosDisponibles = await Evento.find(query).populate('sala entidad');
+    // Las funciones más próximas primero
+    const eventosDisponibles = await Evento.find(query).sort({ fecha: 1 }).populate('sala entidad');
 
     res.render('Cliente/comprar', { 
       usuarioLogueado: req.session.usuario, 
@@ -163,11 +166,20 @@ export const actualizarConfiguracion = async (req, res) => {
         usuarioLogueado: req.session.usuario, 
         usuarioCompleto: usuarioActual, 
         usuario: { ...usuarioActual.toObject(), ...req.body }, 
-        error: 'El teléfono debe contener entre 10 y 15 números.' 
+        error: 'El teléfono debe contener entre 10 y 15 números.'
       });
     }
 
-    const datosActualizar = { 
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      return res.status(400).render('Cliente/configuracion', {
+        usuarioLogueado: req.session.usuario,
+        usuarioCompleto: usuarioActual,
+        usuario: { ...usuarioActual.toObject(), ...req.body },
+        error: 'Por favor, ingresa un correo electrónico válido.'
+      });
+    }
+
+    const datosActualizar = {
       nombre: nombre.trim(), 
       apellido: apellido.trim(), 
       email: email.trim(), 
@@ -179,18 +191,16 @@ export const actualizarConfiguracion = async (req, res) => {
       datosActualizar.password = await bcrypt.hash(nuevaPassword.trim(), salt);
     }
 
-    await Usuario.findByIdAndUpdate(usuarioId, datosActualizar);
-    
-    req.session.usuario.nombreUsuario = req.body.nombreUsuario || req.session.usuario.nombreUsuario;
+    await Usuario.findByIdAndUpdate(usuarioId, datosActualizar, { runValidators: true });
 
     res.redirect('/cliente/configuracion?exito=Perfil actualizado correctamente.');
   } catch (error) {
     const usuarioActual = await Usuario.findById(req.session.usuario._id);
-    res.status(400).render('Cliente/configuracion', { 
-      usuarioLogueado: req.session.usuario, 
-      usuarioCompleto: usuarioActual, 
-      usuario: usuarioActual, 
-      error: 'Ocurrió un error al actualizar los datos.' 
+    res.status(400).render('Cliente/configuracion', {
+      usuarioLogueado: req.session.usuario,
+      usuarioCompleto: usuarioActual,
+      usuario: usuarioActual,
+      error: error.code === 11000 ? 'Ese correo electrónico ya está registrado por otro usuario.' : 'Ocurrió un error al actualizar los datos.'
     });
   }
 };

@@ -1,125 +1,140 @@
 extends ../layoutCliente.pug
+include ../partials/creditoFoto.pug
 
-block headStyles
-  style.
-    @keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(1.25); } 100% { transform: scale(1); } }
-    .animar-contador { animation: pop 0.3s ease-in-out; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-    .alerta-flotante { animation: fadeIn 0.3s ease-in-out; }
+block titulo
+  | Cartelera · Urbana Cult
 
 block content
-  //- 1. TÍTULO DE LA CARTELERA
-  div(style="background-color: #ffffff; padding: 20px 30px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); margin-bottom: 25px; border: 1px solid #e2e8f0;")
-    h2(style="margin: 0; color: #0f172a; font-size: 20px;") 🎟️ Cartelera de Eventos
-    p(style="margin: 5px 0 0 0; color: #64748b; font-size: 13px;") Busca por artista o filtra por fecha específica para encontrar tu función ideal.
-
-  //- 2. CARTEL / BANNER FLOTANTE DE NOTIFICACIÓN (DEBAJO DE LA CABECERA)
-  #notificacion-carrito(style="display: none; background-color: #d1e7dd; color: #0f5132; padding: 15px 20px; border-radius: 12px; margin-bottom: 25px; border: 1px solid #badbcc; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;" class="alerta-flotante")
-    div(style="display: flex; align-items: center; gap: 10px;")
-      span(style="font-size: 20px;") ✅
-      div
-        strong#texto-notificacion ¡Entrada agregada con éxito!
-        p(id="detalle-carrito" style="margin: 2px 0 0 0; font-size: 13px; color: #155724;") Ya puedes proceder al pago o seguir explorando la cartelera.
-    div(style="display: flex; gap: 10px;")
-      a(href="/cliente/carrito" id="btn-ver-carrito" style="background: #0284c7; color: white; padding: 8px 14px; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: bold;") 🛒 Ver Carrito
-      a(href="/cliente/carrito/checkout" style="background: #16a34a; color: white; padding: 8px 14px; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: bold;") 💳 Pagar Ahora
-
-  //- 3. BARRA DE BÚSQUEDA Y FILTRO POR FECHA
-  div(style="background-color: #ffffff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); margin-bottom: 25px; border: 1px solid #e2e8f0;")
-    form(action="/cliente/comprar" method="GET" style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;")
-      input(type="text" name="buscar" placeholder="🔍 Buscar por evento, artista, productora..." value=(busqueda || '') style="flex: 2; min-width: 240px; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px;")
-      
-      div(style="flex: 1; min-width: 160px; display: flex; align-items: center; gap: 5px;")
-        label(style="font-size: 12px; font-weight: bold; color: #475569; white-space: nowrap;") 📅 Fecha:
-        input(type="date" name="fecha" value=(filtroFecha || '') style="width: 100%; padding: 9px 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; background: white;")
-
-      button(type="submit" style="background: #0ea5e9; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px;") Filtrar
+  //- 1. PORTADA CON BUSCADOR (texto + fecha). De fondo, el primer artista de la cartelera que tenga foto
+  - const destacado = (eventos || []).find(ev => ev.entidad && ev.entidad.urlFoto)
+  section.hero(class=destacado ? 'con-foto' : '' style=destacado ? `--foto:url('${destacado.entidad.urlFoto}')` : undefined)
+    if destacado
+      span.destacado ✦ Destacado: #{destacado.entidad.nombre}
+    h1 Cartelera de eventos
+    p Buscá por evento, artista o productora, o filtrá por una fecha específica para encontrar tu función.
+    form.buscador(action="/cliente/comprar" method="GET" role="search")
+      input.campo-texto(type="text" name="buscar" placeholder="🔍 Buscar evento, artista, productora..." value=(busqueda || '') aria-label="Buscar")
+      input.campo-fecha(type="date" name="fecha" value=(filtroFecha || '') aria-label="Fecha de la función")
+      button.btn(type="submit") Buscar
       if busqueda || filtroFecha
-        a(href="/cliente/comprar" style="background: #64748b; color: white; padding: 10px 16px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 14px; display: inline-flex; align-items: center;") Limpiar
+        a.btn.btn-secundario(href="/cliente/comprar") Limpiar
 
-  //- 4. GRILLA DE EVENTOS
-  div(style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;")
-    if eventos && eventos.length > 0
-      each evento in eventos
-        div(style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; display: flex; flex-direction: column; justify-content: space-between;")
-          div
-            h3(style="margin-top: 0; color: #0f172a; margin-bottom: 5px;") #{evento.nombre}
+  //- 2. AVISO AL AGREGAR AL CARRITO
+  #notificacion-carrito.alerta.alerta-exito.alerta-flotante.oculto(role="status")
+    span ✅
+    div
+      strong#texto-notificacion ¡Entrada agregada con éxito!
+      div#detalle-carrito(style="font-weight:500") Ya podés pagar o seguir explorando la cartelera.
+    .acciones
+      a#btn-ver-carrito.btn.btn-chico.btn-secundario(href="/cliente/carrito") Ver carrito
+      a.btn.btn-chico.btn-exito(href="/cliente/carrito/checkout") Pagar ahora
+
+  //- 3. GRILLA DE EVENTOS
+  .fila-entre.mb
+    h2.mb-0 #{busqueda || filtroFecha ? 'Resultados' : 'Próximas funciones'}
+    span.texto-tenue #{eventos ? eventos.length : 0} evento(s)
+
+  if eventos && eventos.length > 0
+    - const meses = ['ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN', 'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC']
+    .grilla.grilla-auto
+      each evento, i in eventos
+        - const fecha = evento.fecha ? new Date(evento.fecha) : null
+        - const agotado = !(evento.entradasDisponibles > 0)
+        - const precioGeneral = evento.precio || 5000
+        - const precioPlatea = evento.precioPlatea != null ? evento.precioPlatea : precioGeneral
+        - const precioVIP = evento.precioVIP != null ? evento.precioVIP : precioGeneral
+        article.evento
+          - const urlFoto = evento.entidad ? evento.entidad.urlFoto : null
+          .evento-portada(class=[`tono-${i % 6}`, urlFoto ? 'con-foto' : ''] style=urlFoto ? `--foto:url('${urlFoto}')` : undefined)
+            if urlFoto
+              //- Capas: foto en duotono, foto a color (aparece al pasar el mouse) y sombra para leer el texto
+              .portada-foto(aria-hidden="true")
+              .portada-color(aria-hidden="true")
+              .portada-sombra(aria-hidden="true")
+            if fecha
+              span.fecha-chip
+                span.dia= fecha.getDate()
+                span.mes= meses[fecha.getMonth()]
             if evento.entidad
-              p(style="margin: 0 0 10px 0; color: #0284c7; font-weight: bold; font-size: 13px;") 🎭 Presenta: #{evento.entidad.nombre}
-            
-            if evento.fecha
-              p(style="margin: 0 0 8px 0; color: #334155; font-size: 13px; font-weight: bold;") 
-                | 📅 Función: #{new Date(evento.fecha).toLocaleDateString()} - ⏰ #{evento.hora || '21:00'} hs
+              span.artista 🎤 #{evento.entidad.nombre}
+            if urlFoto
+              +creditoFoto(evento.entidad.fotoCredito, 'sobre-foto')
 
-            p(style="color: #64748b; font-size: 13px; margin-bottom: 8px;") 
-              | 🎫 <strong>Stock:</strong> 
-              if evento.entradasDisponibles > 0
-                span(style="color: #10b981; font-weight: bold;") #{evento.entradasDisponibles} disponibles
+          .evento-cuerpo
+            h3.nombre-evento= evento.nombre
+            .evento-meta
+              if fecha
+                span 📅 #{fecha.toLocaleDateString('es-AR')}
+              span ⏰ #{evento.hora || '21:00'} hs
+              if evento.sala
+                span 📍 #{evento.sala.nombre}
+            p.evento-descripcion= evento.descripcion || 'Sin descripción.'
+            div
+              if agotado
+                span.insignia.insignia-error Agotado
+              else if evento.entradasDisponibles <= 20
+                span.insignia.insignia-aviso ¡Últimas #{evento.entradasDisponibles} entradas!
               else
-                span(style="color: #dc2626; font-weight: bold; background: #fee2e2; padding: 2px 6px; border-radius: 4px;") 🚫 ¡Agotado!
+                span.insignia.insignia-exito #{evento.entradasDisponibles} disponibles
 
-            p(style="color: #475569; font-size: 13px; margin-bottom: 15px; line-height: 1.4;") #{evento.descripcion || 'Sin descripción.'}
-          
-          form(onsubmit="agregarAlCarrito(event, this)" action="/cliente/carrito/agregar" method="POST" style="background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0;")
-            input(type="hidden" name="eventoId" value=evento._id)
-            input(type="hidden" name="maxStock" value=evento.entradasDisponibles)
-            
-            div(style="margin-bottom: 10px;")
-              label(style="display: block; font-size: 12px; font-weight: bold; margin-bottom: 4px; color: #475569;") Sector:
-              select(name="tipoEntrada" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; background: white;")
-                option(value="General") General
-                option(value="Platea") Platea
-                option(value="VIP") VIP
-            
-            div(style="display: flex; gap: 10px; margin-bottom: 12px;")
-              div(style="flex: 1;")
-                label(style="display: block; font-size: 12px; font-weight: bold; margin-bottom: 4px; color: #475569;") Precio ($):
-                input(type="number" value=(evento.precio || 5000) readonly style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; background: #e2e8f0; box-sizing: border-box;")
-              div(style="flex: 1;")
-                label(style="display: block; font-size: 12px; font-weight: bold; margin-bottom: 4px; color: #475569;") Cantidad:
-                input(type="number" name="cantidad" value="1" min="1" max=evento.entradasDisponibles style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; background: white; box-sizing: border-box;")
-            
-            if evento.entradasDisponibles > 0
-              button(type="submit" class="btn-agregar" style="width: 100%; background: #0ea5e9; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 13px;") ➕ Agregar al Carrito
-            else
-              button(type="button" disabled style="width: 100%; background: #94a3b8; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: not-allowed; font-size: 13px;") 🚫 Agotado
-    else
-      div(style="grid-column: 1 / -1; text-align: center; padding: 40px; background: white; border-radius: 12px; border: 1px solid #e2e8f0;")
-        p(style="color: #64748b; font-size: 15px;") No se encontraron eventos para los filtros seleccionados.
+            form.evento-compra(onsubmit="agregarAlCarrito(event, this)" action="/cliente/carrito/agregar" method="POST")
+              input(type="hidden" name="eventoId" value=evento._id)
+              input(type="hidden" name="maxStock" value=evento.entradasDisponibles)
+              .precio-linea
+                span.texto-tenue Precio por entrada
+                span.precio $
+                  span.precio-sector= precioGeneral.toLocaleString('es-AR')
+              .campo
+                label(for=`sector-${evento._id}`) Sector
+                select(id=`sector-${evento._id}` name="tipoEntrada" onchange="this.form.querySelector('.precio-sector').textContent = Number(this.selectedOptions[0].dataset.precio).toLocaleString('es-AR')")
+                  option(value="General" data-precio=precioGeneral) General
+                  option(value="Platea" data-precio=precioPlatea) Platea
+                  option(value="VIP" data-precio=precioVIP) VIP
+              .campo
+                label(for=`cantidad-${evento._id}`) Cantidad
+                input(id=`cantidad-${evento._id}` type="number" name="cantidad" value="1" min="1" max=evento.entradasDisponibles)
+              if agotado
+                button.btn(type="button" disabled) Agotado
+              else
+                button.btn.btn-agregar(type="submit") Agregar al carrito
+  else
+    .tarjeta.vacio
+      .icono-vacio 🔎
+      h3 No encontramos eventos
+      p Probá con otra búsqueda o con otra fecha.
+      a.btn.btn-secundario(href="/cliente/comprar") Ver toda la cartelera
 
   script.
     async function agregarAlCarrito(event, form) {
       event.preventDefault();
-      const cantidadInput = form.querySelector('input[name="cantidad"]');
-      const cantVal = parseInt(cantidadInput.value) || 0;
+      const cantVal = parseInt(form.querySelector('input[name="cantidad"]').value) || 0;
       const maxStock = parseInt(form.querySelector('input[name="maxStock"]').value) || 0;
       if (cantVal <= 0) { alert('Debes ingresar al menos 1 entrada.'); return; }
       if (cantVal > maxStock) { alert(`El máximo disponible en stock es ${maxStock}.`); return; }
-      
-      const tarjeta = form.closest('div[style*="background: white"]');
-      const nombreEvento = tarjeta.querySelector('h3').innerText;
 
-      const formData = new URLSearchParams(new FormData(form));
+      const nombreEvento = form.closest('.evento').querySelector('.nombre-evento').innerText;
       const boton = form.querySelector('.btn-agregar');
       try {
-        const response = await fetch(form.action, { method: 'POST', headers: { 'Accept': 'application/json' }, body: formData });
+        const response = await fetch(form.action, { method: 'POST', headers: { 'Accept': 'application/json' }, body: new URLSearchParams(new FormData(form)) });
         const data = await response.json();
         if (data.success) {
-          const notificacion = document.getElementById('notificacion-carrito');
-          const textoNotif = document.getElementById('texto-notificacion');
-          const detalleCarrito = document.getElementById('detalle-carrito');
-          const btnVercarrito = document.getElementById('btn-ver-carrito');
+          document.getElementById('texto-notificacion').innerText = `¡Agregaste ${cantVal} entrada(s) de "${nombreEvento}"!`;
+          document.getElementById('detalle-carrito').innerText = `Tenés ${data.totalItems} entrada(s) en tu carrito, listas para pagar.`;
+          document.getElementById('btn-ver-carrito').innerText = `Ver carrito (${data.totalItems})`;
+          document.getElementById('notificacion-carrito').classList.remove('oculto');
 
-          textoNotif.innerText = `¡Agregaste ${cantVal} entrada(s) de "${nombreEvento}"!`;
-          detalleCarrito.innerText = `🛒 En total tienes ${data.totalItems} entrada(s) acumuladas en tu carrito listo para pagar.`;
-          btnVercarrito.innerText = `🛒 Ver Carrito (${data.totalItems})`;
-          
-          notificacion.style.display = 'flex';
+          // Actualiza el contador del encabezado
+          const contador = document.getElementById('contador-carrito');
+          contador.textContent = data.totalItems;
+          contador.classList.remove('oculto', 'pop');
+          void contador.offsetWidth;
+          contador.classList.add('pop');
+
           window.scrollTo({ top: 0, behavior: 'smooth' });
-
-          const textoOriginal = boton.innerHTML;
-          boton.innerHTML = '✅ ¡Agregado!'; boton.style.background = '#16a34a';
-          setTimeout(() => { boton.innerHTML = textoOriginal; boton.style.background = '#0ea5e9'; }, 1500);
+          const textoOriginal = boton.textContent;
+          boton.textContent = '✅ ¡Agregado!';
+          boton.classList.add('btn-exito');
+          setTimeout(() => { boton.textContent = textoOriginal; boton.classList.remove('btn-exito'); }, 1500);
         } else { alert(data.message || 'Error al agregar al carrito.'); }
       } catch (error) { alert('Ocurrió un error de conexión.'); }
     }

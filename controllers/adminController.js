@@ -2,13 +2,59 @@ import Usuario from '../models/Usuario.js';
 import CancelacionLog from '../models/CancelacionLog.js';
 import Transaccion from '../models/Transaccion.js';
 import Evento from '../models/Evento.js';
+import Entrada from '../models/Entrada.js';
 import crypto from 'crypto';
+import bcrypt from 'bcrypt';
+import { escapeRegex } from '../utils/escapeRegex.js';
+import { ZONAS } from '../models/Sala.js';
 
-export const mostrarFormularioCrearPersonal = (req, res) => res.render('Admin/crear-personal', { usuarioLogueado: req.session.usuario, error: null, datos: {} });
+// Panel principal: indicadores del día calculados desde la base
+export const mostrarDashboard = async (req, res) => {
+  const inicioHoy = new Date();
+  inicioHoy.setHours(0, 0, 0, 0);
+  const ahora = new Date();
+
+  const [ventasHoy] = await Transaccion.aggregate([
+    { $match: { fechaCompra: { $gte: inicioHoy } } },
+    { $unwind: '$items' },
+    { $group: {
+      _id: null,
+      entradas: { $sum: { $subtract: ['$items.cantidad', { $ifNull: ['$items.cantidadCancelada', 0] }] } },
+      recaudado: { $sum: { $multiply: [
+        { $subtract: ['$items.cantidad', { $ifNull: ['$items.cantidadCancelada', 0] }] }, '$items.precio',
+        { $cond: [{ $gt: ['$subtotal', 0] }, { $divide: ['$total', '$subtotal'] }, 1] }
+      ] } }
+    } }
+  ]);
+
+  const [eventosActivos, proximoEvento, cancelacionesHoy, totalClientes] = await Promise.all([
+    Evento.countDocuments({ fecha: { $gte: ahora } }),
+    Evento.findOne({ fecha: { $gte: ahora } }).sort({ fecha: 1 }).populate('sala'),
+    CancelacionLog.countDocuments({ fechaCancelacion: { $gte: inicioHoy } }),
+    Usuario.countDocuments({ rol: 'Cliente' })
+  ]);
+
+  res.render('Admin/dashboard', {
+    usuarioLogueado: req.session.usuario,
+    indicadores: {
+      entradasHoy: ventasHoy ? ventasHoy.entradas : 0,
+      recaudadoHoy: ventasHoy ? Math.round(ventasHoy.recaudado) : 0,
+      eventosActivos,
+      cancelacionesHoy,
+      totalClientes
+    },
+    proximoEvento
+  });
+};
+
+export const mostrarFormularioCrearPersonal =(req, res) => res.render('Admin/crear-personal', { usuarioLogueado: req.session.usuario, error: null, datos: {} });
 
 export const registrarPersonalInterno = async (req, res) => {
   try {
-    await Usuario.create(req.body);
+    const { password } = req.body;
+    if (!password || !password.trim()) throw new Error('La contraseña es obligatoria.');
+    // Se guarda encriptada, igual que en el registro de clientes (si no, el login con bcrypt falla)
+    await Usuario.create({ ...req.body, password: await bcrypt.hash(password.trim(), 10) });
     res.redirect('/admin/usuarios?exito=Usuario creado');
   } catch (error) {
     let mensajeError = 'Error al crear usuario. Verifica los datos.';
@@ -19,17 +65,18 @@ export const registrarPersonalInterno = async (req, res) => {
       mensajeError = error.message;
     }
     // Devolvemos los datos previos para que el formulario no se borre
-    res.status(400).render('Admin/crear-personal', { 
-      error: mensajeError, 
-      usuarioLogueado: req.session.usuario, 
-      datos: req.body 
+    const { password, ...datosSinPassword } = req.body;
+    res.status(400).render('Admin/crear-personal', {
+      error: mensajeError,
+      usuarioLogueado: req.session.usuario,
+      datos: datosSinPassword
     });
   }
 };
 
 export const listarUsuarios = async (req, res) => {
   const usuarios = await Usuario.find().sort({ createdAt: -1 });
-  res.render('Admin/usuarios', { usuarioLogueado: req.session.usuario, usuarios });
+  res.render('Admin/usuarios', { usuarioLogueado: req.session.usuario, usuarios, exito: req.query.exito });
 };
 
 export const mostrarFormularioEditarUsuario = async (req, res) => {
@@ -39,7 +86,10 @@ export const mostrarFormularioEditarUsuario = async (req, res) => {
 
 export const actualizarUsuario = async (req, res) => {
   try {
-    await Usuario.findByIdAndUpdate(req.params.id, req.body, { runValidators: true });
+    // La contraseña nunca se guarda tal cual: si viene vacía se ignora, si no se encripta
+    const { password, ...cambios } = req.body;
+    if (password && password.trim()) cambios.password = await bcrypt.hash(password.trim(), 10);
+    await Usuario.findByIdAndUpdate(req.params.id, cambios, { runValidators: true });
     res.redirect('/admin/usuarios?exito=Usuario actualizado');
   } catch (error) {
     let mensajeError = 'Error al actualizar usuario.';
@@ -75,7 +125,7 @@ export const listarAuditoriaPagos = async (req, res) => {
 
     if (busqueda && busqueda.trim()) {
       const termino = busqueda.trim();
-      const regex = new RegExp(termino, 'i');
+      const regex = new RegExp(escapeRegex(termino), 'i');
       const esObjectId = /^[a-fA-F0-9]{24}$/.test(termino);
 
       const usuariosCoincidentes = await Usuario.find({
@@ -121,7 +171,7 @@ export const listarCancelaciones = async (req, res) => {
 
     if (busqueda && busqueda.trim()) {
       const termino = busqueda.trim();
-      const regex = new RegExp(termino, 'i');
+      const regex = new RegExp(escapeRegex(termino), 'i');
       const esObjectId = /^[a-fA-F0-9]{24}$/.test(termino);
 
       const condiciones = [{ nombreCliente: regex }, { eventoNombre: regex }, { codigoBoleto: regex }];
@@ -160,28 +210,46 @@ export const procesarVentaFisica = async (req, res) => {
     }
 
     const cajeroActivo = req.session.usuario.nombreUsuario;
-    const { dniCliente, nombreCliente, eventoId, tipoEntrada, cantidad, medioPago, precioUnitario } = req.body;
-    
+    const { dniCliente, nombreCliente, eventoId, medioPago, precioUnitario } = req.body;
+    const cantidad = parseInt(req.body.cantidad, 10);
+    const tipoEntrada = (req.body.tipoEntrada || '').trim();
+
+    if (!ZONAS.includes(tipoEntrada)) throw new Error(`El sector debe ser uno de: ${ZONAS.join(', ')}.`);
+    if (!Number.isInteger(cantidad) || cantidad < 1) throw new Error('La cantidad debe ser al menos 1.');
+    if (isNaN(parseFloat(precioUnitario)) || parseFloat(precioUnitario) < 0) throw new Error('El precio unitario no es válido.');
+
     let cliente = await Usuario.findOne({ dni: dniCliente });
     if (!cliente) {
-      const passwordSegura = crypto.randomBytes(6).toString('hex');
+      // Cuenta interna sin acceso: la contraseña aleatoria se guarda encriptada
+      const passwordSegura = await bcrypt.hash(crypto.randomBytes(16).toString('hex'), 10);
       cliente = await Usuario.create({
         nombreUsuario: `cliente_${dniCliente}`,
         nombre: nombreCliente.split(' ')[0],
-        apellido: 'Sucursal',            
+        apellido: 'Sucursal',
         dni: dniCliente,
         rol: 'Cliente',
-        email: `cajero_${cajeroActivo}_${dniCliente}@sucursal.com`, 
-        password: passwordSegura,                   
-        telefono: '0000000000',                 
-        fechaNacimiento: new Date('1990-01-01') 
+        email: `cajero_${cajeroActivo}_${dniCliente}@sucursal.com`,
+        password: passwordSegura,
+        telefono: '0000000000',
+        fechaNacimiento: new Date('1990-01-01')
       });
     }
 
-    const evento = await Evento.findById(eventoId);
-    if (!evento) throw new Error('Evento no encontrado');
-    
-    const subtotal = parseFloat(precioUnitario) * parseInt(cantidad, 10);
+    // Reserva atómica del cupo: misma lógica que la compra online, evita sobreventa
+    const evento = await Evento.reservarZona(eventoId, tipoEntrada, cantidad);
+    const transaccionId = new Transaccion()._id;
+    let entradaCreada = null;
+    try {
+      entradaCreada = await Entrada.create({
+        cliente: cliente._id, evento: evento._id, transaccion: transaccionId, nombre: evento.nombre,
+        precio: parseFloat(precioUnitario), cantidad, sector: tipoEntrada
+      });
+    } catch (error) {
+      await Evento.liberarZona(eventoId, tipoEntrada, cantidad);
+      throw error;
+    }
+
+    const subtotal = parseFloat(precioUnitario) * cantidad;
     let descuentoAplicado = 0;
     let total = subtotal;
 
@@ -191,7 +259,8 @@ export const procesarVentaFisica = async (req, res) => {
     }
 
     const nuevaVenta = await Transaccion.create({
-      comprobanteId: `SUC-${Date.now().toString().slice(-6)}`,
+      _id: transaccionId,
+      comprobanteId: `SUC-${Date.now()}`,
       cliente: cliente._id,
       nombreCliente: `${cliente.nombre} ${cliente.apellido} (Cajero: ${cajeroActivo})`, 
       medioPago: medioPago,
@@ -203,12 +272,16 @@ export const procesarVentaFisica = async (req, res) => {
         eventoId: evento._id,
         nombreEvento: evento.nombre,
         tipoEntrada: tipoEntrada,
-        cantidad: parseInt(cantidad, 10),
+        cantidad,
         precio: parseFloat(precioUnitario)
       }]
+    }).catch(async (error) => {
+      await Entrada.findByIdAndDelete(entradaCreada._id);
+      await Evento.liberarZona(eventoId, tipoEntrada, cantidad);
+      throw error;
     });
 
-    res.render('Admin/imprimirTicket', { venta: nuevaVenta, cajero: cajeroActivo });
+    res.render('Admin/imprimirTicket', { venta: nuevaVenta, cajero: cajeroActivo, entrada: entradaCreada });
   } catch (error) {
     try {
       const eventos = await Evento.find();

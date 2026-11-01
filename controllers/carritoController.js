@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import Evento from '../models/Evento.js';
 import Entrada from '../models/Entrada.js';
 import Transaccion from '../models/Transaccion.js';
@@ -42,8 +43,8 @@ export const agregarItem = async (req, res) => {
       return res.status(400).json({ success: false, message: `Stock insuficiente. Solo puedes agregar ${disponiblesRestantes} más.` });
     }
 
-    const precioOficial = evento.precio || 5000;
     const sectorElegido = ['General', 'Platea', 'VIP'].includes(tipoEntrada) ? tipoEntrada : 'General';
+    const precioOficial = evento.precioDeZona(sectorElegido) ?? 5000;
     const index = req.session.carrito.findIndex(item => item.eventoId === eventoId && item.tipoEntrada === sectorElegido);
     
     if (index > -1) {
@@ -92,12 +93,56 @@ export const procesarPago = async (req, res) => {
   const carrito = req.session.carrito || [];
   if (!carrito.length) return res.redirect('/cliente/carrito');
 
+  // Validación de la tarjeta en el servidor (la del navegador se puede saltear)
+  const { titular = '', numeroTarjeta = '', vencimiento = '', cvv = '' } = req.body;
+  let errorTarjeta = null;
+  if (!/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(titular.trim())) errorTarjeta = 'Por favor, ingresa un titular válido (solo letras).';
+  else if (!/^\d{16}$/.test(numeroTarjeta.trim())) errorTarjeta = 'El número de tarjeta debe tener exactamente 16 dígitos.';
+  else if (!/^(0[1-9]|1[0-2])\/\d{2}$/.test(vencimiento.trim())) errorTarjeta = 'La fecha de vencimiento debe tener el formato MM/AA.';
+  else if (!/^\d{3}$/.test(cvv.trim())) errorTarjeta = 'El código CVV debe tener exactamente 3 dígitos.';
+
+  const volverAlCheckout = (mensaje) => {
+    const subtotal = carrito.reduce((a, b) => a + (b.precio * b.cantidad), 0);
+    const desc = Number((subtotal * (req.session.usuario.porcentajeDescuento || 0)).toFixed(2));
+    return res.status(400).render('Cliente/checkout', {
+      usuarioLogueado: req.session.usuario,
+      subtotal,
+      descuentoAplicado: desc,
+      porcentajeDescuento: (req.session.usuario.porcentajeDescuento || 0) * 100,
+      total: Number((subtotal - desc).toFixed(2)),
+      error: mensaje,
+      datos: { medioPago: req.body.medioPago, titular, vencimiento }
+    });
+  };
+
+  if (errorTarjeta) return volverAlCheckout(errorTarjeta);
+
+  // El precio se guardó al agregar al carrito: se vuelve a consultar por si el evento cambió desde entonces
+  const cambios = [];
+  for (const item of carrito) {
+    const evento = await Evento.findById(item.eventoId);
+    if (!evento) {
+      req.session.carrito = carrito.filter(i => i !== item);
+      return res.redirect('/cliente/carrito');
+    }
+    const precioActual = evento.precioDeZona(item.tipoEntrada);
+    if (precioActual !== item.precio) {
+      cambios.push(`${item.nombreEvento} (${item.tipoEntrada}): $${item.precio} → $${precioActual}`);
+      item.precio = precioActual;
+    }
+  }
+  if (cambios.length) {
+    return volverAlCheckout(`Algunos precios cambiaron desde que agregaste las entradas: ${cambios.join(', ')}. Revisá el nuevo total y confirmá el pago.`);
+  }
+
   const entradasCreadas = [];
   const reservasRealizadas = [];
 
   try {
     const subtotal = carrito.reduce((a, b) => a + (b.precio * b.cantidad), 0);
     const descuentoAplicado = Number((subtotal * (req.session.usuario.porcentajeDescuento || 0)).toFixed(2));
+    // Id generado de antemano para vincular cada entrada con su transacción
+    const transaccionId = new mongoose.Types.ObjectId();
 
     for (const item of carrito) {
       // 1. Reservamos la zona
@@ -106,9 +151,8 @@ export const procesarPago = async (req, res) => {
 
       // 2. Creamos la entrada
       const nuevaEntrada = await Entrada.create({
-        cliente: req.session.usuario._id, evento: item.eventoId, nombre: item.nombreEvento,
-        precio: item.precio, cantidad: item.cantidad, sector: item.tipoEntrada,
-        codigoBoleto: 'TICK-' + Math.floor(100000 + Math.random() * 900000)
+        cliente: req.session.usuario._id, evento: item.eventoId, transaccion: transaccionId, nombre: item.nombreEvento,
+        precio: item.precio, cantidad: item.cantidad, sector: item.tipoEntrada
       });
       entradasCreadas.push(nuevaEntrada._id);
     }
@@ -118,7 +162,9 @@ export const procesarPago = async (req, res) => {
     const ultimosDigitos = numTarjeta.length >= 4 ? numTarjeta.slice(-4) : '****';
 
     const nuevaTransaccion = await Transaccion.create({
-      cliente: req.session.usuario._id, 
+      _id: transaccionId,
+      canal: 'Online',
+      cliente: req.session.usuario._id,
       nombreCliente: req.session.usuario.nombreUsuario, 
       items: carrito,
       subtotal, 

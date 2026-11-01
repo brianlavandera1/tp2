@@ -8,7 +8,7 @@ router.use(verificarRol(['Cliente']));
 
 router.get('/', verCarrito);
 router.post('/agregar', asyncHandler(agregarItem));
-router.get('/quitar/:index', quitarItem);
+router.post('/quitar/:index', quitarItem);
 router.get('/checkout', checkout);
 router.post('/procesar-pago', asyncHandler(procesarPago));
 

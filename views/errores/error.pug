@@ -1,0 +1,13 @@
+doctype html
+html(lang="es")
+  head
+    include ../partials/head.pug
+    title Error #{status} · Urbana Cult
+  body
+    .acceso-formulario(style="min-height:100vh;background:var(--color-fondo)")
+      .tarjeta.centrado(style="max-width:480px;padding:40px 30px")
+        .vacio(style="padding:0")
+          .icono-vacio= status === 404 ? '🔎' : '⚠️'
+          h1(style="font-size:24px")= status === 404 ? 'Página no encontrada' : `Ocurrió un error (${status})`
+          p= mensaje
+          a.btn(href=volver) Volver al inicio

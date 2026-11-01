@@ -1,24 +1,60 @@
-doctype html
-html(lang="es")
-  head
-    meta(charset="UTF-8")
-    title Comprobante de Compra
-  body(style="font-family: sans-serif; padding: 30px; max-width: 700px; margin: auto; background-color: #f4f6f9;")
-    div(style="background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border-top: 5px solid #16a34a;")
-      h2(style="margin: 0; color: #2c3e50;") 🧾 Comprobante Oficial
-      p(style="color: #16a34a; font-weight: bold;") PAGO APROBADO - ID: #{transaccion.comprobanteId}
-      p <strong>Titular:</strong> #{usuarioLogueado.nombre} #{usuarioLogueado.apellido}
-      p <strong>Medio:</strong> #{transaccion.medioPago} (***#{transaccion.tarjetaUltimosDigitos})
-      table(style="width: 100%; border-collapse: collapse; margin: 20px 0;")
-        tr(style="background: #e2e8f0; text-align: left;")
-          th(style="padding: 10px; border: 1px solid #cbd5e1;") Evento
-          th(style="padding: 10px; border: 1px solid #cbd5e1;") Cant.
-          th(style="padding: 10px; border: 1px solid #cbd5e1;") Subtotal
-        each item in transaccion.items
-          tr
-            td(style="padding: 10px; border: 1px solid #e2e8f0;") #{item.nombreEvento} (#{item.tipoEntrada})
-            td(style="padding: 10px; border: 1px solid #e2e8f0;") #{item.cantidad}
-            td(style="padding: 10px; border: 1px solid #e2e8f0;") $#{item.precio * item.cantidad}
-      h3 Total Abonado: $#{transaccion.total}
-      div(style="margin-top: 20px;")
-        a(href="/cliente/menu" style="background: #007bff; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none; font-weight: bold;") 🎫 Ir al Menú
+extends ../layoutCliente.pug
+
+block titulo
+  | Comprobante · Urbana Cult
+
+block content
+  .comprobante
+    .comprobante-cabecera
+      .fila-entre
+        div
+          h1 ✅ ¡Pago aprobado!
+          p.mb-0 Tus entradas ya están disponibles en “Mis entradas”.
+        span.insignia(style="background:rgba(255,255,255,.2);color:#fff") #{transaccion.comprobanteId}
+
+    .comprobante-cuerpo
+      .datos-lista
+        .dato
+          small Cliente
+          strong= transaccion.nombreCliente
+        .dato
+          small Fecha
+          strong= new Date(transaccion.fechaCompra).toLocaleString('es-AR')
+        .dato
+          small Medio de pago
+          strong #{transaccion.medioPago} (•••• #{transaccion.tarjetaUltimosDigitos})
+        .dato
+          small Comprobante
+          strong.codigo= transaccion.comprobanteId
+
+      .tabla-contenedor
+        table.tabla
+          thead
+            tr
+              th Evento
+              th Sector
+              th.num Cant.
+              th.num Subtotal
+          tbody
+            each item in transaccion.items
+              tr
+                td.negrita= item.nombreEvento
+                td= item.tipoEntrada
+                td.num= item.cantidad
+                td.num $#{(item.precio * item.cantidad).toLocaleString('es-AR')}
+
+      .resumen.mt
+        .linea
+          span Subtotal
+          span $#{transaccion.subtotal.toLocaleString('es-AR')}
+        if transaccion.descuentoAplicado > 0
+          .linea.texto-exito
+            span Descuento por membresía
+            span −$#{transaccion.descuentoAplicado.toLocaleString('es-AR')}
+        .total
+          span Total abonado
+          span.precio $#{transaccion.total.toLocaleString('es-AR')}
+
+      .acciones-formulario.mt.no-imprimir
+        button.btn.btn-secundario(type="button" onclick="window.print()") 🖨️ Imprimir
+        a.btn(href="/cliente/mis-compras") Ver mis entradas

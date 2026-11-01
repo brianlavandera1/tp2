@@ -1,0 +1,46 @@
+//- Campos compartidos por "Nueva sala" y "Editar sala".
+//- La capacidad total no se escribe: es la suma de los sectores (el servidor la calcula igual).
+mixin camposSala(s)
+  - s = s || {}
+  - const zonas = s.zonas || {}
+  - const valorZona = (zona, campo) => s[campo] !== undefined ? s[campo] : (zonas[zona] !== undefined ? zonas[zona] : 0)
+
+  .campos
+    .campo
+      label(for="nombre") Nombre de la sala
+      input#nombre(type="text" name="nombre" value=s.nombre required)
+    .campo
+      label(for="ubicacion") Ubicación
+      input#ubicacion(type="text" name="ubicacion" value=s.ubicacion required)
+    .campo.ancho
+      label(for="descripcion") Descripción
+      textarea#descripcion(name="descripcion" rows="2")= s.descripcion
+
+  .seccion-suave.mb
+    .fila-entre(style="margin-bottom:12px")
+      h4.mb-0 Capacidad por sector
+      span.insignia.insignia-marca Total: #[strong#capacidadTotal= s.capacidad || 0] lugares
+    input#capacidad(type="hidden" name="capacidad" value=s.capacidad || 0)
+    .campos-3
+      .campo.mb-0
+        label(for="general") General
+        input#general.zona(type="number" name="general" min="0" value=valorZona('General', 'general'))
+      .campo.mb-0
+        label(for="platea") Platea
+        input#platea.zona(type="number" name="platea" min="0" value=valorZona('Platea', 'platea'))
+      .campo.mb-0
+        label(for="vip") VIP
+        input#vip.zona(type="number" name="vip" min="0" value=valorZona('VIP', 'vip'))
+
+  script.
+    // Recalcula la capacidad total al cambiar cualquier sector
+    (function () {
+      const zonas = document.querySelectorAll('.zona');
+      const actualizar = () => {
+        const total = [...zonas].reduce((suma, input) => suma + (parseInt(input.value) || 0), 0);
+        document.getElementById('capacidadTotal').textContent = total;
+        document.getElementById('capacidad').value = total;
+      };
+      zonas.forEach(input => input.addEventListener('input', actualizar));
+      actualizar();
+    })();

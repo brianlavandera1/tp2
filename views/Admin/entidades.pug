@@ -1,53 +1,86 @@
-doctype html
-html(lang="es")
-  head
-    meta(charset="UTF-8")
-    title Gestión de Artistas / Entidades - Administración
-  body(style="font-family: sans-serif; padding: 30px; max-width: 800px; margin: auto; background-color: #f4f6f9;")
-    div(style="background-color: #ffffff; padding: 25px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);")
-      
-      div(style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;")
-        h2(style="margin: 0; color: #2c3e50;") 🎭 Gestión de Artistas y Productoras
-        a(href="/admin/dashboard" style="color: #666; text-decoration: none; font-weight: bold;") ⬅️ Volver al Panel
+extends ../layout.pug
+include ../partials/creditoFoto.pug
 
-      if exito
-        div(style="background-color: #d1e7dd; color: #0f5132; padding: 10px; border-radius: 5px; margin-bottom: 15px; border: 1px solid #badbcc;")
-          strong= exito
+block titulo
+  | Artistas · Urbana Cult
 
-      if error
-        div(style="background-color: #f8d7da; color: #721c24; padding: 10px; border-radius: 5px; margin-bottom: 15px; border: 1px solid #f5c6cb;")
-          strong= error
+//- Selector de foto con vista previa (se reutiliza en el alta y en cada tarjeta)
+mixin selectorFoto(id, etiqueta)
+  label.selector-foto(for=id)
+    input.input-foto(id=id type="file" name="foto" accept="image/jpeg,image/png,image/webp" data-preview=`preview-${id}`)
+    span 📷 #{etiqueta}
 
-      //- ➕ FORMULARIO PARA CREAR NUEVO ARTISTA / COMPAÑÍA
-      if usuarioLogueado && ['Administrador', 'Supervisor'].includes(usuarioLogueado.rol)
-        div(style="background-color: #f8fafc; padding: 15px; border-radius: 6px; border: 1px solid #e2e8f0; margin-bottom: 25px;")
-          h4(style="margin-top: 0; color: #1e293b; margin-bottom: 10px;") ➕ Registrar Nuevo Artista / Productora
-          form(action="/admin/entidades/crear" method="POST" style="display: flex; gap: 10px;")
-            input(type="text" name="nombre" placeholder="Nombre del artista, compañía o productora..." required style="flex: 1; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 14px;")
-            button(type="submit" style="background-color: #16a34a; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold;") 💾 Guardar
+block content
+  - const puedeEditar = usuarioLogueado && ['Administrador', 'Supervisor'].includes(usuarioLogueado.rol)
+  .encabezado-pagina
+    div
+      h1 Artistas y productoras
+      p La foto de cada artista se usa de fondo en las tarjetas de la cartelera.
 
-      h3(style="color: #334155; font-size: 18px; margin-bottom: 15px;") 📋 Listado Actual
-      if entidades && entidades.length > 0
-        table(style="width: 100%; border-collapse: collapse; margin-top: 10px;")
-          thead
-            tr(style="background-color: #f1f5f9; text-align: left; border-bottom: 2px solid #cbd5e1;")
-              th(style="padding: 10px;") Nombre del Artista / Compañía
-              if usuarioLogueado && ['Administrador', 'Supervisor'].includes(usuarioLogueado.rol)
-                th(style="padding: 10px; text-align: center;") Acciones (Actualizar / Eliminar)
-          tbody
-            each ent in entidades
-              tr(style="border-bottom: 1px solid #e2e8f0;")
-                td(style="padding: 10px; font-weight: bold; color: #334155;")
-                  if usuarioLogueado && ['Administrador', 'Supervisor'].includes(usuarioLogueado.rol)
-                    form(action=`/admin/entidades/editar/${ent._id || '1'}` method="POST" style="display: flex; gap: 10px; margin: 0;")
-                      input(type="text" name="nombre" value=ent.nombre required style="flex: 1; padding: 6px; border: 1px solid #cbd5e1; border-radius: 4px;")
-                      button(type="submit" style="background-color: #0ea5e9; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold;") 💾 Actualizar
-                  else
-                    span= ent.nombre
+  if exito
+    .alerta.alerta-exito ✅ #{exito}
+  if error
+    .alerta.alerta-error(role="alert") ⚠️ #{error}
 
-                if usuarioLogueado && ['Administrador', 'Supervisor'].includes(usuarioLogueado.rol)
-                  td(style="padding: 10px; text-align: center;")
-                    form(action=`/admin/entidades/eliminar/${ent._id || '1'}` method="POST" style="margin: 0;" onsubmit="return confirm('¿Estás seguro de eliminar este artista/productora?');")
-                      button(type="submit" style="background-color: #dc2626; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold;") 🗑️ Eliminar
-      else
-        p(style="color: #64748b; text-align: center; padding: 20px;") No hay artistas o productoras registradas en el sistema.
+  //- ALTA DE ARTISTA
+  if puedeEditar
+    form.tarjeta.alta-artista.mb(action="/admin/entidades/crear" method="POST" enctype="multipart/form-data")
+      .artista-foto.vacia(id="preview-foto-nueva")
+        span 🎤
+      .alta-campos
+        h3.mb-0 Nuevo artista
+        p.texto-tenue Foto opcional · JPG, PNG o WEBP de hasta 2 MB.
+        .fila
+          input(type="text" name="nombre" placeholder="Nombre del artista, compañía o productora" required aria-label="Nombre del nuevo artista" style="flex:1;min-width:220px")
+          +selectorFoto('foto-nueva', 'Elegir foto')
+          button.btn.btn-exito(type="submit") + Agregar
+
+  //- LISTADO EN TARJETAS
+  if entidades && entidades.length > 0
+    .grilla.artistas
+      each ent in entidades
+        article.tarjeta.artista
+          .artista-foto(id=`preview-foto-${ent._id}` class=ent.urlFoto ? '' : 'vacia' style=ent.urlFoto ? `background-image:url('${ent.urlFoto}')` : undefined)
+            if !ent.urlFoto
+              span= ent.nombre.charAt(0)
+            +creditoFoto(ent.fotoCredito, 'sobre-foto')
+          if puedeEditar
+            form.artista-cuerpo(action=`/admin/entidades/editar/${ent._id}` method="POST" enctype="multipart/form-data")
+              input(type="text" name="nombre" value=ent.nombre required aria-label=`Nombre de ${ent.nombre}`)
+              .fila(style="gap:8px")
+                +selectorFoto(`foto-${ent._id}`, ent.urlFoto ? 'Cambiar foto' : 'Subir foto')
+                if ent.urlFoto
+                  label.texto-tenue.fila(style="gap:6px;cursor:pointer")
+                    input(type="checkbox" name="quitarFoto" value="1")
+                    | Quitar foto
+              .fila(style="gap:8px")
+                button.btn.btn-chico(type="submit") Guardar
+                button.btn.btn-chico.btn-peligro-suave(type="submit" form=`eliminar-${ent._id}`) Eliminar
+            form.oculto(id=`eliminar-${ent._id}` action=`/admin/entidades/eliminar/${ent._id}` method="POST" onsubmit="return confirm('¿Seguro que querés eliminar este artista?');")
+          else
+            .artista-cuerpo
+              h4.mb-0= ent.nombre
+  else
+    .tarjeta.vacio
+      .icono-vacio 🎤
+      p No hay artistas registrados.
+
+  script.
+    // Vista previa: muestra la imagen elegida antes de guardarla y avisa si supera los 2 MB
+    document.querySelectorAll('.input-foto').forEach(input => {
+      input.addEventListener('change', () => {
+        const archivo = input.files[0];
+        const etiqueta = input.nextElementSibling;
+        if (!archivo) return;
+        if (archivo.size > 2 * 1024 * 1024) {
+          alert('La foto no puede superar los 2 MB.');
+          input.value = '';
+          return;
+        }
+        const preview = document.getElementById(input.dataset.preview);
+        preview.style.backgroundImage = `url('${URL.createObjectURL(archivo)}')`;
+        preview.classList.remove('vacia');
+        preview.innerHTML = '';
+        etiqueta.textContent = '✅ ' + (archivo.name.length > 18 ? archivo.name.slice(0, 15) + '…' : archivo.name);
+      });
+    });

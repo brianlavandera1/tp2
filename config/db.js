@@ -1,8 +1,9 @@
 import mongoose from 'mongoose';
+import config from './config.js';
 
 export const conectarDB = async () => {
-  const uriAtlas = process.env.MONGODB_URI;
-  const uriLocal = 'mongodb://127.0.0.1:27017/TP2';
+  const uriAtlas = config.mongoUri;
+  const uriLocal = config.mongoUriLocal;
 
   // 1. Intentar conectar primero a MongoDB Atlas (si está definida la URI)
   if (uriAtlas) {

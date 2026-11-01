@@ -13,14 +13,16 @@ const errorHandler = (err, req, res, next) => {
     return res.status(status).json({ status: 'error', message });
   }
 
-  // Evitamos buscar vistas inexistentes y enviamos una respuesta HTML directa y segura
-  res.status(status).send(`
-    <div style="font-family: sans-serif; padding: 40px; text-align: center; background-color: #f8fafc; color: #334155;">
-      <h1 style="color: #dc2626; margin-bottom: 10px;">¡Ups! Ocurrió un error (${status})</h1>
-      <p style="font-size: 16px; margin-bottom: 20px; color: #64748b;">${message}</p>
-      <a href="/admin/dashboard" style="background: #0ea5e9; color: white; padding: 10px 20px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Volver al Panel de Administración</a>
-    </div>
-  `);
+  const usuario = req.session?.usuario;
+  const volver = !usuario ? '/auth/login' : usuario.rol === 'Cliente' ? '/cliente/menu' : '/admin/dashboard';
+  // Los errores 500 no muestran detalles internos al usuario (quedan en el log de arriba)
+  const mensaje = status >= 500 ? 'Ocurrió un problema en el servidor. Intentá de nuevo en unos minutos.' : message;
+
+  // Pug escapa el mensaje (que puede incluir la URL pedida), así que no se inyecta HTML
+  res.status(status).render('errores/error', { status, mensaje, volver }, (errorVista, html) => {
+    if (errorVista) return res.type('text').send(`Error ${status}: ${mensaje}`);
+    res.send(html);
+  });
 };
 
 // Exportación explícita para que index.js lo pueda leer

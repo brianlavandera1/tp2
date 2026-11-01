@@ -1,10 +1,26 @@
 import Sala from '../models/Sala.js';
 import Evento from '../models/Evento.js';
 import Entidad from '../models/Entidad.js';
+import Entrada from '../models/Entrada.js';
 
 const validarCupoEvento = Evento.validarCupoEvento;
 
 const escapeRegex = (text) => text ? text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&') : '';
+
+// Precio opcional por sector: vacío => null (se usa el precio General)
+const precioOpcional = (valor) => {
+  if (valor === undefined || valor === null || String(valor).trim() === '') return null;
+  const numero = parseFloat(valor);
+  return isNaN(numero) ? null : numero;
+};
+
+// El formulario envía la fecha (AAAA-MM-DD) y la hora por separado: se guardan juntas en hora local,
+// así la función no aparece un día antes/después según la zona horaria
+const combinarFechaHora = (fecha, hora) => {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(fecha || '')) return fecha;
+  const horaValida = /^\d{2}:\d{2}$/.test(hora || '') ? hora : '00:00';
+  return new Date(`${fecha}T${horaValida}`);
+};
 
 const isHtmlRequest = (req) => {
   return (req.headers.accept && req.headers.accept.includes('text/html')) || 
@@ -67,8 +83,10 @@ const createEvento = async (req, res) => {
     }
 
     const nuevoEvento = new Evento({
-      nombre, descripcion, fecha, hora, 
+      nombre, descripcion, fecha: combinarFechaHora(fecha, hora), hora,
       precio: parseFloat(precio) || 5000,
+      precioPlatea: precioOpcional(req.body.precioPlatea),
+      precioVIP: precioOpcional(req.body.precioVIP),
       entradasDisponibles: entradas,
       sala: sala || null,
       entidad: entidadAsignada
@@ -79,7 +97,9 @@ const createEvento = async (req, res) => {
     res.status(201).json(nuevoEvento);
   } catch (error) {
     console.error('Error al crear evento:', error);
-    res.status(error.status || 500).json({ message: error.status ? error.message : 'Error interno al crear el evento' });
+    const mensaje = error.status || error.name === 'ValidationError' ? error.message : 'Error interno al crear el evento';
+    if (isHtmlRequest(req)) return res.redirect(`/admin/eventos?error=${encodeURIComponent(mensaje)}`);
+    res.status(error.status || 500).json({ message: mensaje });
   }
 };
 
@@ -106,9 +126,11 @@ const updateEvento = async (req, res) => {
 
     if (nombre) updateData.nombre = nombre;
     if (descripcion) updateData.descripcion = descripcion;
-    if (fecha) updateData.fecha = fecha;
+    if (fecha) updateData.fecha = combinarFechaHora(fecha, hora);
     if (hora) updateData.hora = hora;
     if (precio !== undefined) updateData.precio = parseFloat(precio);
+    if (req.body.precioPlatea !== undefined) updateData.precioPlatea = precioOpcional(req.body.precioPlatea);
+    if (req.body.precioVIP !== undefined) updateData.precioVIP = precioOpcional(req.body.precioVIP);
     if (entradasDisponibles !== undefined) updateData.entradasDisponibles = Number(entradasDisponibles);
     if (sala) updateData.sala = sala;
 
@@ -139,12 +161,20 @@ const updateEvento = async (req, res) => {
     res.json(eventoActualizado);
   } catch (error) {
     console.error('Error al actualizar evento:', error);
-    res.status(error.status || 500).json({ message: error.status ? error.message : 'Error al actualizar el evento' });
+    const mensaje = error.status || error.name === 'ValidationError' ? error.message : 'Error al actualizar el evento';
+    if (isHtmlRequest(req)) return res.redirect(`/admin/eventos/editar/${req.params.id}?error=${encodeURIComponent(mensaje)}`);
+    res.status(error.status || 500).json({ message: mensaje });
   }
 };
 
 const deleteEvento = async (req, res) => {
   try {
+    // Un evento con entradas vendidas no se borra: las entradas quedarían huérfanas
+    if (await Entrada.exists({ evento: req.params.id })) {
+      const mensaje = 'No se puede eliminar un evento con entradas vendidas.';
+      if (isHtmlRequest(req)) return res.redirect(`/admin/eventos?error=${encodeURIComponent(mensaje)}`);
+      return res.status(409).json({ message: mensaje });
+    }
     const eventoEliminado = await Evento.findByIdAndDelete(req.params.id);
     if (!eventoEliminado) {
       if (isHtmlRequest(req)) return res.redirect('/admin/eventos?error=Evento+no+encontrado');
@@ -157,38 +187,11 @@ const deleteEvento = async (req, res) => {
   }
 };
 
-const actualizarEntidad = async (req, res) => {
-  try {
-    const { nombre } = req.body;
-    if (!nombre || !nombre.trim()) return res.redirect('/admin/entidades?error=El+nombre+del+artista+es+obligatorio');
-    
-    await Entidad.findByIdAndUpdate(req.params.id, { nombre: nombre.trim() }, { runValidators: true });
-    res.redirect('/admin/entidades?exito=Artista/Compañía+actualizado+correctamente');
-  } catch (error) {
-    res.redirect('/admin/entidades?error=Error:+Ya+existe+una+entidad+con+ese+nombre');
-  }
-};
-
-const eliminarEntidad = async (req, res) => {
-  try {
-    const tieneEventos = await Evento.exists({ entidad: req.params.id });
-    if (tieneEventos) {
-      return res.redirect('/admin/entidades?error=No+se+puede+eliminar+un+artista+con+eventos+activos');
-    }
-    await Entidad.findByIdAndDelete(req.params.id);
-    res.redirect('/admin/entidades?exito=Artista/Compañía+eliminado+correctamente');
-  } catch (error) {
-    res.redirect('/admin/entidades?error=Error+al+eliminar+el+artista');
-  }
-};
-
-export { 
-  getEventos, 
-  getEventoById, 
-  createEvento, 
-  showEditEventoForm, 
-  updateEvento, 
-  deleteEvento,
-  actualizarEntidad,
-  eliminarEntidad 
+export {
+  getEventos,
+  getEventoById,
+  createEvento,
+  showEditEventoForm,
+  updateEvento,
+  deleteEvento
 };

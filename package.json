@@ -1,16 +1,19 @@
 {
-  "name": "tp1",
+  "name": "tp2",
   "version": "1.0.0",
-  "description": "tp 1 de backend",
+  "description": "Urbana Cult: sistema de venta de entradas para eventos culturales (Node.js, Express, MongoDB, Pug). Desarrollado por Sintaxia",
   "license": "MIT",
   "author": "Cristian Villagra",
   "type": "module",
   "main": "index.js",
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
     "test": "node --test",
-    "seed": "node seed.js"
+    "seed": "node scripts/seed.js"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
@@ -18,6 +21,7 @@
     "express": "^5.2.1",
     "express-session": "^1.19.0",
     "mongoose": "^9.11.1",
+    "multer": "2.4.0",
     "pug": "^3.0.4"
   },
   "devDependencies": {
