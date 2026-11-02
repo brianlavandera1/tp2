@@ -1,8 +1,11 @@
 doctype html
 include partials/logo.pug
+include partials/iconos.pug
 html(lang="es")
   head
     include partials/head.pug
+    include partials/estilosUrbana.pug
+    include partials/estilosPanel.pug
     title
       block titulo
         | Urbana Cult · Panel de gestión
@@ -15,15 +18,21 @@ html(lang="es")
 
         - const rol = usuarioLogueado ? usuarioLogueado.rol : ''
         - const puedeVender = ['Administrador', 'Supervisor'].includes(rol)
-        - const grupos = [['General', [['/admin/dashboard', '🏠', 'Panel'], puedeVender && ['/admin/boleteria', '🎫', 'Boletería'], puedeVender && ['/admin/validar', '📷', 'Validar entradas']]], ['Cartelera', [['/admin/eventos', '🎭', 'Eventos'], ['/admin/salas', '🏛️', 'Salas'], ['/admin/entidades', '🎤', 'Artistas']]], ['Control', [['/admin/informe', '📊', 'Informes'], ['/admin/pagos', '💳', 'Pagos'], ['/admin/cancelaciones', '↩️', 'Cancelaciones'], ['/admin/usuarios', '👥', 'Usuarios'], puedeVender && ['/admin/actividad', '🕵️', 'Actividad']]]]
+        //- Cada área del panel tiene su color: se repite en el menú, en la ruta y en las tablas de sus pantallas
+        - const grupos = [['Día a día', 'dia', [['/admin/dashboard', 'inicio', 'Panel'], puedeVender && ['/admin/boleteria', 'entrada', 'Boletería'], puedeVender && ['/admin/validar', 'validar', 'Validar entradas']]], ['Cartelera', 'cartelera', [['/admin/eventos', 'cartelera', 'Eventos'], ['/admin/salas', 'sala', 'Salas'], ['/admin/entidades', 'artista', 'Artistas']]], ['Dinero', 'dinero', [['/admin/informe', 'informe', 'Informes'], ['/admin/pagos', 'pagos', 'Pagos'], ['/admin/cancelaciones', 'cancelar', 'Cancelaciones']]], ['Personas', 'personas', [['/admin/usuarios', 'usuarios', 'Usuarios'], puedeVender && ['/admin/actividad', 'actividad', 'Actividad']]]]
+        - const ruta = rutaActual === '/admin/crear-personal' ? '/admin/usuarios' : rutaActual
+        - const esActivo = (enlace) => ruta === enlace[0] || ruta.startsWith(enlace[0] + '/')
+        - const grupoActivo = grupos.find(g => g[2].some(e => e && esActivo(e)))
+        - const seccion = grupoActivo && grupoActivo[2].find(e => e && esActivo(e))
         nav.menu-lateral(aria-label="Menú del panel")
           each grupo in grupos
-            span.titulo-grupo= grupo[0]
-            each enlace in grupo[1]
+            span.titulo-grupo(class=`area-${grupo[1]}`)= grupo[0]
+            each enlace in grupo[2]
               if enlace
-                - const activo = rutaActual === enlace[0] || rutaActual.startsWith(enlace[0] + '/')
-                a(href=enlace[0] class=(activo ? 'activo' : '') aria-current=(activo ? 'page' : undefined))
-                  span.icono= enlace[1]
+                - const activo = esActivo(enlace)
+                a(href=enlace[0] class=[`area-${grupo[1]}`, activo ? 'activo' : ''] aria-current=(activo ? 'page' : undefined))
+                  span.icono
+                    +icono(enlace[1])
                   = enlace[2]
 
         if usuarioLogueado
@@ -36,5 +45,10 @@ html(lang="es")
         p.credito-panel Desarrollado por #[strong Sintaxia]
 
       //- ÁREA DINÁMICA (acá se carga cada página)
-      main.panel-contenido
+      main.panel-contenido(class=grupoActivo ? `area-${grupoActivo[1]}` : '')
+        if seccion
+          p.ruta-seccion
+            span.ruta-icono
+              +icono(seccion[1])
+            | #{grupoActivo[0]} · #{seccion[2]}
         block content

@@ -34,7 +34,6 @@ const PLANES = [['ESTANDAR', 0], ['ESTANDAR', 0], ['ESTANDAR', 0], ['PREMIUM', 0
 const DEMANDA = {
   'Les Luthiers: Grandes Hitos': 0.9,
   'Homenaje Sinfónico a Gustavo Cerati': 0.62,
-  'Fuerza Bruta: Wayra': 0.4,
   'Gran Concierto Sinfónico de Fin de Año': 0.35,
   'Ciclo Konex: Noches en el Patio': 0.22,
   'Cirque du Soleil: Toruk': 0.05,

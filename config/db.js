@@ -23,7 +23,7 @@ export const conectarDB = async () => {
     } catch (errorAtlas) {
       // En Vercel no existe una base local: se informa el motivo real (usuario/clave, IP no habilitada en Atlas...)
       if (process.env.VERCEL) throw new Error(`No se pudo conectar a MongoDB Atlas: ${errorAtlas.message}`);
-      console.warn('⚠️ No se pudo conectar a MongoDB Atlas. Intentando con la base de datos local...');
+      console.warn(`⚠️ No se pudo conectar a MongoDB Atlas (${errorAtlas.message}). Intentando con la base de datos local...`);
     }
   }
 

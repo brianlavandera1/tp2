@@ -8,7 +8,7 @@ block titulo
 mixin selectorFoto(id, etiqueta)
   label.selector-foto(for=id)
     input.input-foto(id=id type="file" name="foto" accept="image/jpeg,image/png,image/webp" data-preview=`preview-${id}`)
-    span 📷 #{etiqueta}
+    span #{etiqueta}
 
 block content
   - const puedeEditar = usuarioLogueado && ['Administrador', 'Supervisor'].includes(usuarioLogueado.rol)
@@ -18,15 +18,15 @@ block content
       p La foto de cada artista se usa de fondo en las tarjetas de la cartelera.
 
   if exito
-    .alerta.alerta-exito ✅ #{exito}
+    .alerta.alerta-exito #{exito}
   if error
-    .alerta.alerta-error(role="alert") ⚠️ #{error}
+    .alerta.alerta-error(role="alert") #{error}
 
   //- ALTA DE ARTISTA
   if puedeEditar
     form.tarjeta.alta-artista.mb(action="/admin/entidades/crear" method="POST" enctype="multipart/form-data")
       .artista-foto.vacia(id="preview-foto-nueva")
-        span 🎤
+        span
       .alta-campos
         h3.mb-0 Nuevo artista
         p.texto-tenue Foto opcional · JPG, PNG o WEBP de hasta 2 MB.
@@ -62,7 +62,6 @@ block content
               h4.mb-0= ent.nombre
   else
     .tarjeta.vacio
-      .icono-vacio 🎤
       p No hay artistas registrados.
 
   script.
@@ -81,6 +80,6 @@ block content
         preview.style.backgroundImage = `url('${URL.createObjectURL(archivo)}')`;
         preview.classList.remove('vacia');
         preview.innerHTML = '';
-        etiqueta.textContent = '✅ ' + (archivo.name.length > 18 ? archivo.name.slice(0, 15) + '…' : archivo.name);
+        etiqueta.textContent = '' + (archivo.name.length > 18 ? archivo.name.slice(0, 15) + '…' : archivo.name);
       });
     });

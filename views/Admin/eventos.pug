@@ -14,9 +14,9 @@ block content
       a.btn(href="#nuevo-evento") + Nuevo evento
 
   if exito
-    .alerta.alerta-exito ✅ #{exito}
+    .alerta.alerta-exito #{exito}
   if error
-    .alerta.alerta-error(role="alert") ⚠️ #{error}
+    .alerta.alerta-error(role="alert") #{error}
 
   .tarjeta
     if eventos && eventos.length > 0
@@ -47,7 +47,7 @@ block content
                     .texto-tenue Platea $#{(ev.precioPlatea != null ? ev.precioPlatea : ev.precio).toLocaleString('es-AR')} · VIP $#{(ev.precioVIP != null ? ev.precioVIP : ev.precio).toLocaleString('es-AR')}
                 td.num
                   if ev.entradasDisponibles > 0
-                    span.insignia.insignia-exito= ev.entradasDisponibles
+                    span.insignia(class=ev.entradasDisponibles <= 50 ? 'insignia-aviso' : 'insignia-exito')= ev.entradasDisponibles
                   else
                     span.insignia.insignia-error Agotado
                 if puedeEditar
@@ -58,7 +58,6 @@ block content
                         button.btn.btn-chico.btn-peligro-suave(type="submit") Eliminar
     else
       .vacio
-        .icono-vacio 🎭
         p No hay eventos registrados.
 
   if puedeEditar

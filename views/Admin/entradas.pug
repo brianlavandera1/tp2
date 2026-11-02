@@ -9,18 +9,21 @@ block content
     div
       h1 Informe de ventas
       p Entradas vendidas (sin las canceladas) y recaudación neta con descuentos.
+    //- Descarga el mismo informe, con el período que esté filtrado
+    - const consultaExcel = new URLSearchParams(Object.entries({ fechaInicio: filtrosApli && filtrosApli.fechaInicio, fechaFin: filtrosApli && filtrosApli.fechaFin }).filter(([, valor]) => valor)).toString()
+    a.btn.btn-secundario(href=`/admin/informe/excel${consultaExcel ? '?' + consultaExcel : ''}`) Descargar Excel
 
   //- CAJA DEL DÍA
   if resumenHoy
-    h3 📅 Hoy
+    h3 Hoy
     .grilla.grilla-3.mb
-      .kpi
+      .kpi.kpi-personas
         .etiqueta-kpi Operaciones
         .valor= resumenHoy.totalTransacciones
-      .kpi
+      .kpi.kpi-entradas
         .etiqueta-kpi Entradas vendidas
         .valor= resumenHoy.totalVendidas
-      .kpi.destacado
+      .kpi.kpi-plata
         .etiqueta-kpi Recaudación
         .valor $#{Math.round(resumenHoy.totalRecaudado).toLocaleString('es-AR')}
 
@@ -37,15 +40,15 @@ block content
       a.btn.btn-secundario(href="/admin/informe") Quitar filtros
 
   if resumen
-    h3= hayFiltro ? '📊 Período seleccionado' : '📊 Histórico acumulado'
+    h3= hayFiltro ? 'Período seleccionado' : 'Histórico acumulado'
     .grilla.grilla-3.mb
-      .kpi
+      .kpi.kpi-personas
         .etiqueta-kpi Operaciones
         .valor= resumen.totalTransacciones
-      .kpi
+      .kpi.kpi-entradas
         .etiqueta-kpi Entradas vendidas
         .valor= resumen.totalVendidas
-      .kpi
+      .kpi.kpi-plata
         .etiqueta-kpi Recaudación
         .valor $#{Math.round(resumen.totalRecaudado).toLocaleString('es-AR')}
 
@@ -83,7 +86,7 @@ block content
   //- DESGLOSE POR CANAL Y POR SECTOR
   - const desglose = (filas) => { const total = filas.reduce((s, f) => s + f.recaudado, 0) || 1; return filas.map(f => ({ ...f, porcentaje: Math.round(f.recaudado / total * 100) })) }
   .grilla.grilla-2.mb
-    each bloque in [{ titulo: 'Por canal de venta', filas: desglose(porCanal || []), nombres: { Online: '🌐 Online', Sucursal: '🎫 Boletería' } }, { titulo: 'Por sector', filas: desglose(porSector || []), nombres: { General: 'General', Platea: 'Platea', VIP: '⭐ VIP' } }]
+    each bloque in [{ titulo: 'Por canal de venta', filas: desglose(porCanal || []), nombres: { Online: 'Online', Sucursal: 'Boletería' } }, { titulo: 'Por sector', filas: desglose(porSector || []), nombres: { General: 'General', Platea: 'Platea', VIP: 'VIP' } }]
       .tarjeta(style="margin:0")
         h3= bloque.titulo
         if bloque.filas.length

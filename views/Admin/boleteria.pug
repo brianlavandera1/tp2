@@ -23,7 +23,7 @@ block content
   //- CONFIRMACIÓN DEL COBRO
   #confirmModal.capa(role="dialog" aria-modal="true" aria-labelledby="tituloModal")
     .modal
-      h3#tituloModal ⚠️ Confirmar cobro
+      h3#tituloModal Confirmar cobro
       p.texto-suave ¿Seguro que querés realizar este cobro y emitir el ticket?
       .fila(style="justify-content:center")
         button#btnCancelarModal.btn.btn-secundario(type="button") Cancelar
@@ -37,7 +37,7 @@ block content
   .grilla.grilla-lateral
     .tarjeta
       if error
-        .alerta.alerta-error(role="alert") ⚠️ #{error}
+        .alerta.alerta-error(role="alert") #{error}
 
       form#formCobro(action="/admin/boleteria/cobrar" method="POST")
         h3 Cliente
@@ -73,9 +73,9 @@ block content
         .campo
           label(for="selectMedioPago") Medio de pago
           select#selectMedioPago(name="medioPago" required)
-            option(value="Efectivo" selected=(datosPrevios && datosPrevios.medioPago === 'Efectivo')) 💵 Efectivo en caja (25% desc.)
-            option(value="Tarjeta POS" selected=(datosPrevios && datosPrevios.medioPago === 'Tarjeta POS')) 💳 Tarjeta (posnet)
-            option(value="Transferencia Alias" selected=(datosPrevios && datosPrevios.medioPago === 'Transferencia Alias')) 📱 Transferencia / QR
+            option(value="Efectivo" selected=(datosPrevios && datosPrevios.medioPago === 'Efectivo')) Efectivo en caja (25% desc.)
+            option(value="Tarjeta POS" selected=(datosPrevios && datosPrevios.medioPago === 'Tarjeta POS')) Tarjeta (posnet)
+            option(value="Transferencia Alias" selected=(datosPrevios && datosPrevios.medioPago === 'Transferencia Alias')) Transferencia / QR
 
     aside.tarjeta
       h3 Total a cobrar
@@ -92,7 +92,7 @@ block content
           span Total
           span.precio $
             span#lblTotal 0,00
-      button.btn.btn-exito.btn-bloque.btn-grande.mt(type="submit" form="formCobro") 🖨️ Cobrar y emitir ticket
+      button.btn.btn-exito.btn-bloque.btn-grande.mt(type="submit" form="formCobro") Cobrar y emitir ticket
 
   script.
     document.addEventListener('DOMContentLoaded', () => {
@@ -149,7 +149,7 @@ block content
         }, 400);
         setTimeout(() => {
           clearInterval(intervalo);
-          text.innerText = 'Pago aprobado ✅';
+          text.innerText = 'Pago aprobado ';
           setTimeout(() => form.submit(), 300);
         }, 2000);
       });

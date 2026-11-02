@@ -5,23 +5,18 @@ block titulo
 
 block content
   .tarjeta.estrecha
-    .fila(style="margin-bottom:20px")
-      span.avatar(style="width:56px;height:56px;font-size:22px")= usuario.nombreUsuario.charAt(0)
+    .fila(style="margin-bottom:22px")
+      span.avatar(style="width:52px;height:52px;font-size:20px")= usuario.nombreUsuario.charAt(0)
       div
-        h1(style="font-size:24px;margin:0") Mi perfil
-        span.texto-suave @#{usuario.nombreUsuario} · Plan #{usuario.tipoCliente || 'ESTANDAR'}
+        h1(style="font-size:22px;margin:0") #{usuario.nombre} #{usuario.apellido}
+        span.texto-suave @#{usuario.nombreUsuario} · #[a(href="/cliente/membresia") Plan #{usuario.tipoCliente || 'ESTANDAR'}]
 
     if mensajeExito
-      .alerta.alerta-exito ✅ #{mensajeExito}
+      .alerta.alerta-exito #{mensajeExito}
     if error
-      .alerta.alerta-error(role="alert") ⚠️ #{error}
+      .alerta.alerta-error(role="alert") #{error}
 
     form(action="/cliente/configuracion" method="POST")
-      .campo
-        label(for="nombreUsuario") Nombre de usuario
-        input#nombreUsuario(type="text" value=usuario.nombreUsuario disabled)
-        .ayuda El nombre de usuario no se puede modificar.
-
       .campos
         .campo
           label(for="nombre") Nombre
@@ -37,13 +32,14 @@ block content
         .campo
           label(for="telefono") Teléfono
           input#telefono(type="text" name="telefono" value=usuario.telefono required minlength="10" maxlength="15" inputmode="numeric" onkeypress="return event.charCode >= 48 && event.charCode <= 57")
-          .ayuda Entre 10 y 15 números.
 
-      .seccion-suave.mb
-        h4 🔒 Cambiar contraseña
-        p.texto-tenue Dejala en blanco si no querés modificarla.
-        .campo.mb-0
-          label(for="nuevaPassword") Nueva contraseña
-          input#nuevaPassword(type="password" name="nuevaPassword" placeholder="••••••••" autocomplete="new-password")
+      .campo
+        label(for="nuevaPassword") Nueva contraseña (opcional)
+        input#nuevaPassword(type="password" name="nuevaPassword" placeholder="••••••••" autocomplete="new-password")
 
       button.btn.btn-bloque.btn-grande(type="submit") Guardar cambios
+
+    a.salir-perfil(href="/auth/logout") Cerrar sesión
+
+  style.
+    .salir-perfil { display: block; margin-top: 16px; text-align: center; font-size: 14px; color: var(--color-texto-tenue); }

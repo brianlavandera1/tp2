@@ -4,11 +4,10 @@ block titulo
   | Crear cuenta · Urbana Cult
 
 block content
-  h1(style="font-size:28px") Crear una cuenta
-  p.texto-suave Completá tus datos para empezar a comprar entradas.
+  h1 Crear cuenta
 
   if error
-    .alerta.alerta-error(role="alert") ⚠️ #{error}
+    .alerta.alerta-error(role="alert") #{error}
 
   form(action="/auth/registro" method="POST")
     .campo

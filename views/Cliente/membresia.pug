@@ -4,35 +4,74 @@ block titulo
   | Membresía · Urbana Cult
 
 block content
-  .encabezado-pagina
-    div
-      h1 Elegí tu plan
-      p Los planes pagos te dan descuento en todas tus compras de entradas.
+  .encabezado-plan
+    h1 Mientras más salís, más ahorrás
+    p Elegí tu plan y pagá menos en todas tus entradas.
 
   if error
-    .alerta.alerta-error(role="alert") ⚠️ #{error}
+    .alerta.alerta-error(role="alert") #{error}
 
   - const planActual = usuarioCompleto && usuarioCompleto.tipoCliente ? usuarioCompleto.tipoCliente : 'ESTANDAR'
   - const elegido = datos && datos.tipoCliente ? datos.tipoCliente : planActual
-  - const planes = [{ valor: 'ESTANDAR', nombre: 'Estándar', precio: '$0', detalle: 'Acceso a toda la cartelera, sin costo mensual.', color: 'var(--color-texto)' }, { valor: 'PREMIUM', nombre: 'Premium', precio: '$2.000', detalle: '15% de descuento en todas tus entradas.', color: 'var(--color-info)' }, { valor: 'VIP', nombre: 'VIP', precio: '$5.000', detalle: '30% de descuento y atención prioritaria.', color: 'var(--color-marca)' }]
+  - const base = ['Acceso a toda la cartelera', 'Entradas digitales con QR', 'Cancelación online']
+  - const planes = [{ valor: 'ESTANDAR', nombre: 'Estándar', lema: 'Para salir cuando pinta', precio: 'Gratis', cuota: 0, descuento: 0, clase: 'plan-estandar', beneficios: base }, { valor: 'PREMIUM', nombre: 'Premium', lema: 'Para los que no se pierden una', precio: '$2.000', cuota: 2000, descuento: 15, clase: 'plan-premium', beneficios: ['Todo lo de Estándar', '15% OFF en todas tus entradas', 'Descuento automático al pagar'] }, { valor: 'VIP', nombre: 'VIP', lema: 'Para vivir en primera fila', precio: '$5.000', cuota: 5000, descuento: 30, clase: 'plan-vip', etiqueta: 'Mayor descuento', beneficios: ['Todo lo de Premium', '30% OFF en todas tus entradas', 'El doble de ahorro que Premium'] }]
 
-  form(action="/cliente/procesar-membresia" method="POST")
+  form#form-plan(action="/cliente/procesar-membresia" method="POST")
     .planes
       each plan in planes
         label.plan
-          input(type="radio" name="tipoCliente" value=plan.valor checked=(elegido === plan.valor))
-          .plan-caja
-            if planActual === plan.valor
-              span.insignia.insignia-exito.plan-actual Tu plan actual
-            .nombre-plan(style=`color:${plan.color}`)= plan.nombre
-            .precio-plan= plan.precio
-              small  / mes
-            p= plan.detalle
+          input(type="radio" name="tipoCliente" value=plan.valor checked=(elegido === plan.valor) data-nombre=plan.nombre data-pago=(plan.cuota > 0 ? 'si' : 'no'))
+          .plan-caja(class=plan.clase)
+            .plan-arriba
+              .nombre-plan= plan.nombre
+              if planActual === plan.valor
+                span.plan-sello Tu plan
+              else if plan.etiqueta
+                span.plan-sello= plan.etiqueta
+            p.plan-lema= plan.lema
+            .plan-descuento
+              strong #{plan.descuento}%
+              span= plan.descuento ? 'OFF en cada entrada' : 'sin descuento'
+            ul.plan-beneficios
+              each beneficio in plan.beneficios
+                li= beneficio
+            .plan-abajo
+              .precio-plan= plan.precio
+                if plan.cuota
+                  small  / mes
+              span.plan-elegir
+                span.texto-elegir Elegir
+                span.texto-elegido Elegido
 
-    .tarjeta
-      .tarjeta-titulo
-        h3 💳 Datos de pago
-        span.texto-tenue Obligatorio solo para Premium o VIP
+    //- CALCULADORA: cuánto pagaría con cada plan, según lo que suele salir
+    section.calculadora(aria-label="Calculá tu ahorro")
+      .calc-controles
+        h2 ¿Cuál te conviene?
+        .calc-fila
+          span.calc-etiqueta Entradas por mes
+          .calc-cantidad
+            button#calc-menos(type="button" aria-label="Una entrada menos") −
+            output#calc-entradas 2
+            button#calc-mas(type="button" aria-label="Una entrada más") +
+        .calc-fila
+          span.calc-etiqueta Precio de cada entrada
+          .calc-precios(role="group" aria-label="Precio de cada entrada")
+            each monto, i in [10000, 30000, 60000]
+              button.calc-precio(type="button" data-monto=monto class=(i === 1 ? 'activo' : '') aria-pressed=(i === 1 ? 'true' : 'false')) $#{monto.toLocaleString('es-AR')}
+      .calc-resultado
+        each plan in planes
+          .calc-linea(data-cuota=plan.cuota data-descuento=plan.descuento)
+            .calc-nombre
+              span= plan.nombre
+              strong.calc-total
+            .calc-barra
+              i
+            small.calc-nota
+        button#calc-elegir.btn.btn-secundario(type="button")
+
+    //- Los datos de pago solo aparecen al elegir un plan pago
+    .tarjeta#datos-pago
+      h2 Datos de pago
       .campo
         label(for="titular") Titular de la tarjeta
         input#titular(type="text" name="titular" placeholder="Nombre y apellido" value=(datos ? datos.titular : '') onkeypress="return (event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || event.charCode === 32 || event.charCode === 209 || event.charCode === 241")
@@ -46,5 +85,125 @@ block content
         .campo
           label(for="cvv") CVV
           input#cvv(type="password" name="cvv" maxlength="3" inputmode="numeric" placeholder="3 dígitos" onkeypress="return event.charCode >= 48 && event.charCode <= 57")
-      .acciones-formulario
-        button.btn.btn-exito.btn-grande(type="submit") Confirmar plan
+    .acciones-formulario.mt
+      button#confirmar-plan.btn.btn-grande(type="submit") Confirmar plan
+
+  style.
+    .encabezado-plan { text-align: center; margin: 12px 0 30px; }
+    .encabezado-plan h1 { text-wrap: balance; margin-bottom: 8px; }
+    .encabezado-plan p { margin: 0; color: var(--color-texto-suave); font-size: 17px; }
+
+    .planes { gap: 16px; align-items: stretch; margin-bottom: 24px; }
+    .plan { display: flex; }
+    .plan-caja { position: relative; display: flex; flex-direction: column; width: 100%; padding: 24px; border: 2px solid var(--color-borde); border-radius: 24px; background: var(--color-superficie); transition: transform .2s, border-color .2s, box-shadow .2s; }
+    .plan:hover .plan-caja { transform: translateY(-4px); border-color: rgba(200, 186, 255, .35); }
+    .plan-premium { background: linear-gradient(165deg, #33286a, #1d1833 72%) border-box; }
+    .plan-vip { background: linear-gradient(155deg, #6d4dff, #a03cf0 62%, #cf3aa6) border-box; }
+    .plan-vip p.plan-lema, .plan-vip .plan-descuento span, .plan-vip .precio-plan small { color: rgba(255, 255, 255, .92); }
+    .plan-vip .plan-beneficios li::before { color: #fff; }
+    .plan input:checked + .plan-caja { border-color: #fff; box-shadow: 0 16px 44px rgba(124, 92, 255, .4); }
+    .plan input:focus-visible + .plan-caja { outline: 2px solid var(--enlace); outline-offset: 3px; }
+
+    .plan-arriba { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 28px; }
+    .plan-caja .nombre-plan { font-size: 22px; font-weight: 600; letter-spacing: -.02em; }
+    .plan-sello { padding: 4px 10px; border-radius: 999px; background: rgba(255, 255, 255, .16); color: #fff; font-size: 12px; font-weight: 600; white-space: nowrap; }
+    .plan-caja p.plan-lema { margin: 2px 0 18px; color: var(--color-texto-suave); font-size: 14px; }
+    .plan-descuento { display: flex; flex-direction: column; margin-bottom: 18px; }
+    .plan-descuento strong { font-size: 76px; font-weight: 700; letter-spacing: -.06em; line-height: 1; }
+    .plan-descuento span { color: var(--color-texto-suave); font-size: 14px; margin-top: 4px; }
+    .plan-beneficios { list-style: none; margin: 0 0 22px; padding: 16px 0 0; border-top: 1px solid rgba(255, 255, 255, .14); display: grid; gap: 9px; font-size: 14px; }
+    .plan-beneficios li { position: relative; padding-left: 24px; }
+    .plan-beneficios li::before { content: '✓'; position: absolute; left: 0; color: var(--enlace); font-weight: 700; }
+    .plan-abajo { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: auto; }
+    .plan-caja .precio-plan { margin: 0; color: #fff; font-size: 24px; font-weight: 600; letter-spacing: -.03em; white-space: nowrap; }
+    .plan-caja .precio-plan small { color: var(--color-texto-suave); font-size: 13px; font-weight: 400; letter-spacing: 0; }
+    .plan-elegir { padding: 8px 16px; border-radius: 999px; background: rgba(255, 255, 255, .12); font-size: 14px; font-weight: 600; }
+    .texto-elegido { display: none; }
+    .plan input:checked + .plan-caja .plan-elegir { background: #fff; color: #141418; }
+    .plan input:checked + .plan-caja .texto-elegir { display: none; }
+    .plan input:checked + .plan-caja .texto-elegido { display: inline; }
+        
+    /* Calculadora */
+    .calculadora { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: 28px; padding: 26px; border: 1px solid var(--color-borde); border-radius: 24px; background: var(--color-superficie); margin-bottom: 24px; }
+    .calculadora h2 { font-size: 24px; margin: 0 0 18px; }
+    .calc-fila { margin-bottom: 16px; }
+    .calc-etiqueta { display: block; font-size: 14px; color: var(--color-texto-suave); margin-bottom: 8px; }
+    .calc-cantidad { display: inline-flex; align-items: center; border-radius: 999px; background: var(--color-superficie-2); }
+    .calc-cantidad button { width: 42px; height: 42px; border: 0; background: none; color: #fff; font-size: 19px; cursor: pointer; }
+    .calc-cantidad output { min-width: 28px; text-align: center; font-weight: 600; font-size: 17px; font-variant-numeric: tabular-nums; }
+    .calc-precios { display: flex; flex-wrap: wrap; gap: 6px; }
+    .calc-precio { padding: 9px 14px; border: 0; border-radius: 999px; background: var(--color-superficie-2); color: var(--color-texto-suave); font: inherit; font-size: 14px; font-weight: 500; cursor: pointer; }
+    .calc-precio.activo { background: #fff; color: #141418; font-weight: 600; }
+    .calc-resultado { display: grid; gap: 14px; align-content: start; }
+    .calc-nombre { display: flex; justify-content: space-between; gap: 10px; font-weight: 500; margin-bottom: 6px; }
+    .calc-total { font-weight: 600; font-variant-numeric: tabular-nums; }
+    .calc-barra { height: 10px; border-radius: 999px; background: var(--color-superficie-2); overflow: hidden; }
+    .calc-barra i { display: block; height: 100%; width: 100%; border-radius: inherit; background: #574c8a; transition: width .3s; }
+    .calc-linea.mejor .calc-barra i { background: var(--degrade); }
+    .calc-nota { display: block; margin-top: 4px; color: var(--color-texto-suave); font-size: 13px; }
+    .calc-linea.mejor .calc-nota { color: var(--enlace); font-weight: 500; }
+    #calc-elegir { justify-self: start; }
+    #datos-pago h2 { font-size: 20px; margin: 0 0 16px; }
+
+    @media (max-width: 860px) {
+      .planes { grid-template-columns: 1fr; }
+      .calculadora { grid-template-columns: 1fr; padding: 20px; gap: 18px; }
+    }
+    @media (prefers-reduced-motion: reduce) { .plan-caja, .calc-barra i { transition: none; } }
+
+  script.
+    (() => {
+      const opciones = [...document.querySelectorAll('input[name="tipoCliente"]')];
+      const datosPago = document.getElementById('datos-pago');
+      const confirmar = document.getElementById('confirmar-plan');
+
+      // Sin plan pago no hace falta tarjeta; el botón dice qué plan se confirma
+      const actualizarPlan = () => {
+        const plan = opciones.find(o => o.checked);
+        datosPago.classList.toggle('oculto', !plan || plan.dataset.pago === 'no');
+        confirmar.textContent = plan ? `Confirmar plan ${plan.dataset.nombre}` : 'Confirmar plan';
+      };
+      opciones.forEach(o => o.addEventListener('change', actualizarPlan));
+      actualizarPlan();
+
+      // Calculadora: lo que se paga por mes con cada plan = entradas con descuento + cuota
+      const lineas = [...document.querySelectorAll('.calc-linea')];
+      const salida = document.getElementById('calc-entradas');
+      const elegir = document.getElementById('calc-elegir');
+      const precios = [...document.querySelectorAll('.calc-precio')];
+      const plata = (n) => `$${Math.round(n).toLocaleString('es-AR')}`;
+      let entradas = 2, precio = 30000, mejorPlan = null;
+
+      const calcular = () => {
+        salida.textContent = entradas;
+        const totales = lineas.map(l => entradas * precio * (1 - Number(l.dataset.descuento) / 100) + Number(l.dataset.cuota));
+        const sinPlan = totales[0];
+        const mayor = Math.max(...totales);
+        const menor = Math.min(...totales);
+        const iMejor = totales.indexOf(menor);
+        lineas.forEach((l, i) => {
+          l.classList.toggle('mejor', i === iMejor);
+          l.querySelector('.calc-total').textContent = plata(totales[i]);
+          l.querySelector('.calc-barra i').style.width = `${(totales[i] / mayor) * 100}%`;
+          const diferencia = sinPlan - totales[i];
+          l.querySelector('.calc-nota').textContent = i === 0 ? 'Sin cuota ni descuento'
+            : diferencia > 0 ? `Ahorrás ${plata(diferencia)} por mes, ya con la cuota`
+            : diferencia < 0 ? `Pagás ${plata(-diferencia)} más: la cuota supera el ahorro`
+            : 'Pagás lo mismo que sin plan';
+        });
+        mejorPlan = opciones[iMejor];
+        elegir.textContent = mejorPlan.checked ? `Ya elegiste ${mejorPlan.dataset.nombre}, el que más te conviene` : `Elegir ${mejorPlan.dataset.nombre}`;
+        elegir.disabled = mejorPlan.checked;
+      };
+
+      document.getElementById('calc-menos').addEventListener('click', () => { entradas = Math.max(1, entradas - 1); calcular(); });
+      document.getElementById('calc-mas').addEventListener('click', () => { entradas = Math.min(20, entradas + 1); calcular(); });
+      precios.forEach(b => b.addEventListener('click', () => {
+        precio = Number(b.dataset.monto);
+        precios.forEach(x => { x.classList.toggle('activo', x === b); x.setAttribute('aria-pressed', String(x === b)); });
+        calcular();
+      }));
+      elegir.addEventListener('click', () => { mejorPlan.checked = true; actualizarPlan(); calcular(); });
+      opciones.forEach(o => o.addEventListener('change', calcular));
+      calcular();
+    })();

@@ -5,56 +5,40 @@ block titulo
 
 block content
   .comprobante
-    .comprobante-cabecera
-      .fila-entre
-        div
-          h1 ✅ ¡Pago aprobado!
-          p.mb-0 Tus entradas ya están disponibles en “Mis entradas”.
-        span.insignia(style="background:rgba(255,255,255,.2);color:#fff") #{transaccion.comprobanteId}
-
     .comprobante-cuerpo
-      .datos-lista
-        .dato
-          small Cliente
-          strong= transaccion.nombreCliente
-        .dato
-          small Fecha
-          strong= new Date(transaccion.fechaCompra).toLocaleString('es-AR')
-        .dato
-          small Medio de pago
-          strong #{transaccion.medioPago} (•••• #{transaccion.tarjetaUltimosDigitos})
-        .dato
-          small Comprobante
-          strong.codigo= transaccion.comprobanteId
+      h1 ¡Listo! Ya tenés tus entradas
+      p.texto-suave #{transaccion.comprobanteId} · #{new Date(transaccion.fechaCompra).toLocaleString('es-AR')}
 
       .tabla-contenedor
         table.tabla
-          thead
-            tr
-              th Evento
-              th Sector
-              th.num Cant.
-              th.num Subtotal
           tbody
             each item in transaccion.items
               tr
-                td.negrita= item.nombreEvento
-                td= item.tipoEntrada
-                td.num= item.cantidad
+                td
+                  strong= item.nombreEvento
+                  br
+                  span.texto-tenue #{item.tipoEntrada} · #{item.cantidad} #{item.cantidad === 1 ? 'entrada' : 'entradas'}
                 td.num $#{(item.precio * item.cantidad).toLocaleString('es-AR')}
 
       .resumen.mt
-        .linea
-          span Subtotal
-          span $#{transaccion.subtotal.toLocaleString('es-AR')}
         if transaccion.descuentoAplicado > 0
-          .linea.texto-exito
+          .linea
             span Descuento por membresía
             span −$#{transaccion.descuentoAplicado.toLocaleString('es-AR')}
         .total
-          span Total abonado
+          span Total · #{transaccion.medioPago} (•••• #{transaccion.tarjetaUltimosDigitos})
           span.precio $#{transaccion.total.toLocaleString('es-AR')}
 
       .acciones-formulario.mt.no-imprimir
-        button.btn.btn-secundario(type="button" onclick="window.print()") 🖨️ Imprimir
+        button.btn.btn-secundario(type="button" onclick="window.print()") Imprimir
         a.btn(href="/cliente/mis-compras") Ver mis entradas
+
+  style.
+    .comprobante { max-width: 620px; margin: 0 auto; }
+    .comprobante-cuerpo h1, .comprobante-cuerpo > p { text-align: center; }
+    .comprobante-cuerpo { border: 0; border-radius: var(--radio); background: var(--color-superficie); padding: 28px; }
+    .comprobante-cuerpo h1 { font-size: 26px; margin-bottom: 4px; }
+    .comprobante .tabla td { padding-left: 0; padding-right: 0; }
+    .comprobante .tabla tr:first-child td { border-top: 0; }
+    .comprobante .tabla { margin-top: 10px; }
+    @media print { .comprobante-cuerpo { background: #fff; padding: 0; } }

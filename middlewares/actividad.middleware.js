@@ -15,6 +15,7 @@ const ACCIONES = [
   ['POST', /^\/auth\/token$/, 'Pedido de token de API (JWT)'],
   ['POST', /^\/cliente\/carrito\/agregar$/, 'Agregar al carrito'],
   ['POST', /^\/cliente\/carrito\/quitar\//, 'Quitar del carrito'],
+  ['POST', /^\/cliente\/carrito\/cantidad\//, 'Cambiar cantidad en el carrito'],
   ['POST', /^\/cliente\/carrito\/procesar-pago$/, 'Compra'],
   ['POST', /^\/cliente\/cancelar-entrada\//, 'Cancelar entrada'],
   ['POST', /^\/cliente\/procesar-membresia$/, 'Cambio de membresía'],
@@ -33,6 +34,8 @@ const ACCIONES = [
   ['POST', /^\/admin\/salas$/, 'Crear sala'],
   ['POST', /^\/admin\/salas\/(editar|actualizar)\//, 'Editar sala'],
   ['POST', /^\/admin\/salas\/eliminar\//, 'Eliminar sala'],
+  ['GET', /^\/admin\/pagos\/excel$/, 'Descargar Excel de pagos'],
+  ['GET', /^\/admin\/informe\/excel$/, 'Descargar Excel del informe'],
   ['POST', /^\/entradas$/, 'API: emitir entrada'],
   ['PUT', /^\/entradas\//, 'API: modificar entrada'],
   ['DELETE', /^\/entradas\//, 'API: cancelar entrada']

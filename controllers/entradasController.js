@@ -43,99 +43,106 @@ export const validarEntrada = async (req, res) => {
   res.redirect(`/admin/validar/${encodeURIComponent(codigo)}?validada=1`);
 };
 
+// Datos del informe de ventas (opcionalmente de un período): los usan la pantalla y la descarga en Excel
+export const calcularInforme = async ({ fechaInicio, fechaFin }) => {
+  
+  let matchFiltro = {};
+  if (fechaInicio) matchFiltro.fechaCompra = { $gte: new Date(fechaInicio + 'T00:00:00') };
+  if (fechaFin) matchFiltro.fechaCompra = { ...matchFiltro.fechaCompra, $lte: new Date(fechaFin + 'T23:59:59.999') };
+
+  const inicioHoy = new Date();
+  inicioHoy.setHours(0, 0, 0, 0);
+
+  // Entradas vendidas netas (sin las canceladas) y lo efectivamente cobrado:
+  // se aplica a cada ítem el mismo descuento que tuvo la compra (total / subtotal)
+  const vendidasNetas = { $subtract: ["$items.cantidad", { $ifNull: ["$items.cantidadCancelada", 0] }] };
+  const recaudadoNeto = { $multiply: [
+    vendidasNetas, "$items.precio",
+    { $cond: [{ $gt: ["$subtotal", 0] }, { $divide: ["$total", "$subtotal"] }, 1] }
+  ] };
+
+  const statsHoy = await Transaccion.aggregate([
+    { $match: { fechaCompra: { $gte: inicioHoy } } },
+    { $unwind: "$items" },
+    { $group: { _id: null, totalTx: { $addToSet: "$_id" }, vendidas: { $sum: vendidasNetas }, recaudado: { $sum: recaudadoNeto } } }
+  ]);
+
+  // Usamos el filtro de fechas (si existe) para la agregación histórica
+  const etapasAgregacion = [];
+  if (Object.keys(matchFiltro).length > 0) {
+    etapasAgregacion.push({ $match: matchFiltro });
+  }
+  etapasAgregacion.push(
+    { $unwind: "$items" },
+    { $group: { _id: "$items.eventoId", vendidas: { $sum: vendidasNetas }, recaudado: { $sum: recaudadoNeto } } }
+  );
+
+  const statsFiltro = await Transaccion.aggregate(etapasAgregacion);
+  const totalTransaccionesFiltro = await Transaccion.countDocuments(matchFiltro);
+
+  // Desglose del período por canal (online / boletería) y por sector
+  const desglosar = (campo) => Transaccion.aggregate([
+    { $match: matchFiltro },
+    { $unwind: '$items' },
+    { $group: { _id: campo, operaciones: { $addToSet: '$_id' }, vendidas: { $sum: vendidasNetas }, recaudado: { $sum: recaudadoNeto } } },
+    { $project: { operaciones: { $size: '$operaciones' }, vendidas: 1, recaudado: { $round: ['$recaudado', 0] } } },
+    { $sort: { recaudado: -1 } }
+  ]);
+  const [porCanal, porSector] = await Promise.all([desglosar({ $ifNull: ['$canal', 'Online'] }), desglosar('$items.tipoEntrada')]);
+
+  // Recaudación por día: del período filtrado o, si no hay filtro, de los últimos 30 días
+  const zonaHoraria = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const hastaDia = fechaFin ? new Date(fechaFin + 'T00:00:00') : new Date(inicioHoy);
+  const desdeDia = fechaInicio ? new Date(fechaInicio + 'T00:00:00') : new Date(hastaDia.getTime() - 29 * 24 * 60 * 60 * 1000);
+  const porDiaBD = await Transaccion.aggregate([
+    { $match: { fechaCompra: { $gte: desdeDia, $lte: new Date(hastaDia.getTime() + 24 * 60 * 60 * 1000 - 1) } } },
+    { $unwind: '$items' },
+    { $group: {
+      _id: { $dateToString: { format: '%Y-%m-%d', date: '$fechaCompra', timezone: zonaHoraria } },
+      vendidas: { $sum: vendidasNetas }, recaudado: { $sum: recaudadoNeto }
+    } }
+  ]);
+  // Se completan los días sin ventas con 0 para que el gráfico sea continuo (máximo 92 días)
+  const ventasPorDia = [];
+  for (let d = new Date(desdeDia), n = 0; d <= hastaDia && n < 92; d.setDate(d.getDate() + 1), n++) {
+    const clave = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    const dia = porDiaBD.find(x => x._id === clave);
+    ventasPorDia.push({ fecha: new Date(d), vendidas: dia ? dia.vendidas : 0, recaudado: dia ? Math.round(dia.recaudado) : 0 });
+  }
+
+  const eventosBD = await Evento.find().populate('sala').lean();
+  let totalV = 0, totalR = 0;
+
+  const eventos = eventosBD.map(ev => {
+    const stats = statsFiltro.find(s => s._id.toString() === ev._id.toString()) || { vendidas: 0, recaudado: 0 };
+    totalV += stats.vendidas; totalR += stats.recaudado;
+    // entradasDisponibles ya es lo que queda: el cupo total es lo que queda + todo lo vendido (sin canceladas)
+    const disponibles = Number(ev.entradasDisponibles || 0);
+    const vendidasTotales = Object.values(ev.vendidosPorZona || {}).reduce((suma, n) => suma + (Number(n) || 0), 0);
+    const cupo = disponibles + vendidasTotales;
+    return {
+      id: ev._id, nombre: ev.nombre, sala: ev.sala?.nombre || 'Sin sala',
+      cupo, vendidas: stats.vendidas, disponibles,
+      recaudado: Math.round(stats.recaudado), porcentaje: cupo > 0 ? Math.round((vendidasTotales / cupo) * 100) : 0
+    };
+  });
+
+  return {
+    resumenHoy: statsHoy[0] ? { totalTransacciones: statsHoy[0].totalTx.length, totalVendidas: statsHoy[0].vendidas, totalRecaudado: statsHoy[0].recaudado } : { totalTransacciones: 0, totalVendidas: 0, totalRecaudado: 0 },
+    resumen: { totalTransacciones: totalTransaccionesFiltro, totalVendidas: totalV, totalRecaudado: totalR },
+    eventos,
+    porCanal,
+    porSector,
+    ventasPorDia
+  };
+};
+
 export const mostrarGestionEntradas = async (req, res) => {
   try {
     const { fechaInicio, fechaFin } = req.query;
-    
-    let matchFiltro = {};
-    if (fechaInicio) matchFiltro.fechaCompra = { $gte: new Date(fechaInicio + 'T00:00:00') };
-    if (fechaFin) matchFiltro.fechaCompra = { ...matchFiltro.fechaCompra, $lte: new Date(fechaFin + 'T23:59:59.999') };
-
-    const inicioHoy = new Date();
-    inicioHoy.setHours(0, 0, 0, 0);
-
-    // Entradas vendidas netas (sin las canceladas) y lo efectivamente cobrado:
-    // se aplica a cada ítem el mismo descuento que tuvo la compra (total / subtotal)
-    const vendidasNetas = { $subtract: ["$items.cantidad", { $ifNull: ["$items.cantidadCancelada", 0] }] };
-    const recaudadoNeto = { $multiply: [
-      vendidasNetas, "$items.precio",
-      { $cond: [{ $gt: ["$subtotal", 0] }, { $divide: ["$total", "$subtotal"] }, 1] }
-    ] };
-
-    const statsHoy = await Transaccion.aggregate([
-      { $match: { fechaCompra: { $gte: inicioHoy } } },
-      { $unwind: "$items" },
-      { $group: { _id: null, totalTx: { $addToSet: "$_id" }, vendidas: { $sum: vendidasNetas }, recaudado: { $sum: recaudadoNeto } } }
-    ]);
-
-    // Usamos el filtro de fechas (si existe) para la agregación histórica
-    const etapasAgregacion = [];
-    if (Object.keys(matchFiltro).length > 0) {
-      etapasAgregacion.push({ $match: matchFiltro });
-    }
-    etapasAgregacion.push(
-      { $unwind: "$items" },
-      { $group: { _id: "$items.eventoId", vendidas: { $sum: vendidasNetas }, recaudado: { $sum: recaudadoNeto } } }
-    );
-
-    const statsFiltro = await Transaccion.aggregate(etapasAgregacion);
-    const totalTransaccionesFiltro = await Transaccion.countDocuments(matchFiltro);
-
-    // Desglose del período por canal (online / boletería) y por sector
-    const desglosar = (campo) => Transaccion.aggregate([
-      { $match: matchFiltro },
-      { $unwind: '$items' },
-      { $group: { _id: campo, operaciones: { $addToSet: '$_id' }, vendidas: { $sum: vendidasNetas }, recaudado: { $sum: recaudadoNeto } } },
-      { $project: { operaciones: { $size: '$operaciones' }, vendidas: 1, recaudado: { $round: ['$recaudado', 0] } } },
-      { $sort: { recaudado: -1 } }
-    ]);
-    const [porCanal, porSector] = await Promise.all([desglosar({ $ifNull: ['$canal', 'Online'] }), desglosar('$items.tipoEntrada')]);
-
-    // Recaudación por día: del período filtrado o, si no hay filtro, de los últimos 30 días
-    const zonaHoraria = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    const hastaDia = fechaFin ? new Date(fechaFin + 'T00:00:00') : new Date(inicioHoy);
-    const desdeDia = fechaInicio ? new Date(fechaInicio + 'T00:00:00') : new Date(hastaDia.getTime() - 29 * 24 * 60 * 60 * 1000);
-    const porDiaBD = await Transaccion.aggregate([
-      { $match: { fechaCompra: { $gte: desdeDia, $lte: new Date(hastaDia.getTime() + 24 * 60 * 60 * 1000 - 1) } } },
-      { $unwind: '$items' },
-      { $group: {
-        _id: { $dateToString: { format: '%Y-%m-%d', date: '$fechaCompra', timezone: zonaHoraria } },
-        vendidas: { $sum: vendidasNetas }, recaudado: { $sum: recaudadoNeto }
-      } }
-    ]);
-    // Se completan los días sin ventas con 0 para que el gráfico sea continuo (máximo 92 días)
-    const ventasPorDia = [];
-    for (let d = new Date(desdeDia), n = 0; d <= hastaDia && n < 92; d.setDate(d.getDate() + 1), n++) {
-      const clave = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-      const dia = porDiaBD.find(x => x._id === clave);
-      ventasPorDia.push({ fecha: new Date(d), vendidas: dia ? dia.vendidas : 0, recaudado: dia ? Math.round(dia.recaudado) : 0 });
-    }
-
-    const eventosBD = await Evento.find().populate('sala').lean();
-    let totalV = 0, totalR = 0;
-
-    const eventos = eventosBD.map(ev => {
-      const stats = statsFiltro.find(s => s._id.toString() === ev._id.toString()) || { vendidas: 0, recaudado: 0 };
-      totalV += stats.vendidas; totalR += stats.recaudado;
-      // entradasDisponibles ya es lo que queda: el cupo total es lo que queda + todo lo vendido (sin canceladas)
-      const disponibles = Number(ev.entradasDisponibles || 0);
-      const vendidasTotales = Object.values(ev.vendidosPorZona || {}).reduce((suma, n) => suma + (Number(n) || 0), 0);
-      const cupo = disponibles + vendidasTotales;
-      return {
-        id: ev._id, nombre: ev.nombre, sala: ev.sala?.nombre || 'Sin sala',
-        cupo, vendidas: stats.vendidas, disponibles,
-        recaudado: Math.round(stats.recaudado), porcentaje: cupo > 0 ? Math.round((vendidasTotales / cupo) * 100) : 0
-      };
-    });
-
     res.render('Admin/entradas', {
       usuarioLogueado: req.session.usuario,
-      resumenHoy: statsHoy[0] ? { totalTransacciones: statsHoy[0].totalTx.length, totalVendidas: statsHoy[0].vendidas, totalRecaudado: statsHoy[0].recaudado } : { totalTransacciones: 0, totalVendidas: 0, totalRecaudado: 0 },
-      resumen: { totalTransacciones: totalTransaccionesFiltro, totalVendidas: totalV, totalRecaudado: totalR },
-      eventos,
-      porCanal,
-      porSector,
-      ventasPorDia,
+      ...await calcularInforme({ fechaInicio, fechaFin }),
       filtrosApli: { fechaInicio, fechaFin }
     });
   } catch (error) { 

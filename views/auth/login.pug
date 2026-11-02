@@ -4,13 +4,12 @@ block titulo
   | Iniciar sesión · Urbana Cult
 
 block content
-  h1(style="font-size:28px") Iniciar sesión
-  p.texto-suave Ingresá para comprar entradas o gestionar el sistema.
+  h1 Iniciar sesión
 
   if exito
-    .alerta.alerta-exito ✅ #{exito}
+    .alerta.alerta-exito #{exito}
   if error
-    .alerta.alerta-error(role="alert") ⚠️ #{error}
+    .alerta.alerta-error(role="alert") #{error}
 
   form(action="/auth/login" method="POST")
     .campo

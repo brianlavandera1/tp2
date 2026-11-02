@@ -14,9 +14,9 @@ block content
       a.btn(href="#nueva-sala") + Nueva sala
 
   if exito
-    .alerta.alerta-exito ✅ #{exito}
+    .alerta.alerta-exito #{exito}
   if error
-    .alerta.alerta-error(role="alert") ⚠️ #{error}
+    .alerta.alerta-error(role="alert") #{error}
 
   if salas && salas.length > 0
     .grilla.grilla-auto.mb
@@ -26,7 +26,7 @@ block content
           .fila-entre
             h3.mb-0= s.nombre
             span.insignia.insignia-marca #{s.capacidad} lugares
-          p.texto-suave(style="margin:6px 0 14px") 📍 #{s.ubicacion || 'Sin ubicación'}
+          p.texto-suave(style="margin:6px 0 14px") #{s.ubicacion || 'Sin ubicación'}
           each zona in ['General', 'Platea', 'VIP']
             - const cantidad = z[zona] || 0
             .fila-entre(style="font-size:13px;margin-bottom:4px")
@@ -41,7 +41,6 @@ block content
                 button.btn.btn-chico.btn-peligro-suave(type="submit") Eliminar
   else
     .tarjeta.vacio.mb
-      .icono-vacio 🏛️
       p No hay salas registradas.
 
   if puedeEditar

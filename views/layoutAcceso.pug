@@ -3,21 +3,15 @@ include partials/logo.pug
 html(lang="es")
   head
     include partials/head.pug
+    include partials/estilosUrbana.pug
     title
       block titulo
         | Urbana Cult · Ingresar
   body
     .acceso
-      //- Panel ilustrativo con la propuesta del sitio
       section.acceso-arte
         +logoMarca("/auth/login", "Entradas")
-        div
-          h1 Las mejores funciones, a un clic.
-          p Teatro, música y espectáculos en un solo lugar. Elegí tu sector, pagá online y llevá tu entrada en el celular.
-        .destacados
-          span 🎟️ Entradas digitales
-          span ⭐ Descuentos por membresía
-          span ↩️ Cancelación online
+        h1 Tus próximas salidas, en un solo lugar.
         p.credito-panel Desarrollado por #[strong Sintaxia]
 
       //- Formulario de cada vista

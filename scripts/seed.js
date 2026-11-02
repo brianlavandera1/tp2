@@ -73,7 +73,6 @@ async function poblarBaseDeDatos() {
     console.log('🧹 Base de datos limpiada.');
 
     const entidadesSeed = [
-      'Fuerza Bruta',
       'Cirque du Soleil',
       'Orquesta Sinfónica Nacional',
       'Les Luthiers',
@@ -227,8 +226,6 @@ async function poblarBaseDeDatos() {
     // --- EVENTOS (funciones ficticias para la demo, en orden de fecha) ---
     // [artista, nombre, descripción, fecha, hora, sala, precio General, Platea, VIP]
     const eventosSeed = [
-      ['Fuerza Bruta', 'Fuerza Bruta: Wayra', 'Experiencia inmersiva 360° con acrobacias aéreas (función viernes).', '2026-11-20', '21:00', salaKonex, 18000, 24000, 32000],
-      ['Fuerza Bruta', 'Fuerza Bruta: Wayra', 'Experiencia inmersiva 360° con acrobacias aéreas (función sábado).', '2026-11-21', '20:30', salaKonex, 18000, 24000, 32000],
       ['Les Luthiers', 'Les Luthiers: Grandes Hitos', 'Humor y música con instrumentos informales en un repaso por sus obras más célebres.', '2026-11-27', '21:00', salaTeatro, 30000, 40000, 55000],
       ['Gustavo Cerati', 'Homenaje Sinfónico a Gustavo Cerati', 'Sus canciones en versión sinfónica con orquesta y músicos invitados.', '2026-12-04', '21:00', salaTeatro, 22000, 30000, 42000],
       ['Cirque du Soleil', 'Cirque du Soleil: Toruk', 'Circo contemporáneo con escenografía y proyecciones monumentales.', '2026-12-05', '20:00', salaEstadio, 45000, 65000, 90000],

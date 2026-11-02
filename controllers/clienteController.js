@@ -9,32 +9,51 @@ import { escapeRegex } from '../utils/escapeRegex.js';
 import { generarQR, urlValidacion } from '../utils/qr.js';
 
 // Cuántos días un evento lleva la etiqueta "Nuevo" en la portada del cliente
+const PORCENTAJE_SE_AGOTA = 50;
 const DIAS_NUEVO = 14;
 
 export const mostrarMenu = async (req, res) => {
   const ahora = new Date();
-  const [usuarioCompleto, ultimosEventos] = await Promise.all([
+  const [usuarioCompleto, entradasVigentes, eventosFuturos] = await Promise.all([
     Usuario.findById(req.session.usuario._id),
-    // Carrusel de la portada: los últimos eventos agregados que todavía no pasaron y tienen entradas
+    // Para la franja "tu próxima salida": las entradas sin usar del cliente
+    Entrada.find({ cliente: req.session.usuario._id, estado: 'Completado' }).select('evento').populate('evento', 'nombre fecha hora eliminado').lean(),
+    // Los eventos que todavía no pasaron y tienen entradas, del más cercano al más lejano
     Evento.find({ fecha: { $gte: ahora }, entradasDisponibles: { $gt: 0 } })
-      .sort({ createdAt: -1 }).limit(6)
+      .sort({ fecha: 1 })
       .populate('sala', 'nombre').populate('entidad', 'nombre fotoActualizada fotoCredito')
   ]);
 
   const descuento = usuarioCompleto?.porcentajeDescuento || 0;
-  const destacados = ultimosEventos.map(evento => {
+  const eventos = eventosFuturos.map(evento => {
     const precios = [evento.precio, evento.precioPlatea, evento.precioVIP].filter(p => p > 0);
     const desde = precios.length ? Math.min(...precios) : 0;
+    const vendidas = Object.values(evento.vendidosPorZona || {}).reduce((suma, n) => suma + (Number(n) || 0), 0);
     return {
       evento,
       desde,
       desdeConDescuento: Math.round(desde * (1 - descuento)),
       esNuevo: evento.createdAt && (ahora - evento.createdAt) < DIAS_NUEVO * 24 * 60 * 60 * 1000,
-      diasFaltan: Math.ceil((evento.fecha - ahora) / (24 * 60 * 60 * 1000))
+      diasFaltan: Math.ceil((evento.fecha - ahora) / (24 * 60 * 60 * 1000)),
+      ocupacion: Math.round(vendidas / (vendidas + evento.entradasDisponibles) * 100)
     };
   });
 
-  res.render('Cliente/menu', { usuarioLogueado: req.session.usuario, usuarioCompleto, destacados, mensajeExito: req.query.exito });
+  // Portada: los últimos agregados. Se agotan: los que ya vendieron más de la mitad. Lo que viene: los más cercanos del resto
+  const destacados = [...eventos].sort((a, b) => b.evento.createdAt - a.evento.createdAt).slice(0, 6);
+  const seAgotan = eventos.filter(d => d.ocupacion >= PORCENTAJE_SE_AGOTA).sort((a, b) => b.ocupacion - a.ocupacion).slice(0, 3);
+  const loQueViene = eventos.filter(d => !seAgotan.includes(d)).slice(0, 4);
+
+  // El evento con entradas más cercano en el tiempo, cuántos días faltan y cuántas entradas tiene
+  const futuras = entradasVigentes.filter(entrada => entrada.evento && !entrada.evento.eliminado && new Date(entrada.evento.fecha) >= ahora);
+  const proximo = futuras.map(entrada => entrada.evento).sort((a, b) => new Date(a.fecha) - new Date(b.fecha))[0];
+  const proximaSalida = proximo ? {
+    evento: proximo,
+    dias: Math.ceil((new Date(proximo.fecha) - ahora) / (24 * 60 * 60 * 1000)),
+    entradas: futuras.filter(entrada => String(entrada.evento._id) === String(proximo._id)).length
+  } : null;
+
+  res.render('Cliente/menu', { usuarioLogueado: req.session.usuario, usuarioCompleto, destacados, seAgotan, loQueViene, proximaSalida, mensajeExito: req.query.exito });
 };
 
 export const mostrarMembresia = async (req, res) => {
@@ -123,6 +142,7 @@ export const mostrarMisCompras = async (req, res) => {
   // se ven juntas y se pasan de a una (las funciones más próximas primero)
   const grupos = new Map();
   for (const entrada of misEntradasCompradas) {
+    if (entrada.evento?.eliminado) continue; // evento sacado de la cartelera: queda solo en el historial
     const clave = String(entrada.evento?._id || entrada.nombre);
     if (!grupos.has(clave)) grupos.set(clave, { evento: entrada.evento, entradas: [], personas: 0 });
     const grupo = grupos.get(clave);

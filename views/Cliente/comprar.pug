@@ -5,49 +5,63 @@ block titulo
   | Cartelera · Urbana Cult
 
 block content
-  //- 1. PORTADA CON BUSCADOR (texto + fecha). De fondo, el primer artista de la cartelera que tenga foto
+  //- PORTADA CON BUSCADOR (texto + fecha). De fondo, el primer artista de la cartelera que tenga foto
   - const destacado = (eventos || []).find(ev => ev.entidad && ev.entidad.urlFoto)
   section.hero(class=destacado ? 'con-foto' : '' style=destacado ? `--foto:url('${destacado.entidad.urlFoto}')` : undefined)
     if destacado
-      span.destacado ✦ Destacado: #{destacado.entidad.nombre}
-    h1 Cartelera de eventos
-    p Buscá por evento, artista o productora, o filtrá por una fecha específica para encontrar tu función.
+      span.destacado Destacado: #{destacado.entidad.nombre}
+    h1 Cartelera
     form.buscador(action="/cliente/comprar" method="GET" role="search")
-      input.campo-texto(type="text" name="buscar" placeholder="🔍 Buscar evento, artista, productora..." value=(busqueda || '') aria-label="Buscar")
+      input.campo-texto(type="text" name="buscar" placeholder="Buscar evento, artista o productora" value=(busqueda || '') aria-label="Buscar")
       input.campo-fecha(type="date" name="fecha" value=(filtroFecha || '') aria-label="Fecha de la función")
       button.btn(type="submit") Buscar
       if busqueda || filtroFecha
         a.btn.btn-secundario(href="/cliente/comprar") Limpiar
 
-  //- 2. AVISO AL AGREGAR AL CARRITO
-  #notificacion-carrito.alerta.alerta-exito.alerta-flotante.oculto(role="status")
-    span ✅
-    div
-      strong#texto-notificacion ¡Entrada agregada con éxito!
-      div#detalle-carrito(style="font-weight:500") Ya podés pagar o seguir explorando la cartelera.
-    .acciones
-      a#btn-ver-carrito.btn.btn-chico.btn-secundario(href="/cliente/carrito") Ver carrito
-      a.btn.btn-chico.btn-exito(href="/cliente/carrito/checkout") Pagar ahora
+  //- AVISO AL AGREGAR AL CARRITO: flota abajo, sin sacarte del lugar de la cartelera
+  #notificacion-carrito.aviso-carrito.oculto(role="status")
+    .aviso-arriba
+      #aviso-foto.aviso-foto(aria-hidden="true")
+      .aviso-texto
+        span.aviso-estado
+          span.aviso-tilde(aria-hidden="true") ✓
+          | Agregado al carrito
+        strong#aviso-evento
+        span#aviso-detalle.aviso-detalle
+      button#aviso-cerrar.aviso-cerrar(type="button" aria-label="Cerrar aviso") ×
+    .aviso-abajo
+      span#aviso-total.aviso-total
+      .aviso-acciones
+        a.btn.btn-chico.btn-secundario(href="/cliente/carrito") Ver carrito
+        a.btn.btn-chico(href="/cliente/carrito/checkout") Pagar ahora
 
-  //- 3. GRILLA DE EVENTOS
-  .fila-entre.mb
-    h2.mb-0 #{busqueda || filtroFecha ? 'Resultados' : 'Próximas funciones'}
-    span.texto-tenue #{eventos ? eventos.length : 0} evento(s)
+  - const nombresMes = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
+  - const meses = ['ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN', 'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC']
+  - const claveMes = (ev) => { const f = ev.fecha ? new Date(ev.fecha) : null; return f ? `${f.getFullYear()}-${f.getMonth()}` : 'sin-fecha'; }
+  - const mesesConEventos = [...new Map((eventos || []).filter(ev => ev.fecha).map(ev => [claveMes(ev), nombresMes[new Date(ev.fecha).getMonth()]])).entries()]
 
+  //- FILTRO POR MES
+  .barra-filtros
+    if mesesConEventos.length > 1
+      .filtros-mes(role="group" aria-label="Filtrar por mes")
+        button.filtro-mes.activo(type="button" data-mes="" aria-pressed="true") Todos
+        each mes in mesesConEventos
+          button.filtro-mes(type="button" data-mes=mes[0] aria-pressed="false")= mes[1]
+    span#conteo-eventos.conteo-eventos #{eventos ? eventos.length : 0} evento(s)
+
+  //- AFICHES
   if eventos && eventos.length > 0
-    - const meses = ['ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN', 'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC']
-    .grilla.grilla-auto
+    .grilla.grilla-auto.grilla-afiches
       each evento, i in eventos
         - const fecha = evento.fecha ? new Date(evento.fecha) : null
         - const agotado = !(evento.entradasDisponibles > 0)
         - const precioGeneral = evento.precio || 5000
         - const precioPlatea = evento.precioPlatea != null ? evento.precioPlatea : precioGeneral
         - const precioVIP = evento.precioVIP != null ? evento.precioVIP : precioGeneral
-        article.evento(id=`evento-${evento._id}`)
-          - const urlFoto = evento.entidad ? evento.entidad.urlFoto : null
+        - const urlFoto = evento.entidad ? evento.entidad.urlFoto : null
+        article.evento.afiche(id=`evento-${evento._id}` data-mes=claveMes(evento))
           .evento-portada(class=[`tono-${i % 6}`, urlFoto ? 'con-foto' : ''] style=urlFoto ? `--foto:url('${urlFoto}')` : undefined)
             if urlFoto
-              //- Capas: foto en duotono, foto a color (aparece al pasar el mouse) y sombra para leer el texto
               .portada-foto(aria-hidden="true")
               .portada-color(aria-hidden="true")
               .portada-sombra(aria-hidden="true")
@@ -55,54 +69,114 @@ block content
               span.fecha-chip
                 span.dia= fecha.getDate()
                 span.mes= meses[fecha.getMonth()]
-            if evento.entidad
-              span.artista 🎤 #{evento.entidad.nombre}
+            .afiche-titulo
+              if evento.entidad
+                span.artista= evento.entidad.nombre
+              h3.nombre-evento= evento.nombre
             if urlFoto
               +creditoFoto(evento.entidad.fotoCredito, 'sobre-foto')
 
           .evento-cuerpo
-            h3.nombre-evento= evento.nombre
             .evento-meta
-              if fecha
-                span 📅 #{fecha.toLocaleDateString('es-AR')}
-              span ⏰ #{evento.hora || '21:00'} hs
+              span #{evento.hora || '21:00'} hs
               if evento.sala
-                span 📍 #{evento.sala.nombre}
+                span= evento.sala.nombre
             p.evento-descripcion= evento.descripcion || 'Sin descripción.'
-            div
-              if agotado
-                span.insignia.insignia-error Agotado
-              else if evento.entradasDisponibles <= 20
-                span.insignia.insignia-aviso ¡Últimas #{evento.entradasDisponibles} entradas!
-              else
-                span.insignia.insignia-exito #{evento.entradasDisponibles} disponibles
+            if agotado
+              span.insignia.insignia-error Agotado
+            else if evento.entradasDisponibles <= 50
+              span.insignia.insignia-aviso ¡Últimas #{evento.entradasDisponibles} entradas!
 
             form.evento-compra(onsubmit="agregarAlCarrito(event, this)" action="/cliente/carrito/agregar" method="POST")
               input(type="hidden" name="eventoId" value=evento._id)
               input(type="hidden" name="maxStock" value=evento.entradasDisponibles)
-              .precio-linea
-                span.texto-tenue Precio por entrada
-                span.precio $
-                  span.precio-sector= precioGeneral.toLocaleString('es-AR')
-              .campo
-                label(for=`sector-${evento._id}`) Sector
-                select(id=`sector-${evento._id}` name="tipoEntrada" onchange="this.form.querySelector('.precio-sector').textContent = Number(this.selectedOptions[0].dataset.precio).toLocaleString('es-AR')")
-                  option(value="General" data-precio=precioGeneral) General
-                  option(value="Platea" data-precio=precioPlatea) Platea
-                  option(value="VIP" data-precio=precioVIP) VIP
-              .campo
-                label(for=`cantidad-${evento._id}`) Cantidad
-                input(id=`cantidad-${evento._id}` type="number" name="cantidad" value="1" min="1" max=evento.entradasDisponibles)
-              if agotado
-                button.btn(type="button" disabled) Agotado
-              else
-                button.btn.btn-agregar(type="submit") Agregar al carrito
+              //- Sector: botones con el precio a la vista
+              fieldset.sectores
+                legend.oculto-lector Sector
+                each sector in [['General', precioGeneral], ['Platea', precioPlatea], ['VIP', precioVIP]]
+                  label.sector
+                    input(type="radio" name="tipoEntrada" value=sector[0] checked=(sector[0] === 'General'))
+                    span.sector-caja
+                      span= sector[0]
+                      small $#{sector[1].toLocaleString('es-AR')}
+              .compra-fila
+                .cantidad-control
+                  button(type="button" data-paso="-1" aria-label="Una entrada menos") −
+                  input(id=`cantidad-${evento._id}` type="number" name="cantidad" value="1" min="1" max=evento.entradasDisponibles aria-label="Cantidad de entradas")
+                  button(type="button" data-paso="1" aria-label="Una entrada más") +
+                if agotado
+                  button.btn(type="button" disabled) Agotado
+                else
+                  button.btn.btn-agregar(type="submit") Agregar
   else
     .tarjeta.vacio
-      .icono-vacio 🔎
       h3 No encontramos eventos
       p Probá con otra búsqueda o con otra fecha.
       a.btn.btn-secundario(href="/cliente/comprar") Ver toda la cartelera
+
+  style.
+    .hero { margin-bottom: 18px; }
+    .barra-filtros { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
+    .filtros-mes { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; }
+    .filtros-mes::-webkit-scrollbar { display: none; }
+    .filtro-mes { flex: none; padding: 9px 16px; border: 1px solid var(--color-borde); border-radius: 999px; background: var(--color-superficie); color: var(--color-texto-suave); font: inherit; font-size: 14px; font-weight: 500; cursor: pointer; }
+    .filtro-mes:hover { color: #fff; }
+    .filtro-mes.activo { background: #fff; color: #141418; font-weight: 600; }
+    .conteo-eventos { color: var(--color-texto-tenue); font-size: 13px; margin-left: auto; }
+
+    /* Afiche: foto alta con el título encima */
+    .grilla-afiches { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+    .afiche .evento-portada, .afiche .evento-portada.con-foto { height: 340px; padding: 14px 16px; }
+    .afiche .evento-portada .portada-sombra { background: linear-gradient(to top, rgba(17, 13, 31, .96) 4%, rgba(0, 0, 0, .45) 38%, rgba(17, 13, 31, 0) 66%); }
+    .afiche .evento-portada .afiche-titulo .artista { display: block; align-self: auto; padding: 0; border: 0; border-radius: 0; background: none; backdrop-filter: none; color: #e6e1f5; font-size: 13px; margin-bottom: 3px; }
+    .afiche-titulo .nombre-evento { margin: 0; color: #fff; font-size: 26px; line-height: 1.08; text-wrap: balance; }
+    .afiche .evento-cuerpo { padding: 14px 16px 16px; gap: 8px; }
+    .afiche .evento-meta { gap: 2px 12px; }
+    .afiche .evento-descripcion { margin: 0; font-size: 14px; color: var(--color-texto-suave); display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+    .afiche .insignia { align-self: flex-start; }
+
+    .evento-compra { display: block; margin-top: auto; padding-top: 12px; }
+    .oculto-lector { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+    .sectores { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; border: 0; padding: 0; margin: 0 0 10px; }
+    .sector { position: relative; cursor: pointer; }
+    .sector input { position: absolute; opacity: 0; inset: 0; }
+    .sector-caja { display: flex; flex-direction: column; align-items: center; padding: 9px 2px; border-radius: 12px; background: var(--color-superficie-2); font-weight: 600; font-size: 13px; transition: background .12s; }
+    .sector-caja small { font-size: 12px; font-weight: 500; color: var(--color-texto-suave); }
+    .sector:hover .sector-caja { background: #3c3360; }
+    .sector input:checked + .sector-caja { background: #fff; color: #141418; }
+    .sector input:checked + .sector-caja small { color: #44444c; }
+    .sector input:focus-visible + .sector-caja { outline: 2px solid var(--enlace); outline-offset: 2px; }
+    .compra-fila { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .evento-compra .btn { grid-column: auto; flex: 1; }
+    .cantidad-control { display: flex; align-items: center; flex: none; border-radius: 999px; background: var(--color-superficie-2); }
+    .cantidad-control button { width: 36px; height: 42px; border: 0; background: none; color: #fff; font-size: 18px; cursor: pointer; }
+    .cantidad-control input[type=number] { width: 30px; padding: 6px 0; text-align: center; border: 0; background: none; -moz-appearance: textfield; }
+    .cantidad-control input::-webkit-outer-spin-button, .cantidad-control input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+    /* El aviso flota abajo: se puede seguir mirando la cartelera sin perder el lugar */
+    .aviso-carrito { position: fixed; z-index: 70; right: 24px; bottom: 24px; width: min(420px, calc(100vw - 24px)); padding: 14px; border: 1px solid rgba(255, 255, 255, .14); border-radius: 20px; background: #2b2445; color: #fff; box-shadow: var(--sombra-alta); animation: avisoEntra .25s ease-out; }
+    @keyframes avisoEntra { from { opacity: 0; transform: translateY(12px); } }
+    .aviso-arriba { display: grid; grid-template-columns: 64px minmax(0, 1fr) auto; gap: 12px; align-items: center; }
+    .aviso-foto { width: 64px; height: 64px; border-radius: 12px; background: linear-gradient(135deg, #2c2257, #5a2a8a 60%, #8a2f78) center 22% / cover no-repeat; }
+    .aviso-texto { display: grid; gap: 1px; min-width: 0; }
+    .aviso-estado { display: flex; align-items: center; gap: 6px; color: #8fe3b4; font-size: 13px; font-weight: 500; }
+    .aviso-tilde { display: grid; place-items: center; width: 16px; height: 16px; border-radius: 50%; background: #8fe3b4; color: #10291c; font-size: 11px; font-weight: 700; }
+    .aviso-texto strong { font-size: 16px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .aviso-detalle { color: var(--color-texto-suave); font-size: 13px; }
+    .aviso-cerrar { align-self: start; width: 28px; height: 28px; border: 0; border-radius: 50%; background: none; color: var(--color-texto-suave); font-size: 20px; line-height: 1; cursor: pointer; }
+    .aviso-cerrar:hover { background: rgba(255, 255, 255, .1); color: #fff; }
+    .aviso-abajo { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(255, 255, 255, .1); }
+    .aviso-total { color: var(--color-texto-suave); font-size: 13px; }
+    .aviso-acciones { display: flex; gap: 8px; flex: none; }
+    .aviso-acciones .btn { padding: 8px 14px; white-space: nowrap; }
+    .aviso-acciones .btn-secundario, .aviso-acciones .btn-secundario:hover { background: rgba(255, 255, 255, .12); }
+    @media (prefers-reduced-motion: reduce) { .aviso-carrito { animation: none; } }
+    .evento:target { scroll-margin-top: 90px; outline: 2px solid var(--enlace); outline-offset: 3px; }
+    @media (max-width: 720px) {
+      .buscador { border-radius: 22px; padding: 8px; }
+      .afiche .evento-portada, .afiche .evento-portada.con-foto { height: 300px; }
+      .aviso-carrito { left: 12px; right: 12px; bottom: 74px; width: auto; }
+    }
 
   script.
     // Al venir desde el carrusel del inicio (/cliente/comprar#evento-...), se centra ese evento
@@ -112,9 +186,54 @@ block content
         const tarjeta = document.getElementById(location.hash.slice(1));
         if (!tarjeta) return;
         tarjeta.scrollIntoView({ block: 'center', behavior: 'smooth' });
-        tarjeta.querySelector('select[name="tipoEntrada"]')?.focus({ preventScroll: true });
+        tarjeta.querySelector('input[name="tipoEntrada"]:checked')?.focus({ preventScroll: true });
       });
     }
+
+    // Filtro por mes: muestra solo los eventos de ese mes, sin recargar la página
+    (() => {
+      const botones = [...document.querySelectorAll('.filtro-mes')];
+      const eventos = [...document.querySelectorAll('.evento[data-mes]')];
+      const conteo = document.getElementById('conteo-eventos');
+      botones.forEach(boton => boton.addEventListener('click', () => {
+        botones.forEach(b => { const activo = b === boton; b.classList.toggle('activo', activo); b.setAttribute('aria-pressed', String(activo)); });
+        let visibles = 0;
+        eventos.forEach(ev => {
+          const mostrar = !boton.dataset.mes || ev.dataset.mes === boton.dataset.mes;
+          ev.classList.toggle('oculto', !mostrar);
+          if (mostrar) visibles++;
+        });
+        conteo.textContent = `${visibles} evento(s)`;
+      }));
+    })();
+
+    // Botones − y + de la cantidad: respetan el mínimo y el stock del evento
+    document.addEventListener('click', (e) => {
+      const boton = e.target.closest('[data-paso]');
+      if (!boton) return;
+      const campo = boton.parentElement.querySelector('input[name="cantidad"]');
+      const valor = (parseInt(campo.value) || 1) + Number(boton.dataset.paso);
+      campo.value = Math.min(Math.max(valor, 1), parseInt(campo.max) || 1);
+    });
+
+    // Aviso de "agregado al carrito": se va solo, salvo que el mouse esté encima
+    const aviso = document.getElementById('notificacion-carrito');
+    let esperaAviso;
+    const ocultarAviso = () => aviso.classList.add('oculto');
+    const programarCierre = () => { clearTimeout(esperaAviso); esperaAviso = setTimeout(ocultarAviso, 7000); };
+    function mostrarAviso({ evento, detalle, total, foto }) {
+      document.getElementById('aviso-evento').textContent = evento;
+      document.getElementById('aviso-detalle').textContent = detalle;
+      document.getElementById('aviso-total').textContent = `${total} ${total === 1 ? 'entrada' : 'entradas'} en tu carrito`;
+      document.getElementById('aviso-foto').style.backgroundImage = foto || '';
+      aviso.classList.add('oculto');
+      void aviso.offsetWidth; // reinicia la animación de entrada
+      aviso.classList.remove('oculto');
+      programarCierre();
+    }
+    document.getElementById('aviso-cerrar').addEventListener('click', ocultarAviso);
+    aviso.addEventListener('mouseenter', () => clearTimeout(esperaAviso));
+    aviso.addEventListener('mouseleave', programarCierre);
 
     async function agregarAlCarrito(event, form) {
       event.preventDefault();
@@ -129,10 +248,13 @@ block content
         const response = await fetch(form.action, { method: 'POST', headers: { 'Accept': 'application/json' }, body: new URLSearchParams(new FormData(form)) });
         const data = await response.json();
         if (data.success) {
-          document.getElementById('texto-notificacion').innerText = `¡Agregaste ${cantVal} entrada(s) de "${nombreEvento}"!`;
-          document.getElementById('detalle-carrito').innerText = `Tenés ${data.totalItems} entrada(s) en tu carrito, listas para pagar.`;
-          document.getElementById('btn-ver-carrito').innerText = `Ver carrito (${data.totalItems})`;
-          document.getElementById('notificacion-carrito').classList.remove('oculto');
+          const sector = form.querySelector('input[name="tipoEntrada"]:checked').value;
+          mostrarAviso({
+            evento: nombreEvento,
+            detalle: `${sector} · ${cantVal} ${cantVal === 1 ? 'entrada' : 'entradas'}`,
+            total: data.totalItems,
+            foto: form.closest('.evento').querySelector('.evento-portada').style.getPropertyValue('--foto')
+          });
 
           // Actualiza el contador del encabezado
           const contador = document.getElementById('contador-carrito');
@@ -141,11 +263,9 @@ block content
           void contador.offsetWidth;
           contador.classList.add('pop');
 
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-          const textoOriginal = boton.textContent;
-          boton.textContent = '✅ ¡Agregado!';
-          boton.classList.add('btn-exito');
-          setTimeout(() => { boton.textContent = textoOriginal; boton.classList.remove('btn-exito'); }, 1500);
+          boton.textContent = '¡Agregado!';
+          clearTimeout(boton._espera);
+          boton._espera = setTimeout(() => { boton.textContent = 'Agregar'; }, 1500);
         } else { alert(data.message || 'Error al agregar al carrito.'); }
       } catch (error) { alert('Ocurrió un error de conexión.'); }
     }

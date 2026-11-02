@@ -1,0 +1,191 @@
+//- Identidad "Urbana Cult": oscuro de cine y degradé del ícono.
+//- La usan el sitio del cliente, el acceso y el panel de gestión (que suma estilosPanel.pug), por encima de estilos.pug.
+link(rel="preconnect" href="https://fonts.googleapis.com")
+link(rel="preconnect" href="https://fonts.gstatic.com" crossorigin)
+link(rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&display=swap")
+style.
+  :root {
+    color-scheme: dark;
+    --degrade: linear-gradient(100deg, #6d4dff, #a03cf0 70%, #cf3aa6); /* acción principal */
+    --enlace: #b4a2ff;
+    --tinta: #ffffff;
+    --noche: #110d1f;
+
+    --color-fondo: var(--noche);
+    --color-superficie: #1d1833;
+    --color-superficie-2: #2e2750;
+    --color-borde: rgba(255, 255, 255, .14);
+    --color-texto: #ffffff;
+    --color-texto-suave: #c5bfdb;
+    --color-texto-tenue: #a49dbd;
+    --color-marca: #7c5cff;
+    --color-marca-oscuro: #b4a2ff;
+    --color-marca-suave: rgba(124, 92, 255, .18);
+    --color-acento: #cf3aa6;
+    --color-exito: #6fd8a0;
+    --color-exito-suave: rgba(111, 216, 160, .13);
+    --color-error: #ff8fa3;
+    --color-error-suave: rgba(255, 143, 163, .13);
+    --color-aviso: #f5c451;
+    --color-aviso-suave: rgba(245, 196, 81, .13);
+    --color-info: #8fbcff;
+    --color-info-suave: rgba(143, 188, 255, .13);
+    --radio: 18px;
+    --radio-sm: 12px;
+    --sombra: none;
+    --sombra-alta: 0 24px 60px rgba(0, 0, 0, .5);
+    --ancho-max: 1180px;
+    --fuente: 'Sora', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  body { background: var(--noche); font-size: 15px; }
+  ::selection { background: #7c5cff; color: #fff; }
+  a { color: var(--enlace); }
+  a:hover { color: #fff; }
+  :focus-visible { outline: 2px solid var(--enlace); outline-offset: 2px; border-radius: 6px; }
+  h1, h2, h3, h4 { font-weight: 600; letter-spacing: -.03em; }
+  h1 { font-size: clamp(30px, 4.4vw, 46px); line-height: 1.05; }
+  h2 { font-size: 22px; }
+  h3 { font-size: 17px; }
+  .sitio { overflow-x: clip; }
+  .sitio main { padding: 26px 0 64px; }
+
+  /* ---------- Encabezado ---------- */
+  .encabezado { background: rgba(17, 13, 31, .9); backdrop-filter: blur(14px); box-shadow: none; }
+  .encabezado .contenedor { min-height: 66px; }
+  .marca, .marca:hover { font-weight: 700; font-size: 18px; letter-spacing: -.03em; }
+  .marca small { display: none; }
+  .logo-icono { filter: none; }
+  .marca-cult { background: none; color: var(--enlace); -webkit-text-fill-color: var(--enlace); }
+  .nav-principal a { color: var(--color-texto-suave); font-weight: 500; padding: 8px 12px; }
+  .nav-principal a:hover { background: none; color: #fff; }
+  .nav-principal a.activo { background: none; color: #fff; font-weight: 600; box-shadow: inset 0 -2px 0 #fff; border-radius: 0; }
+  .boton-carrito, .boton-carrito:hover { background: none; color: #fff; padding: 8px; font-weight: 500; }
+  .boton-carrito svg { width: 20px; height: 20px; }
+  .contador { background: var(--degrade); color: #fff; }
+  .chip-usuario:hover { background: none; }
+  .avatar { background: var(--color-superficie-2); color: #fff; font-weight: 600; }
+  .marca-cult { font-weight: 700; }
+  .salir { color: var(--color-texto-tenue); font-weight: 400; }
+
+  /* Barra inferior tipo app: solo en el celular */
+  .barra-app { display: none; }
+  .barra-app svg { width: 22px; height: 22px; }
+
+  /* ---------- Pie ---------- */
+  .pie { background: transparent; border-top: 1px solid var(--color-borde); padding: 20px 0; color: var(--color-texto-tenue); }
+  .pie .contenedor { justify-content: space-between; align-items: center; }
+  .pie .credito { flex-basis: auto; border: 0; padding: 0; }
+  .pie .credito strong { color: var(--color-texto-suave); }
+
+  .encabezado-pagina { margin-bottom: 22px; }
+  .encabezado-pagina h1 { font-size: clamp(30px, 4.4vw, 46px); margin: 0; }
+
+  /* ---------- Botones ---------- */
+  /* El degradé arranca desde el borde: si no, se repite debajo del borde transparente y deja un punto de otro color en las puntas */
+  .btn { border-radius: 999px; font-weight: 600; background: var(--degrade); background-origin: border-box; color: #fff; padding: 11px 22px; transition: filter .15s; }
+  .btn:hover { background: var(--degrade); background-origin: border-box; color: #fff; filter: brightness(1.12); }
+  .btn:disabled, .btn.deshabilitado { background: var(--color-superficie-2); border-color: transparent; color: var(--color-texto-tenue); filter: none; }
+  .btn-exito, .btn-exito:hover { background: var(--degrade); background-origin: border-box; }
+  .btn-secundario, .btn-secundario:hover { background: transparent; color: #fff; border-color: rgba(255, 255, 255, .3); }
+  .btn-secundario:hover { background: rgba(255, 255, 255, .08); filter: none; }
+  .btn-peligro-suave, .btn-peligro-suave:hover { background: transparent; color: var(--color-error); border-color: rgba(255, 143, 163, .45); }
+  .btn-peligro-suave:hover { background: var(--color-error-suave); filter: none; }
+  .btn-enlace, .btn-enlace:hover { background: none; color: var(--color-texto-suave); filter: none; }
+  .btn-grande { border-radius: 999px; font-size: 15px; padding: 14px 30px; }
+  .btn-chico { border-radius: 999px; }
+
+  /* ---------- Formularios ---------- */
+  input[type=text], input[type=email], input[type=password], input[type=number], input[type=date],
+  input[type=time], input[type=search], input[type=tel], select, textarea {
+    background: #130f24; border: 1px solid rgba(255, 255, 255, .24); border-radius: 12px; font-size: 15px; padding: 12px 14px;
+  }
+  input:focus, select:focus, textarea:focus { border-color: #7c5cff; box-shadow: 0 0 0 3px rgba(124, 92, 255, .25); }
+  input[readonly], input:disabled { background: transparent; border-color: var(--color-borde); }
+  input::placeholder { color: var(--color-texto-tenue); }
+  select option { background: #1d1833; color: #fff; }
+  .campo label, label.etiqueta { font-weight: 500; }
+
+  /* ---------- Tarjetas y demás ---------- */
+  .tarjeta { border: 1px solid var(--color-borde); }
+  .seccion-suave { background: transparent; }
+  .tabla-contenedor { border: 0; }
+  table.tabla { background: transparent; }
+  .tabla th { background: transparent; text-transform: none; letter-spacing: 0; font-weight: 500; }
+  .tabla tbody tr:hover { background: transparent; }
+  .alerta { border: 0; font-weight: 500; }
+  .alerta-exito { color: var(--color-exito); }
+  .alerta-error { color: var(--color-error); }
+  .alerta-aviso { color: var(--color-aviso); }
+  .alerta-info { color: var(--color-info); }
+  .insignia-marca { color: var(--enlace); }
+  .insignia-info { color: var(--color-info); }
+  .insignia-neutra { background: var(--color-superficie-2); color: #e6e1f5; }
+  .insignia-exito { color: var(--color-exito); }
+  .insignia-error { color: var(--color-error); }
+  .insignia-aviso { color: var(--color-aviso); }
+  .item-lista { border-radius: 0; background: transparent; border-width: 0 0 1px; padding: 12px 0; }
+  .vacio .icono-vacio { display: none; }
+  .texto-exito { color: var(--color-exito); }
+  .precio { color: #fff; font-weight: 600; }
+
+  /* ---------- Tarjetas de evento: foto a color, limpia ---------- */
+  .evento { background: var(--color-superficie); border: 1px solid var(--color-borde); box-shadow: none; }
+  .evento:hover { transform: translateY(-3px); box-shadow: none; }
+  .evento-portada, .evento-portada.con-foto { height: 220px; }
+  .evento-portada[class*=tono-] { background: linear-gradient(135deg, #2c2257, #5a2a8a 60%, #8a2f78); }
+  .evento-portada .portada-foto { filter: none; mix-blend-mode: normal; }
+  .evento-portada .portada-color { display: none; }
+  .evento:hover .portada-foto { transform: scale(1.04); }
+  .fecha-chip { color: #141418; }
+  .fecha-chip .mes { color: #6d4dff; }
+  .evento-compra { border-top-color: var(--color-borde); }
+
+  /* ---------- Portada de cartelera ---------- */
+  .hero { border-radius: 22px; background: linear-gradient(120deg, #1d1833, #4a2a9a); padding: clamp(24px, 4vw, 38px); }
+  .hero.con-foto::before { filter: none; mix-blend-mode: normal; opacity: .75; }
+  .hero h1 { font-size: clamp(30px, 4.4vw, 46px); max-width: none; }
+  .hero .destacado { color: #e6e1f5; text-transform: none; letter-spacing: 0; font-size: 13px; }
+  .buscador { border-radius: 999px; box-shadow: none; padding: 6px 6px 6px 12px; align-items: center; }
+  .buscador input { color: #141418; color-scheme: light; }
+  .buscador input::placeholder { color: #6c6588; }
+
+  /* ---------- Acceso ---------- */
+  .acceso { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); background: var(--noche); position: relative; overflow: hidden; }
+  .acceso-arte { display: flex; flex-direction: column; justify-content: center; gap: 22px; padding: clamp(28px, 5vw, 72px); background: radial-gradient(70% 60% at 15% 15%, rgba(109, 77, 255, .5), transparent 70%), radial-gradient(60% 60% at 90% 95%, rgba(207, 58, 166, .3), transparent 70%), var(--noche); }
+  .acceso-arte h1 { font-size: clamp(30px, 4vw, 48px); max-width: 460px; margin: 0; }
+  .acceso-arte .marca { font-size: 26px; position: relative; }
+  .acceso-formulario { background: var(--color-superficie); display: grid; place-items: center; padding: 40px 24px; }
+  .acceso-formulario .caja { max-width: 420px; }
+  .acceso-formulario h1 { font-size: 30px; margin-bottom: 18px; }
+  .acceso .credito-panel, .acceso .credito-panel strong { color: var(--color-texto-suave); margin: 0; font-size: 12px; text-align: left; }
+
+  /* ---------- Celular ---------- */
+  @media (max-width: 960px) {
+    .acceso { grid-template-columns: 1fr; }
+    .acceso-arte { padding: 28px 24px; gap: 12px; }
+    .acceso-arte h1 { font-size: 26px; }
+    .acceso .credito-panel { display: none; }
+    .acceso-formulario { align-items: start; padding-top: 26px; }
+  }
+  @media (max-width: 720px) {
+    .encabezado .contenedor { min-height: 56px; padding-top: 6px; padding-bottom: 6px; flex-wrap: nowrap; }
+    .nav-principal, .salir, .chip-usuario { display: none; }
+    .sitio { padding-bottom: 64px; }
+    .sitio main { padding: 18px 0 40px; }
+    .pie .contenedor { justify-content: center; text-align: center; }
+    .barra-app {
+      display: grid; grid-template-columns: repeat(5, 1fr); position: fixed; inset: auto 0 0 0; z-index: 60;
+      background: rgba(17, 13, 31, .97); border-top: 1px solid var(--color-borde); padding-bottom: env(safe-area-inset-bottom);
+    }
+    .barra-app a { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 9px 2px 8px; color: var(--color-texto-tenue); font-size: 10px; font-weight: 500; }
+    .barra-app a.activo { color: var(--enlace); }
+  }
+
+  /* ---------- Papel: al imprimir vuelve todo a negro sobre blanco ---------- */
+  @media print {
+    :root { color-scheme: light; --color-fondo: #fff; --noche: #fff; --color-superficie: #fff; --color-superficie-2: #f3f3f3; --color-borde: #bbb; --color-texto: #000; --tinta: #000; --color-texto-suave: #333; --color-texto-tenue: #555; --color-exito: #0b7a3e; }
+    body { background: #fff; color: #000; }
+    .barra-app { display: none !important; }
+    .precio { color: #000; }
+  }

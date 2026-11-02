@@ -1,8 +1,10 @@
 doctype html
 include partials/logo.pug
+include partials/iconos.pug
 html(lang="es")
   head
     include partials/head.pug
+    include partials/estilosUrbana.pug
     title
       block titulo
         | Urbana Cult · Entradas para eventos
@@ -14,22 +16,18 @@ html(lang="es")
         .contenedor
           +logoMarca("/cliente/menu", "Entradas")
 
-          - const enlaces = [['/cliente/menu', 'Inicio'], ['/cliente/comprar', 'Cartelera'], ['/cliente/mis-compras', 'Mis entradas'], ['/cliente/membresia', 'Membresía']]
+          - const enlaces = [['/cliente/menu', 'Inicio', 'inicio'], ['/cliente/comprar', 'Cartelera', 'cartelera'], ['/cliente/mis-compras', 'Mis entradas', 'entrada'], ['/cliente/membresia', 'Plan', 'plan']]
           nav.nav-principal(aria-label="Menú principal")
             each enlace in enlaces
               a(href=enlace[0] class=(rutaActual === enlace[0] ? 'activo' : '') aria-current=(rutaActual === enlace[0] ? 'page' : undefined))= enlace[1]
 
           .acciones-usuario
             a.boton-carrito(href="/cliente/carrito" aria-label="Ver carrito")
-              | 🛒 Carrito
+              +icono('carrito')
               span.contador#contador-carrito(class=(itemsCarrito ? '' : 'oculto'))= itemsCarrito
             if usuarioLogueado
-              a.chip-usuario(href="/cliente/configuracion" title="Configurar perfil")
+              a.chip-usuario(href="/cliente/configuracion" title="Mi perfil" aria-label="Mi perfil")
                 span.avatar= usuarioLogueado.nombreUsuario.charAt(0)
-                span.texto-chip
-                  span.nombre= usuarioLogueado.nombreUsuario
-                  br
-                  span.plan Plan #{usuarioLogueado.tipoCliente || 'ESTANDAR'}
               a.salir(href="/auth/logout") Salir
 
       //- CONTENIDO DINÁMICO DE CADA VISTA
@@ -39,8 +37,13 @@ html(lang="es")
 
       footer.pie
         .contenedor
-          span © #{new Date().getFullYear()} Urbana Cult · Venta de entradas para eventos culturales
-          span
-            a(href="/cliente/comprar") Cartelera
-            |  · #[a(href="/cliente/configuracion") Mi perfil]
+          span © #{new Date().getFullYear()} Urbana Cult
           span.credito Desarrollado por #[strong Sintaxia]
+
+      //- NAVEGACIÓN DEL CELULAR: barra fija abajo, como una app
+      nav.barra-app(aria-label="Navegación principal")
+        each enlace in [...enlaces, ['/cliente/configuracion', 'Perfil', 'perfil']]
+          a(href=enlace[0] class=(rutaActual === enlace[0] ? 'activo' : '') aria-current=(rutaActual === enlace[0] ? 'page' : undefined))
+            +icono(enlace[2])
+            span= enlace[1] === 'Mis entradas' ? 'Entradas' : enlace[1]
+

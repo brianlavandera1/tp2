@@ -1,0 +1,89 @@
+//- Ajustes de la identidad Urbana Cult para el panel de gestión (se suma a estilosUrbana.pug)
+style.
+  .panel { grid-template-columns: 248px minmax(0, 1fr); }
+  .panel-contenido { padding: 30px 34px 60px; }
+
+  /* ---------- Colores por área: se usan en el menú, en la ruta y en las tablas ---------- */
+  .panel-contenido { --area: #b4a2ff; }
+  .area-dia { --area: #4fd39a; }
+  .area-cartelera { --area: #b4a2ff; }
+  .area-dinero { --area: #f5c451; }
+  .area-personas { --area: #6cc4ff; }
+  .ruta-seccion { display: flex; align-items: center; gap: 9px; margin: 0 0 12px; color: var(--area); font-size: 13px; font-weight: 600; }
+  .ruta-icono { display: inline-flex; padding: 6px; border-radius: 9px; background: color-mix(in srgb, var(--area) 16%, transparent); }
+  .ruta-icono svg { width: 16px; height: 16px; }
+
+  /* ---------- Menú lateral ---------- */
+  .lateral { background: #0c0917; border-right: 1px solid var(--color-borde); padding: 20px 14px; gap: 16px; }
+  .lateral .marca { font-size: 18px; }
+  .menu-lateral .titulo-grupo { color: var(--area); font-size: 11px; letter-spacing: .08em; padding: 14px 12px 6px; }
+  .menu-lateral a { color: var(--color-texto-suave); font-weight: 500; border-radius: 12px; padding: 9px 12px; }
+  .menu-lateral a:hover { background: rgba(255, 255, 255, .06); color: #fff; }
+  .menu-lateral a.activo { background: color-mix(in srgb, var(--area) 18%, transparent); color: #fff; font-weight: 600; box-shadow: inset 3px 0 0 var(--area); }
+  .menu-lateral .icono { display: inline-flex; width: 20px; height: 20px; color: var(--area); }
+  .menu-lateral .icono svg { width: 20px; height: 20px; }
+  .lateral .usuario-panel { background: var(--color-superficie); border-radius: 14px; }
+  .usuario-panel .rol { color: var(--color-texto-suave); }
+  .lateral .credito-panel, .lateral .credito-panel strong { color: var(--color-texto-tenue); }
+
+  /* ---------- Contenido ---------- */
+  .panel-contenido h1 { font-size: clamp(26px, 3vw, 34px); }
+  .encabezado-pagina p { color: var(--color-texto-suave); }
+  .panel-contenido h3 { font-weight: 600; }
+  .tarjeta { border-radius: 18px; }
+  .kpi { border: 1px solid var(--color-borde); border-radius: 18px; background: var(--color-superficie); }
+  .kpi .etiqueta-kpi { color: var(--color-texto-suave); font-weight: 500; }
+  .kpi .valor { font-weight: 600; letter-spacing: -.03em; }
+  /* Cada número tiene su color: plata en verde, entradas en violeta, bajas en rojo, personas en celeste */
+  .kpi:has(.kpi-icono) { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 12px; }
+  .kpi[class*="kpi-"] .valor { color: var(--kpi); }
+  .kpi-plata { --kpi: #4fd39a; }
+  .kpi-entradas { --kpi: #b4a2ff; }
+  .kpi-bajas { --kpi: #ff8fa3; }
+  .kpi-personas { --kpi: #6cc4ff; }
+  .kpi-icono { grid-column: 2; grid-row: 1 / span 2; align-self: start; display: inline-flex; padding: 9px; border-radius: 12px; background: color-mix(in srgb, var(--kpi) 16%, transparent); color: var(--kpi); }
+  .kpi-icono svg { width: 20px; height: 20px; }
+  .kpi-plata { background: color-mix(in srgb, #4fd39a 9%, var(--color-superficie)); border-color: color-mix(in srgb, #4fd39a 38%, transparent); }
+
+  /* ---------- Tablas ---------- */
+  .tabla th { color: var(--area); background: color-mix(in srgb, var(--area) 9%, var(--color-superficie)); border-bottom: 1px solid color-mix(in srgb, var(--area) 35%, transparent); }
+  .tabla td { border-top-color: var(--color-borde); }
+  .tabla tbody tr:hover { background: rgba(255, 255, 255, .03); }
+  .tabla tfoot td { background: transparent; }
+
+  /* ---------- Estados ---------- */
+  .insignia-exito { border: 1px solid color-mix(in srgb, var(--color-exito) 40%, transparent); }
+  .insignia-error { border: 1px solid color-mix(in srgb, var(--color-error) 40%, transparent); }
+  .insignia-aviso { border: 1px solid color-mix(in srgb, var(--color-aviso) 40%, transparent); }
+  .insignia-info { border: 1px solid color-mix(in srgb, var(--color-info) 40%, transparent); }
+
+  /* ---------- Controles: editar en celeste, eliminar en rojo, crear en verde ---------- */
+  .btn-chico.btn-secundario { background: rgba(108, 196, 255, .12); border-color: rgba(108, 196, 255, .45); color: #a9dcff; }
+  .btn-chico.btn-secundario:hover { background: rgba(108, 196, 255, .24); color: #fff; }
+  .btn-exito, .btn-exito:hover { background: #4fd39a; color: #06281a; }
+  .barra span.casi-lleno { background: var(--color-aviso); }
+  .btn-suave, .btn-suave:hover { background: var(--color-superficie-2); color: #fff; }
+  .btn-peligro, .btn-peligro:hover { background: #c9304f; color: #fff; }
+  .btn-aviso, .btn-aviso:hover { background: #f2c94c; color: #2b2000; }
+  .barra { background: var(--color-superficie-2); }
+  .barra span { background: var(--degrade); }
+  .grafico-barras { border-bottom-color: var(--color-borde); }
+  .barra-dia { background: #574c8a; }
+  .barra-dia.hoy { background: var(--degrade); }
+  details summary { color: var(--enlace); }
+  .item-lista { border-color: var(--color-borde); }
+  .seccion-suave { border-color: var(--color-borde); border-radius: 14px; }
+  .sugerencias { background: var(--color-superficie-2) !important; }
+  .sugerencias mark { color: var(--enlace) !important; }
+
+  @media (max-width: 960px) {
+    .panel { grid-template-columns: minmax(0, 1fr); }
+    .lateral { border-right: 0; border-bottom: 1px solid var(--color-borde); padding: 12px 14px; }
+    .lateral .credito-panel { display: none; }
+    .panel-contenido { padding: 20px 16px 48px; }
+  }
+
+  @media print {
+    .lateral, .ruta-seccion { display: none !important; }
+    .tarjeta, .kpi { background: #fff; color: #000; }
+  }

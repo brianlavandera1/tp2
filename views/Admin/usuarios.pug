@@ -14,12 +14,13 @@ block content
       a.btn(href="/admin/crear-personal") + Nuevo usuario
 
   if exito
-    .alerta.alerta-exito ✅ #{exito}
+    .alerta.alerta-exito #{exito}
   if error
-    .alerta.alerta-error(role="alert") ⚠️ #{error}
+    .alerta.alerta-error(role="alert") #{error}
 
   .tarjeta
     if usuarios && usuarios.length > 0
+      - const colorPlan = { VIP: 'insignia-aviso', PREMIUM: 'insignia-marca' }
       - const colorRol = { Administrador: 'insignia-marca', Supervisor: 'insignia-info', Lector: 'insignia-neutra', Cliente: 'insignia-exito' }
       .tabla-contenedor
         table.tabla
@@ -43,12 +44,13 @@ block content
                 td(style="word-break:break-all")= user.email
                 td
                   span.insignia(class=colorRol[user.rol] || 'insignia-neutra')= user.rol
-                td= user.tipoCliente
+                td
+                  span.insignia(class=colorPlan[user.tipoCliente] || 'insignia-neutra')= user.tipoCliente
                 if esAdmin
                   td
                     //- Los administradores están protegidos: no se editan ni se eliminan
                     if user.rol === 'Administrador'
-                      span.insignia.insignia-neutra(title="Las cuentas de administrador no se pueden editar ni eliminar") 🔒 Protegido
+                      span.insignia.insignia-neutra(title="Las cuentas de administrador no se pueden editar ni eliminar") Protegido
                     else
                       .acciones-celda
                         a.btn.btn-chico.btn-secundario(href=`/admin/usuarios/editar/${user._id}`) Editar
@@ -58,5 +60,4 @@ block content
       +paginacion(paginacion, "usuarios")
     else
       .vacio
-        .icono-vacio 👥
         p No hay usuarios registrados.

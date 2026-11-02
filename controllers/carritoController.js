@@ -4,8 +4,25 @@ import Entrada from '../models/Entrada.js';
 import Transaccion from '../models/Transaccion.js';
 import { conTransaccion } from '../utils/transaccion.js';
 
-export const verCarrito = (req, res) => {
+export const verCarrito = async (req, res) => {
   const carrito = req.session.carrito || [];
+  // Suma a cada ítem los datos actuales del evento (foto, fecha, sala y stock), sin guardarlos en la sesión
+  const eventos = await Evento.find({ _id: { $in: carrito.map(item => item.eventoId) } })
+    .select('fecha hora entradasDisponibles sala entidad eliminado')
+    .populate('sala', 'nombre').populate('entidad', 'fotoActualizada');
+  const items = carrito.map(item => {
+    const evento = eventos.find(ev => String(ev._id) === item.eventoId);
+    const yaEnCarrito = carrito.filter(otro => otro.eventoId === item.eventoId).reduce((suma, otro) => suma + otro.cantidad, 0);
+    return {
+      ...item,
+      fecha: evento?.fecha || null,
+      hora: evento?.hora || null,
+      sala: evento?.sala?.nombre || null,
+      urlFoto: evento?.entidad?.urlFoto || null,
+      // Entradas que todavía se pueden sumar a este evento
+      restantes: evento && !evento.eliminado ? evento.entradasDisponibles - yaEnCarrito : 0
+    };
+  });
   const subtotal = carrito.reduce((a, b) => a + (b.precio * b.cantidad), 0);
   
   // Solución al bug de punto flotante de JavaScript redondeando a 2 decimales
@@ -13,9 +30,9 @@ export const verCarrito = (req, res) => {
   const total = Number((subtotal - desc).toFixed(2));
 
   res.render('Cliente/carrito', { 
-    usuarioLogueado: req.session.usuario, 
-    carrito, 
-    subtotal, 
+    usuarioLogueado: req.session.usuario,
+    carrito: items,
+    subtotal,
     descuentoAplicado: desc, 
     porcentajeDescuento: (req.session.usuario.porcentajeDescuento || 0) * 100,
     total: total 
@@ -67,8 +84,34 @@ export const agregarItem = async (req, res) => {
   }
 };
 
+// Posición válida dentro del carrito, o -1 (un valor no numérico no debe terminar afectando al primer ítem)
+const posicionEnCarrito = (req) => {
+  const posicion = /^\d+$/.test(req.params.index) ? Number(req.params.index) : -1;
+  return posicion < (req.session.carrito?.length || 0) ? posicion : -1;
+};
+
 export const quitarItem = (req, res) => {
-  if (req.session.carrito) req.session.carrito.splice(req.params.index, 1);
+  const posicion = posicionEnCarrito(req);
+  if (posicion > -1) req.session.carrito.splice(posicion, 1);
+  res.redirect('/cliente/carrito');
+};
+
+// POST /cliente/carrito/cantidad/:index — suma o resta una entrada, sin pasar el stock; en cero se quita
+export const cambiarCantidad = async (req, res) => {
+  const posicion = posicionEnCarrito(req);
+  const paso = req.body.paso === '1' ? 1 : -1;
+  if (posicion > -1) {
+    const carrito = req.session.carrito;
+    const item = carrito[posicion];
+    if (paso === -1) {
+      item.cantidad -= 1;
+      if (item.cantidad <= 0) carrito.splice(posicion, 1);
+    } else {
+      const evento = await Evento.findById(item.eventoId).select('entradasDisponibles eliminado');
+      const yaEnCarrito = carrito.filter(otro => otro.eventoId === item.eventoId).reduce((suma, otro) => suma + otro.cantidad, 0);
+      if (evento && !evento.eliminado && yaEnCarrito < evento.entradasDisponibles) item.cantidad += 1;
+    }
+  }
   res.redirect('/cliente/carrito');
 };
 

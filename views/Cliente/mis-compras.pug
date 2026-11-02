@@ -8,147 +8,175 @@ block content
   - const meses = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic']
 
   .encabezado-pagina
-    div
-      h1 Mis entradas
-      p Mostrá el código de tu entrada en el acceso. Pasá de una entrada a otra con las flechas o descargalas todas juntas.
+    h1 Mis entradas
 
-  .grilla.grilla-lateral
-    //- ENTRADAS ACTIVAS: una tarjeta por evento, como en la cartelera
-    section
-      h2 Entradas activas
-      if eventosConEntradas && eventosConEntradas.length > 0
-        .grilla-mis-eventos
-          each grupo, g in eventosConEntradas
-            - const ev = grupo.evento
-            - const fecha = ev ? new Date(ev.fecha) : null
-            - const urlFoto = ev && ev.entidad ? ev.entidad.urlFoto : null
-            - const total = grupo.entradas.length
-            article.evento.evento-mis-entradas(data-visor)
-              .evento-portada(class=[`tono-${g % 6}`, urlFoto ? 'con-foto' : ''] style=urlFoto ? `--foto:url('${urlFoto}')` : undefined)
-                if urlFoto
-                  .portada-foto(aria-hidden="true")
-                  .portada-color(aria-hidden="true")
-                  .portada-sombra(aria-hidden="true")
-                if fecha
-                  span.fecha-chip
-                    span.dia= fecha.getDate()
-                    span.mes= meses[fecha.getMonth()]
-                .fila-entre(style="align-items:center;gap:8px")
-                  if ev && ev.entidad
-                    span.artista 🎤 #{ev.entidad.nombre}
-                  span.cantidad-entradas 🎟️ #{total} #{total === 1 ? 'entrada' : 'entradas'} · #{grupo.personas} #{grupo.personas === 1 ? 'persona' : 'personas'}
-                if urlFoto
-                  +creditoFoto(ev.entidad.fotoCredito, 'sobre-foto')
+  //- UNA ENTRADA DE VERDAD POR EVENTO: con troquelado y talón; si hay varias, se pasan como un fajo
+  if eventosConEntradas && eventosConEntradas.length > 0
+    .cartera
+      each grupo in eventosConEntradas
+        - const ev = grupo.evento
+        - const fecha = ev ? new Date(ev.fecha) : null
+        - const urlFoto = ev && ev.entidad ? ev.entidad.urlFoto : null
+        - const total = grupo.entradas.length
+        article.grupo-entradas(data-visor)
+          .visor(aria-roledescription="carrusel" aria-label=`Entradas para ${ev ? ev.nombre : 'el evento'}` tabindex="0")
+            .visor-pista(class=(total > 1 ? 'fajo' : ''))
+              each entrada, i in grupo.entradas
+                - const usada = entrada.estado === 'Usado'
+                - const cantidad = entrada.cantidad || 1
+                .pase(class=(i === 0 ? 'activo' : '') aria-label=`Entrada ${i + 1} de ${total}` aria-hidden=(i === 0 ? 'false' : 'true'))
+                  .ticket(class=usada ? 'usada' : '')
+                    .ticket-principal(class=urlFoto ? 'con-foto' : '' style=urlFoto ? `--foto:url('${urlFoto}')` : undefined)
+                      .ticket-marca
+                        span.texto-oro Urbana Cult · Entrada
+                        span.sello-oro= entrada.sector || 'General'
+                      h2.ticket-nombre= ev ? ev.nombre : entrada.nombre
+                      if ev && ev.entidad
+                        .ticket-artista= ev.entidad.nombre
+                      .ticket-linea
+                      .ticket-datos
+                        if fecha
+                          div
+                            small Fecha
+                            strong #{fecha.getDate()} #{meses[fecha.getMonth()]} #{fecha.getFullYear()}
+                        div
+                          small Hora
+                          strong #{ev && ev.hora ? ev.hora : '21:00'} hs
+                        if ev && ev.sala
+                          div
+                            small Sala
+                            strong= ev.sala.nombre
+                      if usada
+                        span.sello-oro(style="align-self:flex-start") Usada el #{new Date(entrada.usadaEn).toLocaleDateString('es-AR')}
+                    .ticket-talon
+                      span.vale-para
+                        | Vale para #[strong #{cantidad} #{cantidad === 1 ? 'persona' : 'personas'}]
+                        if cantidad > 1
+                          small Entran todas con este QR
+                      if qrs && qrs[entrada._id]
+                        .qr(role="img" aria-label=`Código QR de la entrada ${entrada.codigoBoleto}`)!= qrs[entrada._id]
+                      .codigo= entrada.codigoBoleto
+                      if !usada
+                        button.btn-cancelar(type="button" data-entrada=entrada._id data-evento=(ev ? ev.nombre : entrada.nombre) data-fecha=(fecha ? `${fecha.getDate()} ${meses[fecha.getMonth()]}` : '') data-foto=urlFoto data-detalle=`${entrada.sector || 'General'} · ${cantidad} ${cantidad === 1 ? 'persona' : 'personas'}` data-codigo=entrada.codigoBoleto tabindex=(i === 0 ? 0 : -1)) Cancelar
+          .ticket-pie
+            if total > 1
+              .visor-controles
+                button.visor-flecha.anterior(type="button" aria-label="Entrada anterior") ‹
+                span.visor-contador(aria-live="polite") Entrada 1 de #{total}
+                button.visor-flecha.siguiente(type="button" aria-label="Entrada siguiente") ›
+            else
+              span.una-entrada 1 entrada
+            if ev
+              a.descargar(href=`/cliente/mis-entradas/${ev._id}/descargar`) Descargar #{total === 1 ? 'entrada' : `las ${total}`}
+            if urlFoto && ev.entidad.fotoCredito
+              +creditoFoto(ev.entidad.fotoCredito, 'credito-ticket')
+  else
+    .tarjeta.vacio
+      h3 Todavía no tenés entradas
+      a.btn.mt(href="/cliente/comprar") Ver cartelera
 
-              .evento-cuerpo
-                h3.nombre-evento= ev ? ev.nombre : grupo.entradas[0].nombre
-                if ev
-                  .evento-meta
-                    span 📅 #{fecha.toLocaleDateString('es-AR', { weekday: 'short', day: '2-digit', month: 'short' })}
-                    span ⏰ #{ev.hora || '21:00'} hs
-                    if ev.sala
-                      span 📍 #{ev.sala.nombre}
+  //- HISTORIAL: cerrado hasta que se lo pide
+  if misCompras && misCompras.length > 0
+    details.historial
+      summary Historial de compras (#{misCompras.length})
+      .lista-historial
+        each compra in misCompras
+          - const totalEntradas = compra.items ? compra.items.reduce((acc, item) => acc + (item.cantidad || 0), 0) : 0
+          - const canceladas = compra.items ? compra.items.reduce((acc, item) => acc + (item.cantidadCancelada || 0), 0) : 0
+          .fila-historial
+            span
+              | #{new Date(compra.fechaCompra).toLocaleDateString('es-AR')}
+              span.texto-tenue  · #{totalEntradas} entrada(s)#{canceladas ? `, ${canceladas} cancelada(s)` : ''}
+            strong $#{compra.total.toLocaleString('es-AR')}
 
-                //- VISOR: se ve una entrada por vez y se pasa con las flechas, los puntos o deslizando
-                .visor(aria-roledescription="carrusel" aria-label=`Entradas para ${ev ? ev.nombre : 'el evento'}` tabindex="0")
-                  .visor-pista
-                    each entrada, i in grupo.entradas
-                      - const usada = entrada.estado === 'Usado'
-                      - const cantidad = entrada.cantidad || 1
-                      .pase(class=[i === 0 ? 'activo' : '', usada ? 'usada' : ''] aria-roledescription="entrada" aria-label=`Entrada ${i + 1} de ${total}` aria-hidden=(i === 0 ? 'false' : 'true'))
-                        .pase-encabezado
-                          span.texto-oro ✦ Entrada #{i + 1} de #{total}
-                          span.sello-oro= entrada.sector || 'General'
-                        if qrs && qrs[entrada._id]
-                          .qr(role="img" aria-label=`Código QR de la entrada ${entrada.codigoBoleto}`)!= qrs[entrada._id]
-                        .codigo= entrada.codigoBoleto
-                        span.admite Admite #{cantidad} #{cantidad === 1 ? 'persona' : 'personas'}
-                        if usada
-                          span.insignia.insignia-neutra ✔ Usada el #{new Date(entrada.usadaEn).toLocaleDateString('es-AR')}
-                        else
-                          button.btn-cancelar(type="button" onclick=`cancelarEntrada('${entrada._id}')` tabindex=(i === 0 ? 0 : -1)) Cancelar esta entrada
-
-                  if total > 1
-                    .visor-controles
-                      button.visor-flecha.anterior(type="button" aria-label="Entrada anterior") ‹
-                      //- Con muchas entradas, en vez de puntos se muestra un contador "3 / 14"
-                      if total <= 8
-                        .visor-puntos
-                          each entrada, i in grupo.entradas
-                            button.punto(type="button" class=(i === 0 ? 'activo' : '') aria-label=`Ver entrada ${i + 1}` aria-current=(i === 0 ? 'true' : 'false'))
-                      else
-                        span.visor-contador(aria-live="polite") 1 / #{total}
-                      button.visor-flecha.siguiente(type="button" aria-label="Entrada siguiente") ›
-
-                if ev
-                  a.btn.btn-bloque.btn-descargar(href=`/cliente/mis-entradas/${ev._id}/descargar`) ⬇️ Descargar #{total === 1 ? 'entrada' : `las ${total} entradas`}
-      else
-        .tarjeta.vacio
-          .icono-vacio 🎟️
-          h3 No tenés entradas activas
-          p Cuando compres, tus entradas van a aparecer acá.
-          a.btn(href="/cliente/comprar") Ver cartelera
-
-    //- HISTORIAL DE COMPRAS
-    aside.tarjeta
-      h3 Historial de compras
-      if misCompras && misCompras.length > 0
-        .lista
-          each compra in misCompras
-            - const totalEntradas = compra.items ? compra.items.reduce((acc, item) => acc + (item.cantidad || 0), 0) : 0
-            - const canceladas = compra.items ? compra.items.reduce((acc, item) => acc + (item.cantidadCancelada || 0), 0) : 0
-            .item-lista
-              .fila-entre
-                span.codigo= compra.comprobanteId
-                span.texto-tenue= new Date(compra.fechaCompra).toLocaleDateString('es-AR')
-              .texto-suave(style="font-size:13px;margin:6px 0") #{totalEntradas} entrada(s) · #{compra.medioPago || 'Tarjeta'}
-              .fila-entre
-                strong $#{compra.total.toLocaleString('es-AR')}
-                if canceladas
-                  span.insignia.insignia-aviso #{canceladas} cancelada(s)
-      else
-        p.texto-tenue No hay compras registradas.
+  //- VENTANA PARA CONFIRMAR LA CANCELACIÓN (la completa el script con los datos de la entrada)
+  dialog#ventana-cancelar.ventana-cancelar(aria-labelledby="cancelar-titulo")
+    .cancelar-foto#cancelar-foto
+    .cancelar-cuerpo
+      h2#cancelar-titulo ¿Cancelar esta entrada?
+      .cancelar-entrada
+        strong#cancelar-evento
+        span#cancelar-detalle
+        code#cancelar-codigo
+      p#cancelar-texto Tu QR deja de funcionar y el lugar queda libre para otra persona. Esto no se puede deshacer.
+      p#cancelar-error.cancelar-error(role="alert" hidden)
+      .cancelar-acciones
+        button#cancelar-no.btn.btn-secundario(type="button" autofocus) Conservar entrada
+        button#cancelar-si.btn.btn-cancelar-confirmar(type="button") Sí, cancelar
 
   style.
-    .grilla-mis-eventos { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
-    .evento-mis-entradas:hover { transform: none; }
-    .cantidad-entradas { background: rgba(18, 16, 31, .7); backdrop-filter: blur(6px); color: #fff; font-size: 12px; font-weight: 800; padding: 5px 10px; border-radius: 999px; }
+    .ventana-cancelar { width: min(440px, calc(100vw - 32px)); padding: 0; border: 0; border-radius: 22px; overflow: hidden; background: var(--color-superficie); color: #fff; box-shadow: var(--sombra-alta); }
+    .ventana-cancelar[open] { animation: ventanaEntra .22s ease-out; }
+    .ventana-cancelar::backdrop { background: rgba(8, 5, 18, .72); backdrop-filter: blur(6px); }
+    @keyframes ventanaEntra { from { opacity: 0; transform: translateY(14px) scale(.98); } }
+    .cancelar-foto { height: 130px; background: linear-gradient(135deg, #2c2257, #5a2a8a 60%, #8a2f78) center 22% / cover no-repeat; position: relative; }
+    .cancelar-foto::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, #141418, rgba(26, 20, 48, 0) 80%); }
+    .cancelar-cuerpo { padding: 4px 24px 24px; }
+    .cancelar-cuerpo h2 { font-size: 24px; margin: 0 0 14px; }
+    .cancelar-entrada { display: grid; gap: 2px; padding: 12px 14px; border-radius: 14px; background: var(--color-superficie-2); margin-bottom: 14px; }
+    .cancelar-entrada span { color: var(--color-texto-suave); font-size: 14px; }
+    .cancelar-entrada code { color: var(--color-texto-suave); font-size: 12px; font-family: ui-monospace, monospace; }
+    #cancelar-texto { margin: 0 0 16px; color: var(--color-texto-suave); font-size: 14px; }
+    .cancelar-error { margin: 0 0 14px; padding: 10px 12px; border-radius: 10px; background: var(--color-error-suave); color: var(--color-error); font-size: 14px; }
+    .cancelar-acciones { display: flex; gap: 10px; }
+    .cancelar-acciones .btn { flex: 1; padding: 13px 10px; }
+    .btn-cancelar-confirmar, .btn-cancelar-confirmar:hover { background: #c9304f; color: #fff; }
+    .btn-cancelar-confirmar:disabled { background: #6b3346; color: #fff; }
+    .cancelar-ok .cancelar-entrada, .cancelar-ok .cancelar-acciones { display: none; }
+    @media (prefers-reduced-motion: reduce) { .ventana-cancelar[open] { animation: none; } }
 
-    /* Visor de entradas: un "talón" dorado por vez */
-    .visor { margin-top: 14px; border-radius: 16px; outline: none; }
-    .visor:focus-visible { box-shadow: 0 0 0 3px var(--color-marca); }
-    .visor-pista { display: grid; }
-    .pase {
-      grid-area: 1 / 1; display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 16px 14px 14px; text-align: center;
-      background: linear-gradient(160deg, #fffaf0, #f7ecd0); border: 2px solid var(--oro, #d4af37); border-radius: 16px;
-      opacity: 0; visibility: hidden; transform: translateX(14px); transition: opacity .35s, transform .35s, visibility .35s;
-    }
+    .cartera { display: grid; gap: 34px; max-width: 880px; margin: 0 auto; }
+    .visor { outline: none; }
+    .visor:focus-visible { outline: 2px solid var(--enlace); outline-offset: 6px; border-radius: 18px; }
+    .visor-pista { position: relative; display: grid; isolation: isolate; }
+    /* Fajo: se asoman las entradas de abajo */
+    .visor-pista.fajo { margin-bottom: 16px; }
+    .visor-pista.fajo::before, .visor-pista.fajo::after { content: ''; position: absolute; z-index: -1; border-radius: 18px; border: 1px solid rgba(212, 175, 55, .55); background: #241d3f; }
+    .visor-pista.fajo::before { left: 12px; right: 12px; bottom: -8px; height: 60px; }
+    .visor-pista.fajo::after { left: 26px; right: 26px; bottom: -16px; height: 60px; z-index: -2; background: #1b1631; }
+    .pase { grid-area: 1 / 1; opacity: 0; visibility: hidden; transform: translateX(26px) rotate(.6deg); transition: opacity .3s, transform .3s, visibility .3s; }
     .pase.activo { opacity: 1; visibility: visible; transform: none; }
-    .pase.usada .qr { filter: grayscale(1); opacity: .5; }
-    .pase-encabezado { display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 8px; }
-    .pase-encabezado .texto-oro { font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: #8a6a00; }
-    .pase-encabezado .sello-oro { color: #6b5200; border-color: rgba(138, 106, 0, .5); background: rgba(212, 175, 55, .15); }
-    .pase .qr { width: 150px; padding: 7px; border: 2px solid var(--oro, #d4af37); border-radius: 12px; box-shadow: 0 0 0 4px rgba(212, 175, 55, .18); }
-    .pase .codigo { color: #3b2f12; font-size: 13px; font-weight: 700; }
-    .pase .admite { font-size: 10px; font-weight: 800; letter-spacing: .2em; text-transform: uppercase; color: #8a6a00; }
-    .pase .btn-cancelar { background: none; border: 0; color: #a51c30; font: inherit; font-size: 12px; font-weight: 700; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+    .pase .ticket { height: 100%; grid-template-columns: minmax(0, 1fr) 216px; }
+    .pase .ticket-principal { min-height: 244px; padding: 24px 30px; }
+    .pase .ticket-principal.con-foto::before { filter: none; transform: none; inset: 0; background-position: center 22%; }
+    .pase .ticket-principal::after { background: linear-gradient(100deg, rgba(17, 13, 31, .9) 10%, rgba(17, 13, 31, .55) 55%, rgba(17, 13, 31, .12) 100%); }
+    .ticket-marca .texto-oro { font-size: 11px; }
+    .ticket-nombre { margin: 8px 0 0; color: #fff; font-size: clamp(26px, 3.6vw, 36px); line-height: 1.06; text-wrap: balance; text-shadow: 0 2px 12px rgba(0, 0, 0, .5); }
+    .pase .ticket-datos strong { font-size: 16px; }
+    .vale-para { color: #3b2f12; font-size: 13px; line-height: 1.25; text-align: center; }
+    .vale-para strong { font-size: 15px; font-weight: 700; white-space: nowrap; }
+    .vale-para small { display: block; color: #6b5720; font-size: 11px; }
+    .pase .ticket-talon .qr { width: 148px; }
+    .pase .ticket-talon .codigo { font-weight: 700; font-size: 12px; }
 
-    .visor-controles { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 10px; }
-    .visor-flecha { width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--color-borde); background: var(--color-superficie); color: var(--color-texto); font-size: 20px; line-height: 1; cursor: pointer; }
-    .visor-flecha:hover { border-color: var(--color-marca); color: var(--color-marca); }
-    .visor-puntos { display: flex; gap: 6px; }
-    .visor-puntos .punto { width: 8px; height: 8px; padding: 0; border: 0; border-radius: 999px; background: var(--color-borde); cursor: pointer; transition: width .25s, background .25s; }
-    .visor-puntos .punto.activo { width: 22px; background: var(--oro, #d4af37); }
-    .visor-contador { min-width: 64px; text-align: center; font-size: 13px; font-weight: 800; color: var(--color-texto-suave); font-variant-numeric: tabular-nums; }
-    .btn-descargar { margin-top: 14px; }
+    .ticket-pie { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px; margin-top: 10px; padding: 0 4px; }
+    .una-entrada { color: var(--color-texto-suave); font-size: 14px; }
+    .visor-controles { display: flex; align-items: center; gap: 10px; }
+    .visor-flecha { width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--color-borde); background: var(--color-superficie); color: #fff; font-size: 18px; line-height: 1; cursor: pointer; }
+    .visor-flecha:hover { background: var(--color-superficie-2); }
+    .visor-contador { min-width: 104px; text-align: center; font-size: 14px; color: var(--color-texto-suave); font-variant-numeric: tabular-nums; }
+    .descargar { font-size: 14px; font-weight: 500; }
+    .credito-ticket { margin-left: auto; color: var(--color-texto-tenue); }
+    @media (max-width: 720px) {
+      .pase .ticket { grid-template-columns: minmax(0, 1fr); }
+      .pase .ticket-principal { min-height: 0; padding: 20px; }
+      .pase .ticket-talon { flex-direction: column; flex-wrap: nowrap; padding: 22px 16px 16px; }
+      .pase .ticket-talon .qr { width: 190px; }
+      .credito-ticket { margin-left: 0; width: 100%; }
+    }
     @media (prefers-reduced-motion: reduce) { .pase { transition: none; transform: none; } }
+
+    .historial { margin-top: 28px; text-align: center; }
+    .historial summary { color: var(--color-texto-suave); font-weight: 500; font-size: 14px; }
+    .lista-historial { margin: 10px auto 0; max-width: 560px; text-align: left; }
+    .fila-historial { display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--color-borde); font-size: 14px; }
+    @media (prefers-reduced-motion: reduce) { .pase { transition: none; } }
 
   script.
     // Visor de cada evento: muestra una entrada por vez
     document.querySelectorAll('[data-visor]').forEach((tarjeta) => {
       const visor = tarjeta.querySelector('.visor');
       const pases = [...tarjeta.querySelectorAll('.pase')];
-      const puntos = [...tarjeta.querySelectorAll('.visor-puntos .punto')];
       const contador = tarjeta.querySelector('.visor-contador');
       if (pases.length < 2) return;
       let actual = 0;
@@ -160,12 +188,10 @@ block content
           p.setAttribute('aria-hidden', String(!visible));
           p.querySelectorAll('button').forEach(b => b.tabIndex = visible ? 0 : -1);
         });
-        puntos.forEach((p, i) => { p.classList.toggle('activo', i === actual); p.setAttribute('aria-current', String(i === actual)); });
-        if (contador) contador.textContent = `${actual + 1} / ${pases.length}`;
+        contador.textContent = `Entrada ${actual + 1} de ${pases.length}`;
       };
       tarjeta.querySelector('.anterior').addEventListener('click', () => ir(actual - 1));
       tarjeta.querySelector('.siguiente').addEventListener('click', () => ir(actual + 1));
-      puntos.forEach((p, i) => p.addEventListener('click', () => ir(i)));
       visor.addEventListener('keydown', (e) => {
         if (e.key === 'ArrowLeft') ir(actual - 1);
         if (e.key === 'ArrowRight') ir(actual + 1);
@@ -180,12 +206,52 @@ block content
       });
     });
 
-    async function cancelarEntrada(id) {
-      if (!confirm('¿Seguro que querés cancelar esta entrada? El cupo se libera para otra persona.')) return;
-      try {
-        const respuesta = await fetch('/cliente/cancelar-entrada/' + id, { method: 'POST', headers: { 'Accept': 'application/json' } });
-        const resultado = await respuesta.json();
-        if (resultado.success) { location.reload(); }
-        else { alert(resultado.message || 'No se pudo cancelar la entrada.'); }
-      } catch (e) { alert('Error al cancelar.'); }
-    }
+    // Ventana para confirmar la cancelación de una entrada
+    (() => {
+      const ventana = document.getElementById('ventana-cancelar');
+      const $ = (id) => document.getElementById(id);
+      const si = $('cancelar-si'), error = $('cancelar-error');
+      let entradaId = null;
+
+      document.addEventListener('click', (e) => {
+        const boton = e.target.closest('.btn-cancelar[data-entrada]');
+        if (!boton) return;
+        const d = boton.dataset;
+        entradaId = d.entrada;
+        $('cancelar-evento').textContent = d.fecha ? `${d.evento} · ${d.fecha}` : d.evento;
+        $('cancelar-detalle').textContent = d.detalle;
+        $('cancelar-codigo').textContent = d.codigo;
+        $('cancelar-foto').style.backgroundImage = d.foto ? `url('${d.foto}')` : '';
+        error.hidden = true;
+        si.disabled = false;
+        si.textContent = 'Sí, cancelar';
+        ventana.showModal();
+      });
+
+      $('cancelar-no').addEventListener('click', () => ventana.close());
+      // Tocar afuera de la ventana también la cierra
+      ventana.addEventListener('click', (e) => { if (e.target === ventana && !si.disabled) ventana.close(); });
+
+      si.addEventListener('click', async () => {
+        si.disabled = true;
+        si.textContent = 'Cancelando…';
+        error.hidden = true;
+        let mensaje = 'No se pudo cancelar la entrada. Probá de nuevo.';
+        try {
+          const respuesta = await fetch('/cliente/cancelar-entrada/' + entradaId, { method: 'POST', headers: { 'Accept': 'application/json' } });
+          const resultado = await respuesta.json();
+          if (resultado.success) {
+            ventana.querySelector('.cancelar-cuerpo').classList.add('cancelar-ok');
+            $('cancelar-titulo').textContent = 'Entrada cancelada';
+            $('cancelar-texto').textContent = 'Listo, el lugar ya quedó libre.';
+            setTimeout(() => location.reload(), 1300);
+            return;
+          }
+          mensaje = resultado.message || mensaje;
+        } catch (e) { /* queda el mensaje general */ }
+        error.textContent = mensaje;
+        error.hidden = false;
+        si.disabled = false;
+        si.textContent = 'Sí, cancelar';
+      });
+    })();

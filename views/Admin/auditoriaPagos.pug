@@ -9,12 +9,15 @@ block content
     div
       h1 Auditoría de pagos
       p Todas las compras online y ventas en boletería.
+    //- Descarga todas las compras de la búsqueda actual, no solo las de esta página
+    - const consultaExcel = new URLSearchParams(Object.entries({ busqueda, filtro: filtroActual }).filter(([, valor]) => valor)).toString()
+    a.btn.btn-secundario(href=`/admin/pagos/excel${consultaExcel ? '?' + consultaExcel : ''}`) Descargar Excel
 
   //- BUSCADOR Y FILTRO DEL DÍA
   form.tarjeta.fila.mb(action="/admin/pagos" method="GET")
     if filtroActual === 'hoy'
       input(type="hidden" name="filtro" value="hoy")
-    input(type="search" name="busqueda" placeholder="🔍 Evento, cliente, email, DNI o comprobante" value=busqueda || '' aria-label="Buscar pagos" style="flex:1;min-width:240px")
+    input(type="search" name="busqueda" placeholder="Evento, cliente, email, DNI o comprobante" value=busqueda || '' aria-label="Buscar pagos" style="flex:1;min-width:240px")
     button.btn(type="submit") Buscar
     if filtroActual === 'hoy'
       a.btn.btn-suave(href=`/admin/pagos${busqueda ? '?busqueda=' + encodeURIComponent(busqueda) : ''}`) Ver todos
@@ -28,7 +31,7 @@ block content
       h2 Transacciones
       .fila
         if filtroActual === 'hoy'
-          span.insignia.insignia-info 🕒 Solo hoy
+          span.insignia.insignia-info Solo hoy
         if busqueda
           span.insignia.insignia-neutra Buscando: “#{busqueda}”
         span.texto-tenue #{paginacion ? paginacion.total : 0} resultado(s)
@@ -89,5 +92,4 @@ block content
       +paginacion(paginacion, "transacciones")
     else
       .vacio
-        .icono-vacio 💳
         p No se encontraron transacciones.

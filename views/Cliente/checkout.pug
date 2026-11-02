@@ -5,17 +5,12 @@ block titulo
 
 block content
   .encabezado-pagina
-    div
-      .miga
-        a(href="/cliente/carrito") Carrito
-        |  / Pago
-      h1 Finalizar compra
-      p Completá los datos de tu tarjeta para confirmar el pago.
+    h1 Pago
 
   .grilla.grilla-lateral
-    .tarjeta
+    section.tarjeta
       if error
-        .alerta.alerta-error(role="alert") ⚠️ #{error}
+        .alerta.alerta-error(role="alert") #{error}
 
       form(action="/cliente/carrito/procesar-pago" method="POST")
         .campo
@@ -41,20 +36,24 @@ block content
             input#cvv(type="password" name="cvv" required maxlength="3" inputmode="numeric" placeholder="3 dígitos" autocomplete="cc-csc" onkeypress="return event.charCode >= 48 && event.charCode <= 57")
 
         .acciones-formulario.entre
-          a.btn.btn-enlace(href="/cliente/carrito") ← Volver al carrito
-          button.btn.btn-exito.btn-grande(type="submit") Confirmar pago
+          a.btn.btn-enlace(href="/cliente/carrito") ← Volver
+          button.btn.btn-grande(type="submit") Confirmar pago
 
-    aside.tarjeta
-      h3 Resumen
+    aside.tarjeta.caja-total
       .resumen
-        .linea
-          span Subtotal
-          span $#{subtotal.toLocaleString('es-AR')}
         if porcentajeDescuento > 0
-          .linea.texto-exito
+          .linea
+            span Subtotal
+            span $#{subtotal.toLocaleString('es-AR')}
+          .linea
             span Descuento (#{porcentajeDescuento}%)
             span −$#{descuentoAplicado.toLocaleString('es-AR')}
         .total
-          span Total a pagar
+          span Total
           span.precio $#{total.toLocaleString('es-AR')}
-      p.texto-tenue.mt.mb-0 🔒 Es un pago simulado: no se realizan cobros reales.
+      p.texto-tenue.mt.mb-0 Pago simulado: no se realizan cobros reales.
+
+  style.
+    .caja-total { position: sticky; top: 88px; }
+    .caja-total .resumen .total { border-top: 0; padding-top: 0; }
+    .caja-total .resumen .linea + .total { border-top: 1px solid var(--color-borde); padding-top: 12px; }

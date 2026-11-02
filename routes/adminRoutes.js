@@ -15,6 +15,7 @@ import {
 import { mostrarGestionEntradas, mostrarValidacion, validarEntrada } from '../controllers/entradasController.js';
 import { listarEntidades, crearEntidad, actualizarEntidad, eliminarEntidad } from '../controllers/entidadesController.js';
 import { mostrarActividad, sugerirUsuarios } from '../controllers/actividadController.js';
+import { descargarPagosExcel, descargarInformeExcel } from '../controllers/excelController.js';
 import { verificarRol } from '../middlewares/authMiddleware.js';
 import asyncHandler from '../middlewares/asyncHandler.middleware.js';
 import subirFoto from '../middlewares/subirFoto.middleware.js';
@@ -38,8 +39,10 @@ router.post('/usuarios/eliminar/:id', verificarRol(['Administrador']), asyncHand
 
 // Auditorías, Informes y Gestión de Entradas
 router.get('/pagos', asyncHandler(listarAuditoriaPagos));
+router.get('/pagos/excel', asyncHandler(descargarPagosExcel));
 router.get('/cancelaciones', asyncHandler(listarCancelaciones));
 router.get('/informe', asyncHandler(mostrarGestionEntradas));
+router.get('/informe/excel', asyncHandler(descargarInformeExcel));
 
 // Boletería Física y Cobros
 router.get('/boleteria', verificarRol(['Administrador', 'Supervisor']), asyncHandler(mostrarBoleteria));

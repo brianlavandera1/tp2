@@ -5,7 +5,7 @@ block titulo
   | Actividad · Urbana Cult
 
 block content
-  - const iconoTipo = { sesion: '🔑', navegacion: '📄', accion: '⚡', click: '🖱️' }
+  - const iconoTipo = { sesion: '', navegacion: '', accion: '', click: '' }
   - const nombreTipo = { sesion: 'Sesión', navegacion: 'Navegación', accion: 'Acción', click: 'Clic' }
   - const claseTipo = { sesion: 'insignia-info', navegacion: 'insignia-neutra', accion: 'insignia-marca', click: 'insignia-aviso' }
   - const hora = (f) => new Date(f).toLocaleString('es-AR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })
@@ -65,13 +65,13 @@ block content
   - const dia = (f) => new Date(f).toLocaleDateString('es-AR')
   .alerta.alerta-info.mb#aviso-ventana
     if ventana.tipo === 'dia'
-      | ⏱️ Se muestran las últimas 24 horas. Para ver datos anteriores, buscá un usuario o elegí un rango de fechas.
+      | Se muestran las últimas 24 horas. Para ver datos anteriores, buscá un usuario o elegí un rango de fechas.
     else if ventana.tipo === 'semana'
-      | ⏱️ Búsqueda en los últimos 7 días. Para ir más atrás, indicá las fechas Desde y Hasta.
+      | Búsqueda en los últimos 7 días. Para ir más atrás, indicá las fechas Desde y Hasta.
     else if ventana.tipo === 'todo'
-      | 📚 Se busca en todo el historial de #{filtros.sesion ? 'esta sesión' : 'los usuarios encontrados'}.
+      | Se busca en todo el historial de #{filtros.sesion ? 'esta sesión' : 'los usuarios encontrados'}.
     else
-      | 📅 Período: del #{dia(ventana.inicio)} al #{dia(ventana.fin)}.
+      | Período: del #{dia(ventana.inicio)} al #{dia(ventana.fin)}.
       if ventana.recortado
         |  Se consultan como máximo 92 días por vez: el inicio se ajustó.
 
@@ -93,7 +93,7 @@ block content
   //- RESÚMENES
   .grilla.grilla-2.mb
     .tarjeta(style="margin:0")
-      h3 🖱️ Botones y solapas más usados
+      h3 Botones y solapas más usados
       if masClickeados.length
         - const maxClics = masClickeados[0].veces
         each c in masClickeados
@@ -110,7 +110,7 @@ block content
         p.texto-tenue Todavía no hay clics registrados.
 
     .tarjeta(style="margin:0")
-      h3 👥 Actividad por usuario
+      h3 Actividad por usuario
       if porUsuario.length
         .tabla-contenedor
           table.tabla
@@ -137,7 +137,7 @@ block content
 
   //- SESIONES
   .tarjeta.mb
-    h3 🔑 Sesiones recientes
+    h3 Sesiones recientes
     if sesiones.length
       .tabla-contenedor
         table.tabla
@@ -206,13 +206,12 @@ block content
       +paginacion(paginacion, "registros")
     else
       .vacio
-        .icono-vacio 🕵️
         p No hay registros para estos filtros.
 
   //- HISTÓRICO DE ELIMINADOS (borrado lógico)
   .tarjeta
     .tarjeta-titulo
-      h2 🗄️ Histórico de eliminados
+      h2 Histórico de eliminados
       span.texto-tenue Nada se borra: queda guardado quién lo eliminó y cuándo
     if eliminados.length
       .tabla-contenedor

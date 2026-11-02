@@ -34,9 +34,30 @@ export const mostrarDashboard = async (req, res) => {
 
   // La actividad solo la ven Administrador y Supervisor: para los demás no se consulta
   const veActividad = ['Administrador', 'Supervisor'].includes(req.session.usuario?.rol);
-  const [eventosActivos, proximoEvento, cancelacionesHoy, totalClientes, actividadHoy] = await Promise.all([
+  // Recaudación neta de los últimos 7 días, por día en hora de Argentina
+  const ZONA = 'America/Argentina/Buenos_Aires';
+  const claveDia = (fecha) => new Intl.DateTimeFormat('en-CA', { timeZone: ZONA }).format(fecha);
+  const fechasSemana = Array.from({ length: 7 }, (_, i) => new Date(ahora.getTime() - (6 - i) * 24 * 60 * 60 * 1000));
+  const ventasPorDia = await Transaccion.aggregate([
+    { $match: { fechaCompra: { $gte: new Date(ahora.getTime() - 8 * 24 * 60 * 60 * 1000) } } },
+    { $unwind: '$items' },
+    { $group: {
+      _id: { $dateToString: { format: '%Y-%m-%d', date: '$fechaCompra', timezone: ZONA } },
+      recaudado: { $sum: { $multiply: [
+        { $subtract: ['$items.cantidad', { $ifNull: ['$items.cantidadCancelada', 0] }] }, '$items.precio',
+        { $cond: [{ $gt: ['$subtotal', 0] }, { $divide: ['$total', '$subtotal'] }, 1] }
+      ] } }
+    } }
+  ]);
+  const ventasSemana = fechasSemana.map((fecha, i) => ({
+    nombre: new Intl.DateTimeFormat('es-AR', { timeZone: ZONA, weekday: 'short' }).format(fecha).replace('.', ''),
+    recaudado: Math.round(ventasPorDia.find(d => d._id === claveDia(fecha))?.recaudado || 0),
+    hoy: i === 6
+  }));
+
+  const [eventosActivos, proximos, cancelacionesHoy, totalClientes, actividadHoy] = await Promise.all([
     Evento.countDocuments({ fecha: { $gte: ahora } }),
-    Evento.findOne({ fecha: { $gte: ahora } }).sort({ fecha: 1 }).populate('sala'),
+    Evento.find({ fecha: { $gte: ahora } }).sort({ fecha: 1 }).limit(5).populate('sala', 'nombre').populate('entidad', 'nombre fotoActualizada'),
     CancelacionLog.countDocuments({ fechaCancelacion: { $gte: inicioHoy } }),
     Usuario.countDocuments({ rol: 'Cliente' }),
     veActividad ? Actividad.countDocuments({ fecha: { $gte: inicioHoy } }) : null
@@ -52,7 +73,14 @@ export const mostrarDashboard = async (req, res) => {
       totalClientes,
       actividadHoy
     },
-    proximoEvento
+    proximoEvento: proximos[0] || null,
+    ventasSemana,
+    // Ocupación de cada función: lo vendido sobre el cupo total (lo vendido + lo que queda)
+    proximasFunciones: proximos.map(evento => {
+      const vendidas = Object.values(evento.toObject().vendidosPorZona || {}).reduce((suma, n) => suma + (Number(n) || 0), 0);
+      const cupo = vendidas + (evento.entradasDisponibles || 0);
+      return { nombre: evento.nombre, fecha: evento.fecha, urlFoto: evento.entidad?.urlFoto || null, ocupacion: cupo ? Math.round(vendidas / cupo * 100) : 0 };
+    })
   });
 };
 
@@ -143,46 +171,52 @@ export const eliminarUsuario = async (req, res) => {
   res.redirect('/admin/usuarios?exito=' + encodeURIComponent('Usuario eliminado (queda guardado en el histórico).'));
 };
 
+// Filtro de la auditoría de pagos (búsqueda y "solo hoy"): lo usan la pantalla y la descarga en Excel
+export const construirFiltroPagos = async ({ busqueda, filtro }) => {
+  let query = {};
+
+  if (filtro === 'hoy') {
+    const inicioHoy = new Date();
+    inicioHoy.setHours(0, 0, 0, 0);
+    const finHoy = new Date();
+    finHoy.setHours(23, 59, 59, 999);
+    
+    query.fechaCompra = { $gte: inicioHoy,$lte: finHoy };
+  }
+
+  if (busqueda && busqueda.trim()) {
+    const termino = busqueda.trim();
+    const regex = new RegExp(escapeRegex(termino), 'i');
+    const esObjectId = /^[a-fA-F0-9]{24}$/.test(termino);
+
+    const usuariosCoincidentes = await Usuario.find({
+      $or: [{ email: regex }, { nombreUsuario: regex }, { dni: regex }, { nombre: regex }, { apellido: regex }]
+    }).select('_id');
+    
+    const usuariosIds = usuariosCoincidentes.map(u => u._id);
+
+    const condiciones = [
+      { comprobanteId: regex }, { nombreCliente: regex }, { medioPago: regex },
+      { 'items.nombreEvento': regex }, { 'items.tipoEntrada': regex }, { cliente: { $in: usuariosIds } }
+    ];
+
+    if (esObjectId) {
+      condiciones.push({ _id: termino }, { cliente: termino }, { 'items.eventoId': termino });
+    }
+
+    if (query.fechaCompra) {
+      query = { $and: [ { fechaCompra: query.fechaCompra }, {$or: condiciones } ] };
+    } else {
+      query = { $or: condiciones };
+    }
+  }
+  return query;
+};
+
 export const listarAuditoriaPagos = async (req, res) => {
   try {
     const { busqueda, filtro } = req.query;
-    let query = {};
-
-    if (filtro === 'hoy') {
-      const inicioHoy = new Date();
-      inicioHoy.setHours(0, 0, 0, 0);
-      const finHoy = new Date();
-      finHoy.setHours(23, 59, 59, 999);
-      
-      query.fechaCompra = { $gte: inicioHoy,$lte: finHoy };
-    }
-
-    if (busqueda && busqueda.trim()) {
-      const termino = busqueda.trim();
-      const regex = new RegExp(escapeRegex(termino), 'i');
-      const esObjectId = /^[a-fA-F0-9]{24}$/.test(termino);
-
-      const usuariosCoincidentes = await Usuario.find({
-        $or: [{ email: regex }, { nombreUsuario: regex }, { dni: regex }, { nombre: regex }, { apellido: regex }]
-      }).select('_id');
-      
-      const usuariosIds = usuariosCoincidentes.map(u => u._id);
-
-      const condiciones = [
-        { comprobanteId: regex }, { nombreCliente: regex }, { medioPago: regex },
-        { 'items.nombreEvento': regex }, { 'items.tipoEntrada': regex }, { cliente: { $in: usuariosIds } }
-      ];
-
-      if (esObjectId) {
-        condiciones.push({ _id: termino }, { cliente: termino }, { 'items.eventoId': termino });
-      }
-
-      if (query.fechaCompra) {
-        query = { $and: [ { fechaCompra: query.fechaCompra }, {$or: condiciones } ] };
-      } else {
-        query = { $or: condiciones };
-      }
-    }
+    const query = await construirFiltroPagos({ busqueda, filtro });
 
     const { docs: compras, paginacion } = await paginar(Transaccion, query, req, { orden: { fechaCompra: -1 }, populate: 'cliente' });
 

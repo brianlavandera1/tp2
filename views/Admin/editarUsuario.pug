@@ -14,7 +14,7 @@ block content
 
   .tarjeta.media
     if error
-      .alerta.alerta-error(role="alert") ⚠️ #{error}
+      .alerta.alerta-error(role="alert") #{error}
 
     form(action=`/admin/usuarios/editar/${usuarioAEditar._id}` method="POST")
       +camposUsuario(usuarioAEditar, false)

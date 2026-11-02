@@ -5,83 +5,130 @@ block titulo
 
 block content
   if error
-    .alerta.alerta-error(role="alert") ⚠️ #{error}
+    .alerta.alerta-error(role="alert") #{error}
+
+  - const plata = (n) => `$${Math.round(n || 0).toLocaleString('es-AR')}`
+  - const ind = indicadores || { entradasHoy: 0, recaudadoHoy: 0, eventosActivos: 0, cancelacionesHoy: 0, totalClientes: 0 }
+  - const dias = ventasSemana || []
+  - const maxDia = Math.max(1, ...dias.map(d => d.recaudado))
+  - const totalSemana = dias.reduce((suma, d) => suma + d.recaudado, 0)
+  - const verActividad = usuarioLogueado && ['Administrador', 'Supervisor'].includes(usuarioLogueado.rol)
 
   .encabezado-pagina
     div
-      h1 ¡Hola, #{usuarioLogueado ? usuarioLogueado.nombreUsuario : 'Usuario'}! 👋
-      p Resumen de la actividad de hoy, #{new Date().toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' })}.
-    if usuarioLogueado && ['Administrador', 'Supervisor'].includes(usuarioLogueado.rol)
-      a.btn(href="/admin/boleteria") 🎫 Nueva venta en boletería
+      h1 Hola, #{usuarioLogueado ? usuarioLogueado.nombreUsuario : 'equipo'}
+      p= new Date().toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' })
+    if verActividad
+      a.btn(href="/admin/boleteria") Nueva venta en boletería
 
-  //- INDICADORES DEL DÍA (calculados en mostrarDashboard)
-  - const ind = indicadores || { entradasHoy: 0, recaudadoHoy: 0, eventosActivos: 0, cancelacionesHoy: 0, totalClientes: 0 }
+  //- INDICADORES DEL DÍA
   .grilla.grilla-4.mb
-    .kpi.destacado
+    .kpi.kpi-plata
       .etiqueta-kpi Recaudado hoy
-      .valor $#{ind.recaudadoHoy.toLocaleString('es-AR')}
-    .kpi
+      .valor= plata(ind.recaudadoHoy)
+      span.kpi-icono
+        +icono('pagos')
+    .kpi.kpi-entradas
       .etiqueta-kpi Entradas vendidas hoy
       .valor= ind.entradasHoy
-    .kpi
-      .etiqueta-kpi Eventos próximos
-      .valor= ind.eventosActivos
-    .kpi
+      span.kpi-icono
+        +icono('entrada')
+    .kpi.kpi-bajas
       .etiqueta-kpi Cancelaciones hoy
       .valor= ind.cancelacionesHoy
+      span.kpi-icono
+        +icono('cancelar')
+    .kpi.kpi-personas
+      .etiqueta-kpi Clientes registrados
+      .valor= ind.totalClientes
+      span.kpi-icono
+        +icono('usuarios')
 
-  .grilla.grilla-lateral
-    section
-      h2 Accesos rápidos
-      .grilla.grilla-2
-        a.acceso-rapido(href="/admin/eventos")
-          span.icono-grande 🎭
-          div
-            h4 Eventos
-            p Cartelera y programación
-        a.acceso-rapido(href="/admin/salas")
-          span.icono-grande 🏛️
-          div
-            h4 Salas
-            p Espacios y sectores
-        a.acceso-rapido(href="/admin/informe")
-          span.icono-grande 📊
-          div
-            h4 Informes
-            p Ventas por evento
-        a.acceso-rapido(href="/admin/pagos")
-          span.icono-grande 💳
-          div
-            h4 Pagos
-            p Auditoría de transacciones
-        a.acceso-rapido(href="/admin/usuarios")
-          span.icono-grande 👥
-          div
-            h4 Usuarios
-            p #{ind.totalClientes} cliente(s) registrados
-        a.acceso-rapido(href="/admin/cancelaciones")
-          span.icono-grande ↩️
-          div
-            h4 Cancelaciones
-            p Historial de devoluciones
-        if usuarioLogueado && ['Administrador', 'Supervisor'].includes(usuarioLogueado.rol)
-          a.acceso-rapido(href="/admin/actividad")
-            span.icono-grande 🕵️
-            div
-              h4 Actividad
-              p #{ind.actividadHoy || 0} registro(s) hoy · quién hizo qué
+  .panel-grilla
+    //- VENTAS DE LA SEMANA
+    section.tarjeta.ventas-semana
+      .tarjeta-titulo
+        div
+          h2 Últimos 7 días
+          span.total-semana= plata(totalSemana)
+        a(href="/admin/informe") Ver informes →
+      .barras-semana(role="img" aria-label=`Recaudación de los últimos 7 días: ${plata(totalSemana)} en total`)
+        each dia in dias
+          .dia-semana(class=dia.hoy ? 'hoy' : '')
+            span.dia-valor= plata(dia.recaudado)
+            .dia-barra(style=`height:${Math.max(3, Math.round(dia.recaudado / maxDia * 100))}%`)
+            span.dia-nombre= dia.nombre
 
-    aside.tarjeta
-      h3 Próxima función
+    //- PRÓXIMA FUNCIÓN
+    aside.proxima-funcion(class=(proximoEvento && proximoEvento.entidad && proximoEvento.entidad.urlFoto) ? 'con-foto' : '' style=(proximoEvento && proximoEvento.entidad && proximoEvento.entidad.urlFoto) ? `--foto:url('${proximoEvento.entidad.urlFoto}')` : undefined)
       if proximoEvento
-        h4(style="font-size:18px")= proximoEvento.nombre
-        .evento-meta
-          span 📅 #{new Date(proximoEvento.fecha).toLocaleDateString('es-AR')}
-          span ⏰ #{proximoEvento.hora || '21:00'} hs
-          if proximoEvento.sala
-            span 📍 #{proximoEvento.sala.nombre}
-        .mt
-          span.insignia.insignia-exito #{proximoEvento.entradasDisponibles} entradas disponibles
-        a.btn.btn-secundario.btn-bloque.mt(href="/admin/eventos") Ver eventos
+        .funcion-texto
+          span.funcion-etiqueta Próxima función
+          h2= proximoEvento.nombre
+          p #{new Date(proximoEvento.fecha).toLocaleDateString('es-AR', { day: 'numeric', month: 'long' })} · #{proximoEvento.hora || '21:00'} hs#{proximoEvento.sala ? ` · ${proximoEvento.sala.nombre}` : ''}
+          span.funcion-stock #{proximoEvento.entradasDisponibles} entradas disponibles
       else
-        p.texto-tenue No hay funciones programadas.
+        .funcion-texto
+          span.funcion-etiqueta Próxima función
+          h2 Sin funciones programadas
+          a.btn.btn-chico.btn-secundario(href="/admin/eventos") Crear evento
+
+  //- PRÓXIMAS FUNCIONES CON SU OCUPACIÓN
+  if proximasFunciones && proximasFunciones.length
+    section.tarjeta.mt
+      .tarjeta-titulo
+        h2 Próximas funciones
+        span.texto-tenue #{ind.eventosActivos} en cartelera
+      .lista-funciones
+        each f in proximasFunciones
+          a.fila-funcion(href="/admin/eventos")
+            .fila-foto(style=f.urlFoto ? `background-image:url('${f.urlFoto}')` : undefined)
+            .fila-datos
+              strong= f.nombre
+              span= new Date(f.fecha).toLocaleDateString('es-AR', { day: 'numeric', month: 'short' })
+            .fila-ocupacion
+              .barra
+                span(class=f.ocupacion >= 80 ? 'casi-lleno' : '' style=`width:${f.ocupacion}%`)
+            span.fila-porcentaje #{f.ocupacion}%
+
+  style.
+    .panel-grilla { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(280px, 1fr); gap: 16px; align-items: stretch; }
+    .panel-grilla .tarjeta + .tarjeta { margin-top: 0; }
+    .ventas-semana .tarjeta-titulo { align-items: flex-start; }
+    .ventas-semana h2 { font-size: 16px; font-weight: 500; color: var(--color-texto-suave); margin: 0; }
+    .total-semana { display: block; color: #4fd39a; font-size: 30px; font-weight: 600; letter-spacing: -.03em; }
+    .barras-semana { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; height: 190px; }
+    .dia-semana { display: grid; grid-template-rows: 1fr auto; position: relative; min-width: 0; justify-items: center; align-items: end; gap: 6px; }
+    .dia-barra { width: 100%; max-width: 46px; grid-row: 1; align-self: end; border-radius: 8px 8px 3px 3px; background: rgba(79, 211, 154, .38); transition: background .15s; }
+    .dia-semana:hover .dia-barra { background: rgba(79, 211, 154, .7); }
+    .dia-semana.hoy .dia-barra { background: #4fd39a; }
+    .dia-nombre { grid-row: 2; color: var(--color-texto-suave); font-size: 12px; text-transform: capitalize; }
+    .dia-semana.hoy .dia-nombre { color: #fff; font-weight: 600; }
+    .dia-valor { position: absolute; top: 0; left: 50%; transform: translateX(-50%); padding: 3px 7px; border-radius: 7px; background: #fff; color: #141418; font-size: 11px; font-weight: 600; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity .12s; z-index: 2; }
+    .dia-semana:hover .dia-valor { opacity: 1; }
+
+    .proxima-funcion { position: relative; isolation: isolate; display: flex; align-items: flex-end; min-height: 270px; border-radius: 18px; overflow: hidden; background: linear-gradient(135deg, #2c2257, #5a2a8a 60%, #8a2f78); }
+    .proxima-funcion.con-foto::before { content: ''; position: absolute; inset: 0; z-index: -2; background: var(--foto) center 22% / cover no-repeat; }
+    .proxima-funcion::after { content: ''; position: absolute; inset: 0; z-index: -1; background: linear-gradient(to top, rgba(17, 13, 31, .96) 12%, rgba(0, 0, 0, .45) 58%, rgba(17, 13, 31, 0) 88%); }
+    .funcion-texto { padding: 20px; }
+    .funcion-etiqueta { color: #fff; opacity: .85; font-size: 13px; font-weight: 500; }
+    .funcion-texto h2 { font-size: 24px; margin: 4px 0; line-height: 1.12; text-wrap: balance; }
+    .funcion-texto p { margin: 0 0 10px; color: #e6e1f5; font-size: 14px; }
+    .funcion-stock { padding: 4px 11px; border-radius: 999px; background: rgba(255, 255, 255, .16); font-size: 12px; font-weight: 600; }
+
+    .lista-funciones { display: grid; gap: 2px; }
+    .fila-funcion { display: grid; grid-template-columns: 52px minmax(0, 1.2fr) minmax(120px, 1fr) 46px; align-items: center; gap: 14px; padding: 8px; border-radius: 12px; color: #fff; }
+    .fila-funcion:hover { background: rgba(255, 255, 255, .05); color: #fff; }
+    .fila-foto { width: 52px; height: 52px; border-radius: 10px; background: linear-gradient(135deg, #2c2257, #8a2f78) center 22% / cover no-repeat; }
+    .fila-datos { min-width: 0; }
+    .fila-datos strong { display: block; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .fila-datos span { color: var(--color-texto-suave); font-size: 13px; }
+    .fila-porcentaje { text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+    @media (max-width: 1100px) { .panel-grilla { grid-template-columns: minmax(0, 1fr); } }
+    @media (max-width: 560px) {
+      .fila-funcion { grid-template-columns: 44px minmax(0, 1fr) 44px; }
+      .fila-foto { width: 44px; height: 44px; }
+      .fila-ocupacion { display: none; }
+      .barras-semana { height: 150px; gap: 5px; }
+    }

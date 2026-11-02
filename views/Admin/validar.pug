@@ -27,7 +27,6 @@ block content
     if codigo
       if !entrada
         .resultado.invalida(role="alert")
-          .icono ✖
           h2 Entrada inválida
           p No existe una entrada con el código #[strong= codigo].
       else
@@ -35,27 +34,23 @@ block content
         - const cancelada = entrada.estado === 'Cancelada'
         if cancelada
           .resultado.invalida(role="alert")
-            .icono ✖
             h2 Entrada cancelada
             p Se canceló el #{new Date(entrada.canceladaEn).toLocaleString('es-AR')}. No permite el ingreso.
         else if validada
           .resultado.puede(role="status")
-            .icono ✔
             h2 ¡Puede ingresar!
             p Entrada validada a las #{new Date(entrada.usadaEn).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false })} hs
         else if usada
           .resultado.usada(role="alert")
-            .icono ⚠
             h2 Entrada ya usada
             p Se validó el #{new Date(entrada.usadaEn).toLocaleString('es-AR')} (por #{entrada.validadaPor || 'personal'}).
         else
           .resultado.puede(style="background:linear-gradient(135deg,#5b3df5,#7c5cff)")
-            .icono 🎟️
             h2 Entrada válida
             p Todavía no se usó. Confirmá el ingreso.
 
         if error
-          .alerta.alerta-error(role="alert") ⚠️ #{error}
+          .alerta.alerta-error(role="alert") #{error}
 
         .datos-lista
           .dato
@@ -79,6 +74,6 @@ block content
 
         if !usada && !cancelada
           form(action=`/admin/validar/${encodeURIComponent(entrada.codigoBoleto)}` method="POST")
-            button.btn.btn-exito.btn-bloque.btn-grande(type="submit") ✔ Marcar como usada y dejar pasar
+            button.btn.btn-exito.btn-bloque.btn-grande(type="submit") Marcar como usada y dejar pasar
         else
           a.btn.btn-secundario.btn-bloque(href="/admin/validar") Validar otra entrada

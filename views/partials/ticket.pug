@@ -30,14 +30,11 @@ mixin ticketDorado(entrada, qr, conCancelar)
           div
             small Sala
             strong= ev.sala.nombre
-        div
-          small Personas
-          strong= cantidad
       if usada
         span.sello-oro(style="align-self:flex-start;margin-top:6px") ✔ Usada el #{new Date(entrada.usadaEn).toLocaleDateString('es-AR')}
 
     .ticket-talon
-      span.admite Admite #{cantidad} #{cantidad === 1 ? 'persona' : 'personas'}
+      span.admite Vale para #{cantidad} #{cantidad === 1 ? 'persona' : 'personas'}
       if qr
         .qr(role="img" aria-label=`Código QR de la entrada ${entrada.codigoBoleto}`)!= qr
       .codigo= entrada.codigoBoleto
