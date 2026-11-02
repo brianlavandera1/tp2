@@ -94,7 +94,8 @@ Todos usan la contraseña `123` y se puede entrar con el nombre de usuario o con
 
 | Usuario | Email | Rol |
 |---|---|---|
-| `admin`, `admin2` | admin@email.com, admin2@email.com | Administrador |
+| `admin` | admin@email.com | Superadministrador |
+| `admin2` | admin2@email.com | Administrador |
 | `supervisor`, `supervisor2` | supervisor@email.com, supervisor2@email.com | Supervisor |
 | `lector`, `lector2` | lector@email.com, lector2@email.com | Lector |
 | `cliente1`, `cliente4` | juan.perez@email.com, lucia.torres@email.com | Cliente con membresía VIP (30 % de descuento) |
@@ -115,7 +116,7 @@ Se pueden crear más usuarios de personal desde el panel del administrador, en *
 | Crear, editar y eliminar salas, eventos y artistas | | | ✅ | ✅ |
 | Boletería física (venta en sucursal) | | | ✅ | ✅ |
 | Validar entradas en la puerta (QR) | | | ✅ | ✅ |
-| Crear, editar y eliminar usuarios y personal (los administradores están protegidos) | | | | ✅ |
+| Crear, editar y eliminar usuarios y personal (los administradores solo los gestiona el usuario `admin`) | | | | ✅ |
 | Ver el registro de actividad de todos los usuarios y el histórico de eliminados | | | ✅ | ✅ |
 | API `/entradas`: alta, modificación y baja | | | | ✅ |
 
@@ -147,7 +148,7 @@ La **autorización** es la misma para los dos mecanismos: los middlewares `verif
 - **Límite de intentos de login** (middleware propio `limiteLogin`): después de 5 intentos fallidos en 15 minutos para la misma IP y usuario se bloquea temporalmente (HTTP 429). Aplica al login web y al de la API.
 - **Sesiones persistentes en MongoDB**: sobreviven a reinicios del servidor y MongoDB borra solas las vencidas. Al iniciar sesión se genera un id nuevo (previene la fijación de sesión) y al salir se borra la sesión y la cookie.
 - **No se exponen datos sensibles**: la API nunca devuelve contraseñas y los errores 500 no muestran detalles internos.
-- **Cuentas de administrador protegidas**: ningún usuario puede editar ni eliminar a un Administrador (se controla en el servidor, no solo ocultando botones), nadie puede eliminarse a sí mismo y al editar solo se aceptan los campos del formulario.
+- **Superadministrador y administradores protegidos**: el usuario `admin` no se puede eliminar ni perder su rol, y es el único que crea, edita o elimina Administradores; los demás Administradores no pueden tocar a otro Administrador (se controla en el servidor, no solo ocultando botones), nadie puede eliminarse a sí mismo y al editar solo se aceptan los campos del formulario.
 - **Validación en el servidor** de todos los formularios y de los archivos subidos (tipo real de imagen por sus primeros bytes y tamaño máximo).
 
 > **Decisiones:** no se usa **Passport** porque hay una sola forma de login por usuario y contraseña, y la lógica propia con bcrypt da control total (es el caso en que no conviene, según lo visto en clase). Tampoco se usa **mongoose-unique-validator**, que no es compatible con Mongoose 8/9: los campos únicos se validan con índices `unique` de MongoDB y el error `11000` se traduce a un mensaje claro.
@@ -160,6 +161,7 @@ La **autorización** es la misma para los dos mecanismos: los middlewares `verif
 - **Salas:** CRUD con capacidad por sector (General, Platea y VIP).
 - **Eventos:** CRUD asociado a una sala y a un artista o compañía, con precio por sector y control de cupo según la capacidad de la sala.
 - **Artistas / entidades:** alta rápida desde el formulario de eventos o desde su propia sección, con **foto opcional** (JPG, PNG o WEBP de hasta 2 MB) que se puede cambiar o quitar.
+- **Sitio público:** el inicio, la cartelera, los planes y la ayuda se ven sin iniciar sesión. Comprar, contratar un plan y ver las entradas piden iniciar sesión, y al entrar se vuelve a la página en la que estabas.
 - **Cartelera:** búsqueda por texto (nombre, descripción o artista) y filtro por fecha. Filtros por categoría y por mes sin recargar la página. Cada afiche muestra la foto del artista con el título encima, la fecha, la sala y el precio por sector, con la elección de sector y cantidad, y la portada muestra al artista destacado.
 - **Diseño del sitio:** tema oscuro violeta con el degradé del ícono en las acciones principales (`views/partials/estilosUrbana.pug`). El panel de gestión comparte esa identidad (`views/partials/estilosPanel.pug`) y su inicio muestra las ventas de los últimos 7 días y la ocupación de las próximas funciones. En el celular, la navegación del cliente pasa a una barra inferior.
 - **Carrito y pago simulado:** validación de stock por sector, descuento según la membresía, validación de tarjeta en el servidor y comprobante de compra.

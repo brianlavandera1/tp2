@@ -87,7 +87,7 @@ export const mostrarFotoEntidad = async (req, res) => {
 
   res.set({
     'Content-Type': entidad.foto.contentType,
-    'Cache-Control': 'private, max-age=604800',
+    'Cache-Control': 'public, max-age=604800',
     'X-Content-Type-Options': 'nosniff'
   });
   res.send(entidad.foto.data);

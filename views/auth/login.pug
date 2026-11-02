@@ -13,6 +13,8 @@ block content
     .alerta.alerta-error(role="alert") #{error}
 
   form(action="/auth/login" method="POST")
+    if volver
+      input(type="hidden" name="volver" value=volver)
     .campo
       label(for="identificador") Email o nombre de usuario
       input#identificador(type="text" name="identificador" required autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="ej: cliente1 o correo@email.com" value=(typeof datos !== 'undefined' && datos ? datos.identificador : ''))
@@ -23,5 +25,4 @@ block content
 
   p.centrado.texto-suave.mt
     | ¿No tenés cuenta? #[a.negrita(href="/auth/registro") Registrate gratis]
-  p.centrado.texto-suave
-    a(href="/ayuda") ¿Necesitás ayuda?
+  p.centrado.texto-suave #[a(href="/") Ver la cartelera sin iniciar sesión] · #[a(href="/ayuda") Ayuda]

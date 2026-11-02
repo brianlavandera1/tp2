@@ -12,6 +12,7 @@ import { conectarDB } from './config/db.js';
 // Middlewares
 import { requestLogger, notFoundHandler, errorHandler } from './middlewares/index.js';
 import verificarOrigen from './middlewares/origen.middleware.js';
+import { esSuperAdmin, puedeGestionarUsuario } from './middlewares/authMiddleware.js';
 import Evento from './models/Evento.js';
 import { registrarActividad } from './middlewares/actividad.middleware.js';
 
@@ -38,6 +39,8 @@ app.set('trust proxy', 1);
 app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, 'views'));
 app.locals.categoriasEvento = Evento.CATEGORIAS;
+app.locals.esSuperAdmin = esSuperAdmin;
+app.locals.puedeGestionarUsuario = puedeGestionarUsuario;
 
 // La conexión arranca primero: el almacén de sesiones usa la misma conexión (Atlas o local)
 const conexion = conectarDB();
@@ -123,7 +126,7 @@ app.use('/media', mediaRoutes);
 app.get('/ayuda', (req, res) => res.render('ayuda'));
 
 app.get('/', (req, res) => {
-  res.redirect('/auth/login');
+  res.redirect('/cliente/menu');
 });
 
 app.use(notFoundHandler);

@@ -12,6 +12,7 @@ import { paginar } from '../utils/paginar.js';
 import bcrypt from 'bcrypt';
 import { escapeRegex } from '../utils/escapeRegex.js';
 import { ZONAS } from '../models/Sala.js';
+import { esSuperAdmin, puedeGestionarUsuario } from '../middlewares/authMiddleware.js';
 
 // Panel principal: indicadores del día calculados desde la base
 export const mostrarDashboard = async (req, res) => {
@@ -84,12 +85,18 @@ export const mostrarDashboard = async (req, res) => {
   });
 };
 
+// Solo el superadministrador puede crear administradores o darle ese rol a alguien
+const exigirSuperParaAdministrador = (req, rol) => {
+  if (rol === 'Administrador' && !esSuperAdmin(req.session.usuario)) throw new Error('Solo el usuario admin puede crear administradores.');
+};
+
 export const mostrarFormularioCrearPersonal =(req, res) => res.render('Admin/crear-personal', { usuarioLogueado: req.session.usuario, error: null, datos: {} });
 
 export const registrarPersonalInterno = async (req, res) => {
   try {
     const { password } = req.body;
     if (!password || !password.trim()) throw new Error('La contraseña es obligatoria.');
+    exigirSuperParaAdministrador(req, req.body.rol);
     // Se guarda encriptada, igual que en el registro de clientes (si no, el login con bcrypt falla)
     await Usuario.create({ ...req.body, password: await bcrypt.hash(password.trim(), 10) });
     res.redirect('/admin/usuarios?exito=Usuario creado');
@@ -116,7 +123,7 @@ export const listarUsuarios = async (req, res) => {
   res.render('Admin/usuarios', { usuarioLogueado: req.session.usuario, usuarios, paginacion, exito: req.query.exito, error: req.query.error });
 };
 
-// Las cuentas de Administrador están protegidas: nadie puede editarlas ni eliminarlas desde el sistema.
+// Las cuentas de Administrador están protegidas: solo el superadministrador puede editarlas o eliminarlas.
 // Devuelve el usuario si se puede modificar; si no, responde con un error y devuelve null.
 const usuarioModificable = async (req, res) => {
   const usuario = /^[a-f0-9]{24}$/i.test(req.params.id) ? await Usuario.findOne({ _id: req.params.id, eliminado: { $ne: true } }) : null;
@@ -124,8 +131,8 @@ const usuarioModificable = async (req, res) => {
     res.redirect('/admin/usuarios?error=' + encodeURIComponent('El usuario no existe o fue eliminado.'));
     return null;
   }
-  if (usuario.rol === 'Administrador') {
-    res.status(403).redirect('/admin/usuarios?error=' + encodeURIComponent('Los usuarios administradores están protegidos: no se pueden editar ni eliminar.'));
+  if (!puedeGestionarUsuario(req.session.usuario, usuario)) {
+    res.status(403).redirect('/admin/usuarios?error=' + encodeURIComponent('Los usuarios administradores están protegidos: solo el usuario admin puede editarlos o eliminarlos.'));
     return null;
   }
   return usuario;
@@ -141,9 +148,13 @@ export const mostrarFormularioEditarUsuario = async (req, res) => {
 };
 
 export const actualizarUsuario = async (req, res) => {
-  if (!(await usuarioModificable(req, res))) return;
+  const objetivo = await usuarioModificable(req, res);
+  if (!objetivo) return;
   try {
     const cambios = Object.fromEntries(CAMPOS_EDITABLES.filter(c => req.body[c] !== undefined).map(c => [c, req.body[c]]));
+    // El superadministrador conserva siempre su usuario y su rol: de eso depende que siga siéndolo
+    if (esSuperAdmin(objetivo)) { delete cambios.nombreUsuario; delete cambios.rol; }
+    exigirSuperParaAdministrador(req, cambios.rol);
     // La contraseña nunca se guarda tal cual: si viene vacía se ignora, si no se encripta
     if (req.body.password && req.body.password.trim()) cambios.password = await bcrypt.hash(req.body.password.trim(), 10);
     await Usuario.findByIdAndUpdate(req.params.id, cambios, { runValidators: true });

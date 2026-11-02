@@ -3,6 +3,9 @@ import bcrypt from 'bcrypt';
 import config from '../config/config.js';
 import { firmarToken } from '../middlewares/jwt.middleware.js';
 
+// Solo se vuelve a páginas propias del cliente: un enlace armado no puede llevar a otro sitio después del login
+export const destinoSeguro = (destino) => (typeof destino === 'string' && /^\/cliente\/[\w\-/?=&#%.]*$/.test(destino) && !destino.includes('..') ? destino : null);
+
 // Devuelve el usuario si el identificador (nombre o email) y la contraseña coinciden; si no, null
 const buscarPorCredenciales = async (identificador, password) => {
   if (typeof identificador !== 'string' || typeof password !== 'string' || !identificador.trim() || !password) return null;
@@ -30,7 +33,8 @@ export const procesarLogin = async (req, res) => {
     if (typeof identificador !== 'string' || typeof password !== 'string' || !identificador.trim() || !password) {
       return res.status(400).render('auth/login', {
         error: 'Completá usuario y contraseña.',
-        datos: req.body
+        datos: req.body,
+        volver: destinoSeguro(req.body.volver)
       });
     }
 
@@ -38,7 +42,8 @@ export const procesarLogin = async (req, res) => {
     if (!usuario) {
       return res.status(400).render('auth/login', {
         error: 'Usuario o contraseña incorrectos.',
-        datos: req.body
+        datos: req.body,
+        volver: destinoSeguro(req.body.volver)
       });
     }
 
@@ -56,13 +61,14 @@ export const procesarLogin = async (req, res) => {
     // Se guarda en MongoDB antes de redirigir, para que la próxima página ya encuentre la sesión
     await new Promise((resolve, reject) => req.session.save(error => error ? reject(error) : resolve()));
 
-    return res.redirect(usuario.rol === 'Cliente' ? '/cliente/menu' : '/admin/dashboard');
+    return res.redirect(usuario.rol === 'Cliente' ? (destinoSeguro(req.body.volver) || '/cliente/menu') : '/admin/dashboard');
 
   } catch (error) {
     console.error('Error en el login:', error);
-    res.status(500).render('auth/login', { 
+    res.status(500).render('auth/login', {
       error: 'Ocurrió un error en el servidor.',
-      datos: req.body 
+      datos: req.body,
+      volver: destinoSeguro(req.body.volver)
     });
   }
 };
@@ -72,14 +78,14 @@ export const registrarCliente = async (req, res) => {
   try {
     const { nombreUsuario, nombre, apellido, email, password, dni, fechaNacimiento, telefono } = req.body;
 
-    const usuarioExistente = await Usuario.findOne({ 
-      $or: [{ nombreUsuario }, { email }] 
+    const usuarioExistente = await Usuario.findOne({
+      $or: [{ nombreUsuario }, { email }]
     });
 
     if (usuarioExistente) {
-      return res.status(400).render('auth/registro', { 
+      return res.status(400).render('auth/registro', {
         error: 'El nombre de usuario o correo electrónico ya están registrados.',
-        datos: req.body 
+        datos: req.body
       });
     }
 
@@ -104,9 +110,9 @@ export const registrarCliente = async (req, res) => {
 
   } catch (error) {
     console.error('Error en el registro:', error);
-    res.status(500).render('auth/registro', { 
+    res.status(500).render('auth/registro', {
       error: 'Ocurrió un error interno al procesar el registro.',
-      datos: req.body 
+      datos: req.body
     });
   }
 };

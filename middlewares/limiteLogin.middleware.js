@@ -31,7 +31,7 @@ const limiteLogin = (req, res, next) => {
     res.set('Retry-After', String(minutos * 60));
     // El login de la API (/auth/token) responde en JSON; el login web vuelve a mostrar el formulario
     if (req.path === '/token') return res.status(429).json({ error });
-    return res.status(429).render('auth/login', { error, datos: { identificador: req.body?.identificador } });
+    return res.status(429).render('auth/login', { error, datos: { identificador: req.body?.identificador }, volver: req.body?.volver });
   }
 
   // Al terminar la respuesta: 400/401 = credenciales inválidas (suma un fallo),

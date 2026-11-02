@@ -8,7 +8,9 @@ block content
     h1 Mientras más salís, más ahorrás
     p Elegí tu plan y pagá menos en todas tus entradas.
 
-  - const planActual = usuarioCompleto && usuarioCompleto.tipoCliente ? usuarioCompleto.tipoCliente : 'ESTANDAR'
+  //- Los planes se pueden mirar sin sesión; para contratarlos hace falta una cuenta de cliente
+  - const puedeContratar = usuarioLogueado && usuarioLogueado.rol === 'Cliente'
+  - const planActual = puedeContratar ? (usuarioCompleto && usuarioCompleto.tipoCliente) || 'ESTANDAR' : null
   - const elegido = datos && datos.tipoCliente ? datos.tipoCliente : planActual
   - const base = ['Acceso a toda la cartelera', 'Entradas digitales con QR', 'Cancelación online']
   - const planes = [{ valor: 'ESTANDAR', nombre: 'Estándar', lema: 'Para salir cuando pinta', precio: 'Gratis', cuota: 0, descuento: 0, clase: 'plan-estandar', beneficios: base }, { valor: 'PREMIUM', nombre: 'Premium', lema: 'Para los que no se pierden una', precio: '$2.000', cuota: 2000, descuento: 15, clase: 'plan-premium', beneficios: ['Todo lo de Estándar', '15% OFF en todas tus entradas', 'Descuento automático al pagar'] }, { valor: 'VIP', nombre: 'VIP', lema: 'Para vivir en primera fila', precio: '$5.000', cuota: 5000, descuento: 30, clase: 'plan-vip', etiqueta: 'Mayor descuento', beneficios: ['Todo lo de Premium', '30% OFF en todas tus entradas', 'El doble de ahorro que Premium'] }]
@@ -20,7 +22,9 @@ block content
           input(type="radio" name="tipoCliente" value=plan.valor checked=(elegido === plan.valor) data-nombre=plan.nombre data-pago=(plan.cuota > 0 ? 'si' : 'no'))
           .plan-caja(class=plan.clase)
             .plan-arriba
-              .nombre-plan= plan.nombre
+              .nombre-plan
+                +logoIcono(30, plan.valor)
+                span= plan.nombre
               if planActual === plan.valor
                 span.plan-sello Tu plan
               else if plan.etiqueta
@@ -57,7 +61,7 @@ block content
               button.calc-precio(type="button" data-monto=monto class=(i === 1 ? 'activo' : '') aria-pressed=(i === 1 ? 'true' : 'false')) $#{monto.toLocaleString('es-AR')}
       .calc-resultado
         each plan in planes
-          .calc-linea(data-cuota=plan.cuota data-descuento=plan.descuento)
+          .calc-linea(class=plan.clase data-cuota=plan.cuota data-descuento=plan.descuento)
             .calc-nombre
               span= plan.nombre
               strong.calc-total
@@ -66,26 +70,31 @@ block content
             small.calc-nota
         button#calc-elegir.btn.btn-secundario(type="button")
 
-    //- Los datos de pago solo aparecen al elegir un plan pago
-    .tarjeta#datos-pago
-      h2 Datos de pago
-      if error
-        #error-pago.alerta.alerta-error(role="alert") #{error}
-      .campo
-        label(for="titular") Titular de la tarjeta
-        input#titular(type="text" name="titular" placeholder="Nombre y apellido" value=(datos ? datos.titular : '') onkeypress="return (event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || event.charCode === 32 || event.charCode === 209 || event.charCode === 241")
-      .campo
-        label(for="numeroTarjeta") Número de tarjeta
-        input#numeroTarjeta(type="text" name="numeroTarjeta" maxlength="16" inputmode="numeric" placeholder="16 dígitos" value=(datos ? datos.numeroTarjeta : '') onkeypress="return event.charCode >= 48 && event.charCode <= 57")
-      .campos
+    if puedeContratar
+      //- Los datos de pago solo aparecen al elegir un plan pago
+      .tarjeta#datos-pago
+        h2 Datos de pago
+        if error
+          #error-pago.alerta.alerta-error(role="alert") #{error}
         .campo
-          label(for="vencimiento") Vencimiento
-          input#vencimiento(type="text" name="vencimiento" maxlength="5" placeholder="MM/AA" value=(datos ? datos.vencimiento : '') onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode === 47")
+          label(for="titular") Titular de la tarjeta
+          input#titular(type="text" name="titular" placeholder="Nombre y apellido" value=(datos ? datos.titular : '') onkeypress="return (event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || event.charCode === 32 || event.charCode === 209 || event.charCode === 241")
         .campo
-          label(for="cvv") CVV
-          input#cvv(type="password" name="cvv" maxlength="3" inputmode="numeric" placeholder="3 dígitos" onkeypress="return event.charCode >= 48 && event.charCode <= 57")
-    .acciones-formulario.mt
-      button#confirmar-plan.btn.btn-grande(type="submit") Confirmar plan
+          label(for="numeroTarjeta") Número de tarjeta
+          input#numeroTarjeta(type="text" name="numeroTarjeta" maxlength="16" inputmode="numeric" placeholder="16 dígitos" value=(datos ? datos.numeroTarjeta : '') onkeypress="return event.charCode >= 48 && event.charCode <= 57")
+        .campos
+          .campo
+            label(for="vencimiento") Vencimiento
+            input#vencimiento(type="text" name="vencimiento" maxlength="5" placeholder="MM/AA" value=(datos ? datos.vencimiento : '') onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode === 47")
+          .campo
+            label(for="cvv") CVV
+            input#cvv(type="password" name="cvv" maxlength="3" inputmode="numeric" placeholder="3 dígitos" onkeypress="return event.charCode >= 48 && event.charCode <= 57")
+      .acciones-formulario.mt
+        button#confirmar-plan.btn.btn-grande(type="submit") Confirmar plan
+    else if !usuarioLogueado
+      .sin-sesion-plan
+        a.btn.btn-grande(href=`/auth/login?volver=${encodeURIComponent('/cliente/membresia')}`) Iniciá sesión para elegir tu plan
+        p ¿No tenés cuenta? #[a(href="/auth/registro") Registrate gratis]
 
   style.
     .encabezado-plan { text-align: center; margin: 12px 0 30px; }
@@ -94,34 +103,34 @@ block content
 
     .planes { gap: 16px; align-items: stretch; margin-bottom: 24px; }
     .plan { display: flex; }
-    .plan-caja { position: relative; display: flex; flex-direction: column; width: 100%; padding: 24px; border: 2px solid var(--color-borde); border-radius: 24px; background: var(--color-superficie); transition: transform .2s, border-color .2s, box-shadow .2s; }
-    .plan:hover .plan-caja { transform: translateY(-4px); border-color: rgba(200, 186, 255, .35); }
-    .plan-premium { background: linear-gradient(165deg, #33286a, #1d1833 72%) border-box; }
-    .plan-vip { background: linear-gradient(155deg, #6d4dff, #a03cf0 62%, #cf3aa6) border-box; }
-    .plan-vip p.plan-lema, .plan-vip .plan-descuento span, .plan-vip .precio-plan small { color: rgba(255, 255, 255, .92); }
-    .plan-vip .plan-beneficios li::before { color: #fff; }
-    .plan input:checked + .plan-caja { border-color: #fff; box-shadow: 0 16px 44px rgba(124, 92, 255, .4); }
+    /* Cada plan usa los colores de su logo: violeta, plateado o dorado */
+    .plan-estandar { --plan: #b4a2ff; --plan-degrade: linear-gradient(120deg, #8b6dff, #b23cf0 55%, #ff4d7d); --plan-tinta: #fff; --plan-fondo: rgba(109, 77, 255, .16); --plan-brillo: rgba(124, 92, 255, .4); }
+    .plan-premium { --plan: #c3cbe6; --plan-degrade: linear-gradient(120deg, #ffffff, #c3cbe6 55%, #7f8bb8); --plan-tinta: #231a3d; --plan-fondo: rgba(195, 203, 230, .13); --plan-brillo: rgba(195, 203, 230, .3); }
+    .plan-vip { --plan: #f2c94c; --plan-degrade: linear-gradient(120deg, #fff3c4, #f2c94c 55%, #b8860b); --plan-tinta: #231a3d; --plan-fondo: rgba(242, 201, 76, .14); --plan-brillo: rgba(242, 201, 76, .3); }
+    .plan-caja { position: relative; display: flex; flex-direction: column; width: 100%; padding: 24px; border: 2px solid color-mix(in srgb, var(--plan) 35%, transparent); border-radius: 24px; background: linear-gradient(165deg, var(--plan-fondo), transparent 70%), var(--color-superficie); transition: transform .2s, border-color .2s, box-shadow .2s; }
+    .plan:hover .plan-caja { transform: translateY(-4px); border-color: color-mix(in srgb, var(--plan) 70%, transparent); }
+    .plan input:checked + .plan-caja { border-color: var(--plan); box-shadow: 0 16px 44px var(--plan-brillo); }
     .plan input:focus-visible + .plan-caja { outline: 2px solid var(--enlace); outline-offset: 3px; }
 
     .plan-arriba { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 28px; }
-    .plan-caja .nombre-plan { font-size: 22px; font-weight: 600; letter-spacing: -.02em; }
-    .plan-sello { padding: 4px 10px; border-radius: 999px; background: rgba(255, 255, 255, .16); color: #fff; font-size: 12px; font-weight: 600; white-space: nowrap; }
+    .plan-caja .nombre-plan { display: flex; align-items: center; gap: 8px; color: var(--plan); font-size: 22px; font-weight: 600; letter-spacing: -.02em; }
+    .plan-sello { padding: 4px 10px; border-radius: 999px; background: color-mix(in srgb, var(--plan) 18%, transparent); color: var(--plan); font-size: 12px; font-weight: 600; white-space: nowrap; }
     .plan-caja p.plan-lema { margin: 2px 0 18px; color: var(--color-texto-suave); font-size: 14px; }
     .plan-descuento { display: flex; flex-direction: column; margin-bottom: 18px; }
-    .plan-descuento strong { font-size: 76px; font-weight: 700; letter-spacing: -.06em; line-height: 1; }
+    .plan-descuento strong { width: fit-content; padding-right: 4px; background: var(--plan-degrade); -webkit-background-clip: text; background-clip: text; color: transparent; font-size: 76px; font-weight: 700; letter-spacing: -.06em; line-height: 1; }
     .plan-descuento span { color: var(--color-texto-suave); font-size: 14px; margin-top: 4px; }
     .plan-beneficios { list-style: none; margin: 0 0 22px; padding: 16px 0 0; border-top: 1px solid rgba(255, 255, 255, .14); display: grid; gap: 9px; font-size: 14px; }
     .plan-beneficios li { position: relative; padding-left: 24px; }
-    .plan-beneficios li::before { content: '✓'; position: absolute; left: 0; color: var(--enlace); font-weight: 700; }
+    .plan-beneficios li::before { content: '✓'; position: absolute; left: 0; color: var(--plan); font-weight: 700; }
     .plan-abajo { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: auto; }
     .plan-caja .precio-plan { margin: 0; color: #fff; font-size: 24px; font-weight: 600; letter-spacing: -.03em; white-space: nowrap; }
     .plan-caja .precio-plan small { color: var(--color-texto-suave); font-size: 13px; font-weight: 400; letter-spacing: 0; }
     .plan-elegir { padding: 8px 16px; border-radius: 999px; background: rgba(255, 255, 255, .12); font-size: 14px; font-weight: 600; }
     .texto-elegido { display: none; }
-    .plan input:checked + .plan-caja .plan-elegir { background: #fff; color: #141418; }
+    .plan input:checked + .plan-caja .plan-elegir { background: var(--plan-degrade); color: var(--plan-tinta); }
     .plan input:checked + .plan-caja .texto-elegir { display: none; }
     .plan input:checked + .plan-caja .texto-elegido { display: inline; }
-        
+
     /* Calculadora */
     .calculadora { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: 28px; padding: 26px; border: 1px solid var(--color-borde); border-radius: 24px; background: var(--color-superficie); margin-bottom: 24px; }
     .calculadora h2 { font-size: 24px; margin: 0 0 18px; }
@@ -137,12 +146,15 @@ block content
     .calc-nombre { display: flex; justify-content: space-between; gap: 10px; font-weight: 500; margin-bottom: 6px; }
     .calc-total { font-weight: 600; font-variant-numeric: tabular-nums; }
     .calc-barra { height: 10px; border-radius: 999px; background: var(--color-superficie-2); overflow: hidden; }
-    .calc-barra i { display: block; height: 100%; width: 100%; border-radius: inherit; background: #574c8a; transition: width .3s; }
-    .calc-linea.mejor .calc-barra i { background: var(--degrade); }
+    .calc-barra i { display: block; height: 100%; width: 100%; border-radius: inherit; background: color-mix(in srgb, var(--plan) 45%, transparent); transition: width .3s; }
+    .calc-linea.mejor .calc-barra i { background: var(--plan-degrade); }
+    .calc-nombre span { color: var(--plan); }
     .calc-nota { display: block; margin-top: 4px; color: var(--color-texto-suave); font-size: 13px; }
-    .calc-linea.mejor .calc-nota { color: var(--enlace); font-weight: 500; }
+    .calc-linea.mejor .calc-nota { color: var(--plan); font-weight: 500; }
     #calc-elegir { justify-self: start; }
     #datos-pago h2 { font-size: 20px; margin: 0 0 16px; }
+    .sin-sesion-plan { text-align: center; }
+    .sin-sesion-plan p { margin: 12px 0 0; color: var(--color-texto-suave); }
 
     @media (max-width: 860px) {
       .planes { grid-template-columns: 1fr; }
@@ -166,6 +178,7 @@ block content
       // Sin plan pago no hace falta tarjeta; el botón dice qué plan se confirma
       const actualizarPlan = () => {
         const plan = opciones.find(o => o.checked);
+        if (!datosPago) return; // sin sesión no se contrata: solo se miran los planes
         datosPago.classList.toggle('oculto', !plan || plan.dataset.pago === 'no');
         confirmar.textContent = plan ? `Confirmar plan ${plan.dataset.nombre}` : 'Confirmar plan';
       };
@@ -207,6 +220,7 @@ block content
             : 'Pagás lo mismo que sin plan';
         });
         mejorPlan = opciones[iMejor];
+        elegir.classList.toggle('oculto', !datosPago);
         elegir.textContent = mejorPlan.checked ? `Ya elegiste ${mejorPlan.dataset.nombre}, el que más te conviene` : `Elegir ${mejorPlan.dataset.nombre}`;
         elegir.disabled = mejorPlan.checked;
       };

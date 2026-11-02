@@ -15,16 +15,17 @@ const DIAS_NUEVO = 14;
 export const mostrarMenu = async (req, res) => {
   const ahora = new Date();
   const [usuarioCompleto, entradasVigentes, eventosFuturos] = await Promise.all([
-    Usuario.findById(req.session.usuario._id),
+    req.session.usuario ? Usuario.findById(req.session.usuario._id) : null,
     // Para la franja "tu próxima salida": las entradas sin usar del cliente
-    Entrada.find({ cliente: req.session.usuario._id, estado: 'Completado' }).select('evento').populate('evento', 'nombre fecha hora eliminado').lean(),
+    req.session.usuario ? Entrada.find({ cliente: req.session.usuario._id, estado: 'Completado' }).select('evento').populate('evento', 'nombre fecha hora eliminado').lean() : [],
     // Los eventos que todavía no pasaron y tienen entradas, del más cercano al más lejano
     Evento.find({ fecha: { $gte: ahora }, entradasDisponibles: { $gt: 0 } })
       .sort({ fecha: 1 })
       .populate('sala', 'nombre').populate('entidad', 'nombre fotoActualizada fotoCredito')
   ]);
 
-  const descuento = usuarioCompleto?.porcentajeDescuento || 0;
+  // El descuento del plan es solo de los clientes (el personal también puede mirar la cartelera)
+  const descuento = usuarioCompleto?.rol === 'Cliente' ? usuarioCompleto.porcentajeDescuento || 0 : 0;
   const eventos = eventosFuturos.map(evento => {
     const precios = [evento.precio, evento.precioPlatea, evento.precioVIP].filter(p => p > 0);
     const desde = precios.length ? Math.min(...precios) : 0;
@@ -57,17 +58,17 @@ export const mostrarMenu = async (req, res) => {
 };
 
 export const mostrarMembresia = async (req, res) => {
-  res.render('Cliente/membresia', { 
-    usuarioLogueado: req.session.usuario, 
-    usuarioCompleto: await Usuario.findById(req.session.usuario._id), 
+  res.render('Cliente/membresia', {
+    usuarioLogueado: req.session.usuario,
+    usuarioCompleto: req.session.usuario ? await Usuario.findById(req.session.usuario._id) : null,
     error: null,
-    datos: {} 
+    datos: {}
   });
 };
 
 export const procesarMembresia = async (req, res) => {
   const { tipoCliente, titular, numeroTarjeta, vencimiento, cvv } = req.body;
-  
+
   if (['PREMIUM', 'VIP'].includes(tipoCliente)) {
     if (!titular || !/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(titular.trim())) {
       return res.status(400).render('Cliente/membresia', {
@@ -105,8 +106,8 @@ export const procesarMembresia = async (req, res) => {
 
   let porcentaje = tipoCliente === 'VIP' ? 0.30 : tipoCliente === 'PREMIUM' ? 0.15 : 0;
   const usuarioActualizado = await Usuario.findByIdAndUpdate(
-    req.session.usuario._id, 
-    { tipoCliente: tipoCliente || 'ESTANDAR', porcentajeDescuento: porcentaje }, 
+    req.session.usuario._id,
+    { tipoCliente: tipoCliente || 'ESTANDAR', porcentajeDescuento: porcentaje },
     { new: true }
   );
 
@@ -194,17 +195,17 @@ export const mostrarComprar = async (req, res) => {
     if (fecha) {
       const inicio = new Date(`${fecha}T03:00:00.000Z`);
       const fin = new Date(new Date(`${fecha}T03:00:00.000Z`).getTime() + 24 * 60 * 60 * 1000 - 1);
-      
+
       query.fecha = { $gte: inicio, $lte: fin };
     }
 
     // Las funciones más próximas primero
     const eventosDisponibles = await Evento.find(query).sort({ fecha: 1 }).populate('sala entidad');
 
-    res.render('Cliente/comprar', { 
-      usuarioLogueado: req.session.usuario, 
-      eventos: eventosDisponibles, 
-      totalItemsCarrito: req.session.carrito?.length || 0, 
+    res.render('Cliente/comprar', {
+      usuarioLogueado: req.session.usuario,
+      eventos: eventosDisponibles,
+      totalItemsCarrito: req.session.carrito?.length || 0,
       busqueda: buscar || '',
       filtroFecha: fecha || ''
     });
@@ -217,12 +218,12 @@ export const mostrarComprar = async (req, res) => {
 // ⚙️ Configuración de Perfil
 export const mostrarConfiguracion = async (req, res) => {
   const usuario = await Usuario.findById(req.session.usuario._id);
-  res.render('Cliente/configuracion', { 
-    usuarioLogueado: req.session.usuario, 
-    usuarioCompleto: usuario, 
-    usuario, 
+  res.render('Cliente/configuracion', {
+    usuarioLogueado: req.session.usuario,
+    usuarioCompleto: usuario,
+    usuario,
     mensajeExito: req.query.exito,
-    error: null 
+    error: null
   });
 };
 
@@ -236,19 +237,19 @@ export const actualizarConfiguracion = async (req, res) => {
     const usuarioActual = await Usuario.findById(usuarioId);
 
     if (!nombre || !regexLetras.test(nombre.trim()) || !apellido || !regexLetras.test(apellido.trim())) {
-      return res.status(400).render('Cliente/configuracion', { 
-        usuarioLogueado: req.session.usuario, 
-        usuarioCompleto: usuarioActual, 
-        usuario: { ...usuarioActual.toObject(), ...req.body }, 
-        error: 'El nombre y el apellido solo deben contener letras.' 
+      return res.status(400).render('Cliente/configuracion', {
+        usuarioLogueado: req.session.usuario,
+        usuarioCompleto: usuarioActual,
+        usuario: { ...usuarioActual.toObject(), ...req.body },
+        error: 'El nombre y el apellido solo deben contener letras.'
       });
     }
 
     if (!telefono || !regexTelefono.test(telefono.trim())) {
-      return res.status(400).render('Cliente/configuracion', { 
-        usuarioLogueado: req.session.usuario, 
-        usuarioCompleto: usuarioActual, 
-        usuario: { ...usuarioActual.toObject(), ...req.body }, 
+      return res.status(400).render('Cliente/configuracion', {
+        usuarioLogueado: req.session.usuario,
+        usuarioCompleto: usuarioActual,
+        usuario: { ...usuarioActual.toObject(), ...req.body },
         error: 'El teléfono debe contener entre 10 y 15 números.'
       });
     }
@@ -263,10 +264,10 @@ export const actualizarConfiguracion = async (req, res) => {
     }
 
     const datosActualizar = {
-      nombre: nombre.trim(), 
-      apellido: apellido.trim(), 
-      email: email.trim(), 
-      telefono: telefono.trim() 
+      nombre: nombre.trim(),
+      apellido: apellido.trim(),
+      email: email.trim(),
+      telefono: telefono.trim()
     };
 
     if (nuevaPassword && nuevaPassword.trim() !== '') {

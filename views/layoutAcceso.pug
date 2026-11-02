@@ -26,6 +26,8 @@ html(lang="es")
       .creditos-acceso { display: grid; }
       .credito-acceso { grid-area: 1 / 1; color: rgba(255, 255, 255, .8); font-size: 12px; opacity: 0; visibility: hidden; transition: opacity .6s, visibility .6s; }
       .credito-acceso.activo { opacity: 1; visibility: visible; }
+      .cerrar-acceso { position: absolute; top: 16px; right: 16px; z-index: 5; display: grid; place-items: center; width: 44px; height: 44px; border: 1px solid var(--color-borde); border-radius: 50%; background: rgba(17, 13, 31, .72); color: #fff; font-size: 26px; line-height: 1; backdrop-filter: blur(4px); transition: background .15s; }
+      .cerrar-acceso:hover { background: var(--color-superficie-2); color: #fff; }
       @media (max-width: 960px) {
         .acceso-arte { min-height: 250px; }
         .escenario { --radio: 150px; }
@@ -34,6 +36,8 @@ html(lang="es")
       @media (prefers-reduced-motion: reduce) { .foto-acceso, .credito-acceso { transition: none; } }
   body
     .acceso
+      //- Cerrar: vuelve a la página en la que estaba (sin JavaScript, al inicio)
+      a#cerrar-acceso.cerrar-acceso(href="/" aria-label="Cerrar y volver a la página") ×
       section.acceso-arte
         //- Fotos fijas de public/: esta pantalla se ve sin sesión y no depende de la base de datos
         - const fotos = [['wos', 'Bru Domingo Sola', 'CC BY-SA 4.0', 'by-sa/4.0', 'Wos_2023.jpg'], ['cirque-du-soleil', 'Alberto-g-rovi', 'CC BY 3.0', 'by/3.0', 'Toruk-Cirque_du_Soleil_(1).jpg'], ['charly-garcia', 'Ministerio de Cultura de la Nación', 'CC BY-SA 2.0', 'by-sa/2.0', 'Charly_Garc%C3%ADa_70_a%C3%B1os_en_el_CCK_2021.jpg'], ['les-luthiers', 'Secretaría de Cultura de la Nación', 'CC BY-SA 2.0', 'by-sa/2.0', 'Les_Luthiers_2019_II.jpg'], ['gustavo-cerati', 'Camilo Rueda López', 'CC BY-SA 3.0', 'by-sa/3.0', 'Gustavo_Cerati,_Madrid,_2006.10.10.jpg']]
@@ -43,7 +47,7 @@ html(lang="es")
             .foto-acceso(class=(i === 0 ? 'activa' : ''))
               .foto-oscura(style=`background-image:url('${url}')`)
               .foto-luz(style=`background-image:url('${url}')`)
-        +logoMarca("/auth/login", "Entradas")
+        +logoMarca("/", "Entradas")
         .acceso-pie
           h1 Tus próximas salidas, en un solo lugar.
           .acceso-datos
@@ -59,6 +63,20 @@ html(lang="es")
           block content
 
     script.
+      // La cruz vuelve al evento o página pública que se estaba mirando. Las páginas que piden sesión
+      // no sirven de destino: volverían a abrir el login
+      (() => {
+        const pedido = document.querySelector('[name="volver"]')?.value || new URLSearchParams(location.search).get('volver') || '';
+        let anterior = '';
+        try {
+          const url = new URL(document.referrer);
+          if (url.origin === location.origin) anterior = url.pathname + url.search;
+        } catch { /* se llegó sin una página anterior */ }
+        const publica = /^\/(cliente\/(menu|comprar|membresia)|ayuda)(?![\w-])/;
+        const destino = [pedido, anterior].find(ruta => publica.test(ruta));
+        if (destino) document.getElementById('cerrar-acceso').href = destino;
+      })();
+
       (() => {
         const arte = document.querySelector('.acceso-arte');
         const escenario = arte.querySelector('.escenario');

@@ -43,7 +43,7 @@ html(lang="es")
             span.avatar= usuarioLogueado.nombreUsuario.charAt(0)
             div
               .nombre= usuarioLogueado.nombreUsuario
-              .rol= usuarioLogueado.rol
+              .rol= esSuperAdmin(usuarioLogueado) ? 'Superadministrador' : usuarioLogueado.rol
             a.salir(href="/auth/logout" title="Cerrar sesión")
               +icono('salir')
               span Salir

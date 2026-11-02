@@ -11,7 +11,7 @@ mixin camposUsuario(u, conPassword)
   .campos
     .campo
       label(for="nombreUsuario") Nombre de usuario
-      input#nombreUsuario(type="text" name="nombreUsuario" value=u.nombreUsuario required)
+      input#nombreUsuario(type="text" name="nombreUsuario" value=u.nombreUsuario required readonly=esSuperAdmin(u))
     .campo
       label(for="email") Correo electrónico
       input#email(type="email" name="email" value=u.email required placeholder="ejemplo@correo.com")
@@ -36,8 +36,9 @@ mixin camposUsuario(u, conPassword)
       input#fechaNacimiento(type="date" name="fechaNacimiento" value=fechaNac required min="1900-01-01" max=maxFecha)
     .campo
       label(for="rol") Rol del sistema
-      select#rol(name="rol")
-        each rol in ['Cliente', 'Administrador', 'Supervisor', 'Lector']
+      //- Solo el superadministrador crea administradores, y su propio rol no se puede cambiar
+      select#rol(name="rol" disabled=esSuperAdmin(u))
+        each rol in esSuperAdmin(usuarioLogueado) ? ['Cliente', 'Administrador', 'Supervisor', 'Lector'] : ['Cliente', 'Supervisor', 'Lector']
           option(value=rol selected=(u.rol === rol))= rol
     .campo
       label(for="tipoCliente") Tipo de cliente

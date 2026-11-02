@@ -43,14 +43,17 @@ block content
                 td #{user.nombre} #{user.apellido}
                 td(style="word-break:break-all")= user.email
                 td
-                  span.insignia(class=colorRol[user.rol] || 'insignia-neutra')= user.rol
+                  if esSuperAdmin(user)
+                    span.insignia.insignia-aviso Superadministrador
+                  else
+                    span.insignia(class=colorRol[user.rol] || 'insignia-neutra')= user.rol
                 td
                   span.insignia(class=colorPlan[user.tipoCliente] || 'insignia-neutra')= user.tipoCliente
                 if esAdmin
                   td
-                    //- Los administradores están protegidos: no se editan ni se eliminan
-                    if user.rol === 'Administrador'
-                      span.insignia.insignia-neutra(title="Las cuentas de administrador no se pueden editar ni eliminar") Protegido
+                    //- Los administradores están protegidos: solo el superadministrador los gestiona (la regla se controla en el servidor)
+                    if !puedeGestionarUsuario(usuarioLogueado, user)
+                      span.insignia.insignia-neutra(title="Solo el usuario admin puede editar o eliminar administradores") Protegido
                     else
                       .acciones-celda
                         a.btn.btn-chico.btn-secundario(href=`/admin/usuarios/editar/${user._id}`) Editar

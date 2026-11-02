@@ -29,7 +29,8 @@ block content
             - const ev = d.evento
             - const fecha = new Date(ev.fecha)
             article.texto-evento(class=(i === 0 ? 'activo' : '') aria-hidden=(i === 0 ? 'false' : 'true'))
-              p.saludo Hola, #{usuarioLogueado.nombreUsuario}
+              if usuarioLogueado
+                p.saludo Hola, #{usuarioLogueado.nombreUsuario}
               p.datos-evento #{d.esNuevo ? 'Nuevo en cartelera · ' : ''}#{fecha.getDate()} #{meses[fecha.getMonth()]} · #{ev.hora || '21:00'} hs#{ev.sala ? ` · ${ev.sala.nombre}` : ''}
               h1= ev.nombre
               .compra
@@ -91,7 +92,7 @@ block content
               span #{ev.sala ? `${ev.sala.nombre} · ` : ''}#[b= plata(d.desdeConDescuento)]
 
   //- PLAN: solo a quien todavía puede subir
-  if usuarioCompleto && usuarioCompleto.tipoCliente !== 'VIP'
+  if !usuarioCompleto || (usuarioCompleto.rol === 'Cliente' && usuarioCompleto.tipoCliente !== 'VIP')
     a.franja-plan(href="/cliente/membresia")
       span
         strong Con el plan VIP, cada entrada te sale menos
