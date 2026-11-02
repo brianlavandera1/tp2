@@ -1,5 +1,6 @@
 doctype html
 include partials/logo.pug
+include partials/creditoFoto.pug
 html(lang="es")
   head
     include partials/head.pug
@@ -7,14 +8,92 @@ html(lang="es")
     title
       block titulo
         | Urbana Cult · Ingresar
+    style.
+      /* Escenario: la foto queda a oscuras y un reflector la ilumina donde está el mouse */
+      .acceso-arte { position: relative; isolation: isolate; justify-content: space-between; overflow: hidden; }
+      .escenario { --x: 60%; --y: 35%; --radio: clamp(170px, 24vw, 280px); position: absolute; inset: 0; z-index: -1; background: #0c0917; }
+      .foto-acceso { position: absolute; inset: 0; opacity: 0; transition: opacity 1.2s; }
+      .foto-acceso.activa { opacity: 1; }
+      .foto-oscura, .foto-luz { position: absolute; inset: 0; background: center 20% / cover no-repeat; }
+      .foto-oscura { filter: grayscale(.8) brightness(.24); }
+      .foto-luz { filter: saturate(1.15) brightness(1.08); -webkit-mask-image: radial-gradient(circle var(--radio) at var(--x) var(--y), #000 40%, transparent 100%); mask-image: radial-gradient(circle var(--radio) at var(--x) var(--y), #000 40%, transparent 100%); }
+      /* Halo del reflector y tinte violeta de la marca */
+      .escenario::before { content: ''; position: absolute; inset: 0; z-index: 1; background: radial-gradient(circle var(--radio) at var(--x) var(--y), rgba(180, 162, 255, .22), transparent 75%); mix-blend-mode: screen; pointer-events: none; }
+      .escenario::after { content: ''; position: absolute; inset: 0; z-index: 1; background: linear-gradient(to top, rgba(17, 13, 31, .92) 6%, rgba(17, 13, 31, 0) 46%), linear-gradient(to bottom, rgba(17, 13, 31, .6), rgba(17, 13, 31, 0) 22%), linear-gradient(120deg, rgba(109, 77, 255, .22), rgba(207, 58, 166, .14)); pointer-events: none; }
+      .acceso-pie { display: grid; gap: 14px; }
+      .acceso-pie h1 { text-shadow: 0 2px 16px rgba(0, 0, 0, .55); }
+      .acceso-datos { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 18px; }
+      .creditos-acceso { display: grid; }
+      .credito-acceso { grid-area: 1 / 1; color: rgba(255, 255, 255, .8); font-size: 12px; opacity: 0; visibility: hidden; transition: opacity .6s, visibility .6s; }
+      .credito-acceso.activo { opacity: 1; visibility: visible; }
+      @media (max-width: 960px) {
+        .acceso-arte { min-height: 250px; }
+        .escenario { --radio: 150px; }
+        .acceso-pie h1 { font-size: 24px; }
+      }
+      @media (prefers-reduced-motion: reduce) { .foto-acceso, .credito-acceso { transition: none; } }
   body
     .acceso
       section.acceso-arte
+        //- Fotos fijas de public/: esta pantalla se ve sin sesión y no depende de la base de datos
+        - const fotos = [['wos', 'Bru Domingo Sola', 'CC BY-SA 4.0', 'by-sa/4.0', 'Wos_2023.jpg'], ['cirque-du-soleil', 'Alberto-g-rovi', 'CC BY 3.0', 'by/3.0', 'Toruk-Cirque_du_Soleil_(1).jpg'], ['charly-garcia', 'Ministerio de Cultura de la Nación', 'CC BY-SA 2.0', 'by-sa/2.0', 'Charly_Garc%C3%ADa_70_a%C3%B1os_en_el_CCK_2021.jpg'], ['les-luthiers', 'Secretaría de Cultura de la Nación', 'CC BY-SA 2.0', 'by-sa/2.0', 'Les_Luthiers_2019_II.jpg'], ['gustavo-cerati', 'Camilo Rueda López', 'CC BY-SA 3.0', 'by-sa/3.0', 'Gustavo_Cerati,_Madrid,_2006.10.10.jpg']]
+        .escenario(aria-hidden="true")
+          each foto, i in fotos
+            - const url = `/img/acceso/${foto[0]}.jpg`
+            .foto-acceso(class=(i === 0 ? 'activa' : ''))
+              .foto-oscura(style=`background-image:url('${url}')`)
+              .foto-luz(style=`background-image:url('${url}')`)
         +logoMarca("/auth/login", "Entradas")
-        h1 Tus próximas salidas, en un solo lugar.
-        p.credito-panel Desarrollado por #[strong Sintaxia]
+        .acceso-pie
+          h1 Tus próximas salidas, en un solo lugar.
+          .acceso-datos
+            .creditos-acceso
+              each foto, i in fotos
+                span.credito-acceso(class=(i === 0 ? 'activo' : ''))
+                  +creditoFoto({ autor: foto[1], licencia: foto[2], licenciaUrl: `https://creativecommons.org/licenses/${foto[3]}`, fuente: `https://commons.wikimedia.org/wiki/File:${foto[4]}` })
+            p.credito-panel Desarrollado por #[strong Sintaxia]
 
       //- Formulario de cada vista
       section.acceso-formulario
         .caja
           block content
+
+    script.
+      (() => {
+        const arte = document.querySelector('.acceso-arte');
+        const escenario = arte.querySelector('.escenario');
+        const fotos = [...escenario.querySelectorAll('.foto-acceso')];
+        const creditos = [...arte.querySelectorAll('.credito-acceso')];
+        const sinMovimiento = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        // Las fotos cambian solas
+        let actual = 0;
+        setInterval(() => {
+          actual = (actual + 1) % fotos.length;
+          fotos.forEach((f, i) => f.classList.toggle('activa', i === actual));
+          creditos.forEach((c, i) => c.classList.toggle('activo', i === actual));
+        }, 7000);
+
+        // El reflector sigue al mouse; si no hay mouse encima, recorre el escenario solo
+        let x = arte.clientWidth * .6, y = arte.clientHeight * .35, destinoX = x, destinoY = y, conMouse = false;
+        arte.addEventListener('pointermove', (e) => {
+          const caja = arte.getBoundingClientRect();
+          conMouse = e.pointerType === 'mouse';
+          destinoX = e.clientX - caja.left;
+          destinoY = e.clientY - caja.top;
+        });
+        arte.addEventListener('pointerleave', () => { conMouse = false; });
+
+        const mover = (tiempo) => {
+          if (!conMouse && !sinMovimiento) {
+            destinoX = arte.clientWidth * (.5 + .34 * Math.sin(tiempo / 2300));
+            destinoY = arte.clientHeight * (.42 + .24 * Math.sin(tiempo / 1500));
+          }
+          x += (destinoX - x) * .07;
+          y += (destinoY - y) * .07;
+          escenario.style.setProperty('--x', `${x.toFixed(1)}px`);
+          escenario.style.setProperty('--y', `${y.toFixed(1)}px`);
+          requestAnimationFrame(mover);
+        };
+        requestAnimationFrame(mover);
+      })();
