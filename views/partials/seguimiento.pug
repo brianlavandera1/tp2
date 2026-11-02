@@ -1,0 +1,29 @@
+//- Seguimiento de clics: cada clic en un botón, enlace o solapa del menú se informa al servidor
+//- (solo con sesión iniciada). Se envía con sendBeacon para no demorar la navegación.
+if usuarioLogueado
+  script.
+    (function () {
+      var SELECTOR = 'a, button, summary, label.plan, label.selector-foto, [role="button"], input[type="submit"]';
+      function zonaDe(el) {
+        if (el.closest('.lateral, .nav-principal, nav')) return 'menú';
+        if (el.closest('header')) return 'encabezado';
+        if (el.closest('form')) return 'formulario';
+        if (el.closest('table')) return 'tabla';
+        return 'página';
+      }
+      document.addEventListener('click', function (e) {
+        var el = e.target.closest(SELECTOR);
+        if (!el) return;
+        var nombre = el.getAttribute('data-seguimiento') || el.getAttribute('aria-label') || el.innerText || el.value || el.title || el.tagName;
+        nombre = String(nombre).replace(/\s+/g, ' ').trim().slice(0, 80);
+        if (!nombre) return;
+        var datos = new URLSearchParams({
+          elemento: nombre,
+          zona: zonaDe(el),
+          destino: el.getAttribute('href') || el.getAttribute('formaction') || (el.form && el.form.getAttribute('action')) || '',
+          pagina: location.pathname
+        });
+        if (navigator.sendBeacon) navigator.sendBeacon('/actividad/click', datos);
+        else fetch('/actividad/click', { method: 'POST', body: datos, keepalive: true });
+      }, true);
+    })();

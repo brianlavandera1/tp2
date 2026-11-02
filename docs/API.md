@@ -4,13 +4,66 @@ Además de las vistas web, el sistema expone una API JSON para consultar y admin
 
 - **Base URL (local):** `http://localhost:3000`
 - **Formato:** JSON (`Content-Type: application/json`). Para recibir errores en JSON enviá también `Accept: application/json`.
-- **Autenticación:** por sesión. Primero se inicia sesión en `POST /auth/login` y luego se reutiliza la cookie `connect.sid`.
+- **Autenticación:** con **JWT** (recomendado para la API): se pide un token en `POST /auth/token` y se envía en `Authorization: Bearer <token>`. También funciona la sesión web (cookie `connect.sid`).
 
 ---
 
 ## Autenticación
 
-### `POST /auth/login`
+### `POST /auth/token` — JWT (recomendado para la API)
+
+Devuelve un **JSON Web Token** firmado (HS256) que vence en 1 hora. El cuerpo puede ir en JSON o como formulario.
+
+| Campo | Tipo | Descripción |
+|---|---|---|
+| `identificador` | string | Nombre de usuario o email |
+| `password` | string | Contraseña |
+
+```bash
+curl -H "Content-Type: application/json" \
+  -d '{"identificador":"admin","password":"123"}' \
+  http://localhost:3000/auth/token
+```
+
+**200 OK**
+```json
+{ "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJub21icmVVc3VhcmlvIjoiYWRtaW4i…", "tipo": "Bearer", "expiraEn": "1h" }
+```
+
+Contenido (payload) del token — se puede ver en [jwt.io](https://jwt.io), por eso **no lleva datos sensibles**:
+
+```json
+{
+  "nombreUsuario": "admin",
+  "rol": "Administrador",
+  "sub": "6650f0aa…",
+  "aud": "urbana-cult-api",
+  "iss": "urbana-cult",
+  "iat": 1793570000,
+  "exp": 1793573600
+}
+```
+
+Uso del token:
+
+```bash
+TOKEN=$(curl -s -H "Content-Type: application/json" -d '{"identificador":"admin","password":"123"}' http://localhost:3000/auth/token | node -pe "JSON.parse(require('fs').readFileSync(0)).token")
+curl -H "Authorization: Bearer $TOKEN" http://localhost:3000/entradas
+```
+
+| Respuesta | Significado |
+|---|---|
+| `200` | Token emitido |
+| `401` | `{ "error": "Usuario o contraseña incorrectos." }` |
+| `429` | Demasiados intentos fallidos (5 en 15 minutos) |
+
+Un token **vencido, adulterado, firmado con otra clave o emitido para otra audiencia** se rechaza con `401` y el encabezado `WWW-Authenticate: Bearer error="invalid_token"`:
+
+```json
+{ "error": "El token venció. Pedí uno nuevo." }
+```
+
+### `POST /auth/login` — sesión (formularios web)
 
 Inicia sesión y devuelve la cookie de sesión. El cuerpo va como formulario (`application/x-www-form-urlencoded`).
 
@@ -38,7 +91,7 @@ Cierra la sesión (la borra de MongoDB y elimina la cookie).
 
 ## Entradas — `/entradas`
 
-Todas las rutas requieren sesión iniciada. Sin sesión responden:
+Todas las rutas requieren un **token** (`Authorization: Bearer <token>`) o una sesión iniciada. En los ejemplos se usa la cookie de sesión (`-b cookies.txt`); con JWT se reemplaza por `-H "Authorization: Bearer $TOKEN"`. Sin autenticación responden:
 
 ```json
 { "error": "Debes iniciar sesión." }
@@ -189,7 +242,7 @@ Los errores no controlados responden con:
 |---|---|
 | `400` | Datos inválidos |
 | `401` | Sin sesión iniciada |
-| `403` | El rol no tiene permiso |
+| `403` | El rol no tiene permiso, o la petición vino de otro sitio (protección CSRF) |
 | `404` | Recurso o ruta inexistente |
 | `409` | Conflicto (por ejemplo, cancelar una entrada ya usada) |
 | `429` | Demasiados intentos de login |

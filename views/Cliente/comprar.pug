@@ -43,7 +43,7 @@ block content
         - const precioGeneral = evento.precio || 5000
         - const precioPlatea = evento.precioPlatea != null ? evento.precioPlatea : precioGeneral
         - const precioVIP = evento.precioVIP != null ? evento.precioVIP : precioGeneral
-        article.evento
+        article.evento(id=`evento-${evento._id}`)
           - const urlFoto = evento.entidad ? evento.entidad.urlFoto : null
           .evento-portada(class=[`tono-${i % 6}`, urlFoto ? 'con-foto' : ''] style=urlFoto ? `--foto:url('${urlFoto}')` : undefined)
             if urlFoto
@@ -105,6 +105,17 @@ block content
       a.btn.btn-secundario(href="/cliente/comprar") Ver toda la cartelera
 
   script.
+    // Al venir desde el carrusel del inicio (/cliente/comprar#evento-...), se centra ese evento
+    // una vez cargadas las fotos (que cambian el alto de la página) y se pone el foco en la cantidad
+    if (location.hash.startsWith('#evento-')) {
+      window.addEventListener('load', () => {
+        const tarjeta = document.getElementById(location.hash.slice(1));
+        if (!tarjeta) return;
+        tarjeta.scrollIntoView({ block: 'center', behavior: 'smooth' });
+        tarjeta.querySelector('select[name="tipoEntrada"]')?.focus({ preventScroll: true });
+      });
+    }
+
     async function agregarAlCarrito(event, form) {
       event.preventDefault();
       const cantVal = parseInt(form.querySelector('input[name="cantidad"]').value) || 0;

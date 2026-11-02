@@ -1,0 +1,327 @@
+extends ../layout.pug
+include ../partials/paginacion.pug
+
+block titulo
+  | Actividad · Urbana Cult
+
+block content
+  - const iconoTipo = { sesion: '🔑', navegacion: '📄', accion: '⚡', click: '🖱️' }
+  - const nombreTipo = { sesion: 'Sesión', navegacion: 'Navegación', accion: 'Acción', click: 'Clic' }
+  - const claseTipo = { sesion: 'insignia-info', navegacion: 'insignia-neutra', accion: 'insignia-marca', click: 'insignia-aviso' }
+  - const hora = (f) => new Date(f).toLocaleString('es-AR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })
+  - const filtrarPor = (campo, valor) => `/admin/actividad?${new URLSearchParams({ ...filtros, [campo]: valor })}`
+
+  .encabezado-pagina
+    div
+      h1 Actividad del sistema
+      p Todo lo que hace cada usuario: inicios de sesión, páginas, acciones y clics. Solo lo ven Administrador y Supervisor.
+
+  //- RESUMEN DE HOY
+  .grilla.grilla-4.mb
+    .kpi.destacado
+      .etiqueta-kpi Registros hoy
+      .valor= resumenHoy.registros
+    .kpi
+      .etiqueta-kpi Usuarios activos hoy
+      .valor= resumenHoy.usuarios
+    .kpi
+      .etiqueta-kpi Sesiones hoy
+      .valor= resumenHoy.sesiones
+    .kpi
+      .etiqueta-kpi Clics hoy
+      .valor= resumenHoy.clics
+
+  //- FILTROS
+  form.tarjeta.mb(method="GET" action="/admin/actividad")
+    .fila(style="align-items:flex-end")
+      .campo.mb-0(style="min-width:200px;flex:1")
+        label(for="f-usuario") Usuario
+        //- Mientras se escribe aparecen sugerencias (ej.: "286" muestra los DNI que empiezan con 286)
+        .autocompletar
+          input#f-usuario(type="search" name="usuario" value=filtros.usuario maxlength="80" placeholder="Nombre, apellido, DNI, email..." autocomplete="off" role="combobox" aria-expanded="false" aria-controls="sugerencias-usuario" aria-autocomplete="list")
+          ul#sugerencias-usuario.sugerencias(role="listbox" hidden)
+      .campo.mb-0(style="min-width:140px")
+        label(for="f-tipo") Tipo
+        select#f-tipo(name="tipo")
+          option(value="") Todos
+          each t in tipos
+            option(value=t selected=(filtros.tipo === t)) #{iconoTipo[t]} #{nombreTipo[t]}
+      .campo.mb-0
+        label(for="f-desde") Desde
+        input#f-desde(type="date" name="desde" value=filtros.desde)
+      .campo.mb-0
+        label(for="f-hasta") Hasta
+        input#f-hasta(type="date" name="hasta" value=filtros.hasta)
+      .campo.mb-0(style="flex:1;min-width:180px")
+        label(for="f-buscar") Buscar
+        input#f-buscar(type="search" name="buscar" value=filtros.buscar placeholder="Acción, botón, página...")
+      if filtros.sesion
+        input(type="hidden" name="sesion" value=filtros.sesion)
+      button.btn(type="submit") Filtrar
+      if Object.values(filtros).some(Boolean)
+        a.btn.btn-enlace(href="/admin/actividad") Limpiar
+
+  //- AVISO DEL PERÍODO CONSULTADO (la pantalla no carga todo el historial de una vez)
+  - const dia = (f) => new Date(f).toLocaleDateString('es-AR')
+  .alerta.alerta-info.mb#aviso-ventana
+    if ventana.tipo === 'dia'
+      | ⏱️ Se muestran las últimas 24 horas. Para ver datos anteriores, buscá un usuario o elegí un rango de fechas.
+    else if ventana.tipo === 'semana'
+      | ⏱️ Búsqueda en los últimos 7 días. Para ir más atrás, indicá las fechas Desde y Hasta.
+    else if ventana.tipo === 'todo'
+      | 📚 Se busca en todo el historial de #{filtros.sesion ? 'esta sesión' : 'los usuarios encontrados'}.
+    else
+      | 📅 Período: del #{dia(ventana.inicio)} al #{dia(ventana.fin)}.
+      if ventana.recortado
+        |  Se consultan como máximo 92 días por vez: el inicio se ajustó.
+
+  //- USUARIOS QUE COINCIDEN CON LA BÚSQUEDA LIBRE
+  if filtros.usuario
+    .tarjeta.mb#coincidencias
+      if coincidencias.length
+        p.mb-0
+          strong #{coincidencias.length}#{coincidencias.hayMas ? '+' : ''} usuario(s) para «#{filtros.usuario}»:
+          each u in coincidencias
+            | #{' '}
+            a.insignia.insignia-neutra(href=filtrarPor('usuario', u.nombreUsuario) title=`${u.nombre || ''} ${u.apellido || ''} · ${u.rol}`)
+              | #{u.nombreUsuario} · #{u.nombre} #{u.apellido}#{u.eliminado ? ' (eliminado)' : ''}
+        if coincidencias.hayMas
+          p.texto-tenue.mb-0 Hay más coincidencias: escribí algo más específico (por ejemplo el DNI o el email).
+      else
+        p.mb-0 Ningún usuario coincide con «#{filtros.usuario}». Se muestran solo los registros con ese nombre exacto (por ejemplo, intentos de login fallidos).
+
+  //- RESÚMENES
+  .grilla.grilla-2.mb
+    .tarjeta(style="margin:0")
+      h3 🖱️ Botones y solapas más usados
+      if masClickeados.length
+        - const maxClics = masClickeados[0].veces
+        each c in masClickeados
+          .desglose-fila
+            .fila-entre
+              span
+                strong= c._id.elemento
+                span.texto-tenue  · #{c._id.pagina}
+              span.negrita #{c.veces} #{c.veces === 1 ? 'vez' : 'veces'}
+            .barra(style="margin:6px 0 2px")
+              span(style=`width:${Math.round(c.veces / maxClics * 100)}%`)
+            .texto-tenue #{c.usuarios.length} usuario(s)
+      else
+        p.texto-tenue Todavía no hay clics registrados.
+
+    .tarjeta(style="margin:0")
+      h3 👥 Actividad por usuario
+      if porUsuario.length
+        .tabla-contenedor
+          table.tabla
+            thead
+              tr
+                th Usuario
+                th.num Páginas
+                th.num Acciones
+                th.num Clics
+                th Última vez
+            tbody
+              each u in porUsuario
+                tr
+                  td
+                    a.negrita(href=filtrarPor('usuario', u._id))= u._id
+                    if u.rol
+                      .texto-tenue= u.rol
+                  td.num= u.paginas
+                  td.num= u.acciones
+                  td.num= u.clics
+                  td.texto-tenue= hora(u.ultima)
+      else
+        p.texto-tenue Sin actividad para estos filtros.
+
+  //- SESIONES
+  .tarjeta.mb
+    h3 🔑 Sesiones recientes
+    if sesiones.length
+      .tabla-contenedor
+        table.tabla
+          thead
+            tr
+              th Sesión
+              th Usuario
+              th Inicio
+              th Fin
+              th.num Duración
+              th.num Registros
+              th IP
+          tbody
+            each s in sesiones
+              - const minutos = Math.max(0, Math.round((new Date(s.fin) - new Date(s.inicio)) / 60000))
+              tr
+                td
+                  a.codigo(href=filtrarPor('sesion', s._id) title="Ver todo lo que hizo esta sesión (identificador derivado, no reutilizable)")= s._id
+                td
+                  span.negrita= s.usuario
+                  if s.rol
+                    .texto-tenue= s.rol
+                td= hora(s.inicio)
+                td= hora(s.fin)
+                td.num #{minutos} min
+                td.num= s.eventos
+                td.texto-tenue= s.ip
+    else
+      p.texto-tenue Sin sesiones registradas.
+
+  //- REGISTRO DETALLADO
+  .tarjeta.mb
+    .tarjeta-titulo
+      h2 Registro detallado
+      span.texto-tenue #{paginacion ? paginacion.total : 0} registro(s)
+    if registros.length
+      .tabla-contenedor
+        table.tabla
+          thead
+            tr
+              th Fecha y hora
+              th Usuario
+              th Tipo
+              th Acción
+              th Detalle
+              th Página
+              th Resultado
+          tbody
+            each r in registros
+              tr
+                td.texto-tenue(style="white-space:nowrap")= hora(r.fecha)
+                td
+                  a.negrita(href=filtrarPor('usuario', r.nombreUsuario))= r.nombreUsuario
+                  if r.rol
+                    .texto-tenue= r.rol
+                td
+                  span.insignia(class=claseTipo[r.tipo])= `${iconoTipo[r.tipo]} ${nombreTipo[r.tipo]}`
+                td.negrita= r.accion
+                td.texto-suave(style="max-width:260px;word-break:break-word;font-size:13px")= r.detalle
+                td.texto-tenue(style="font-size:13px")= r.pagina
+                td
+                  if r.exito
+                    span.insignia.insignia-exito #{r.estado || 'OK'}
+                  else
+                    span.insignia.insignia-error #{r.estado || 'Error'}
+      +paginacion(paginacion, "registros")
+    else
+      .vacio
+        .icono-vacio 🕵️
+        p No hay registros para estos filtros.
+
+  //- HISTÓRICO DE ELIMINADOS (borrado lógico)
+  .tarjeta
+    .tarjeta-titulo
+      h2 🗄️ Histórico de eliminados
+      span.texto-tenue Nada se borra: queda guardado quién lo eliminó y cuándo
+    if eliminados.length
+      .tabla-contenedor
+        table.tabla
+          thead
+            tr
+              th Tipo
+              th Nombre
+              th Eliminado por
+              th Fecha
+          tbody
+            each e in eliminados
+              tr
+                td
+                  span.insignia.insignia-neutra= e.tipo
+                td.negrita= e.nombre
+                td= e.por
+                td.texto-tenue= hora(e.en)
+    else
+      p.texto-tenue No se eliminó nada todavía.
+
+  //- AUTOCOMPLETAR DEL FILTRO USUARIO
+  style.
+    .autocompletar { position: relative; }
+    .sugerencias { position: absolute; z-index: 30; top: calc(100% + 6px); left: 0; min-width: 100%; width: max-content; max-width: min(420px, 90vw); margin: 0; padding: 6px; list-style: none; background: var(--color-superficie); border: 1px solid var(--color-borde); border-radius: 12px; box-shadow: var(--sombra), 0 12px 32px rgba(22, 26, 43, .12); }
+    .sugerencias li { display: flex; flex-direction: column; gap: 2px; padding: 8px 10px; border-radius: 8px; cursor: pointer; }
+    .sugerencias li:hover, .sugerencias li.activa { background: var(--color-marca-suave); }
+    .sugerencias .principal { font-weight: 700; font-size: 14px; }
+    .sugerencias .secundaria { font-size: 12px; color: var(--color-texto-tenue); }
+    .sugerencias mark { background: none; color: var(--color-marca, #5b3df5); font-weight: 800; }
+    .sugerencias .vacio { cursor: default; color: var(--color-texto-tenue); font-size: 13px; }
+
+  script.
+    (() => {
+      const campo = document.getElementById('f-usuario');
+      const lista = document.getElementById('sugerencias-usuario');
+      if (!campo || !lista) return;
+      let resultados = [], activa = -1, espera, ultimoPedido = 0;
+
+      // Agrega el texto con la parte buscada resaltada (textContent: nunca se interpreta como HTML)
+      const resaltar = (padre, texto, buscado) => {
+        const i = buscado ? texto.toLowerCase().indexOf(buscado.toLowerCase()) : -1;
+        if (i < 0) { padre.append(texto); return; }
+        const marca = document.createElement('mark');
+        marca.textContent = texto.slice(i, i + buscado.length);
+        padre.append(texto.slice(0, i), marca, texto.slice(i + buscado.length));
+      };
+
+      const cerrar = () => { lista.hidden = true; campo.setAttribute('aria-expanded', 'false'); activa = -1; };
+      const elegir = (u) => { campo.value = u.nombreUsuario; cerrar(); campo.form.requestSubmit(); };
+
+      const mostrar = (texto) => {
+        lista.replaceChildren();
+        const palabra = texto.split(/\s+/).pop();
+        if (!resultados.length) {
+          const li = document.createElement('li');
+          li.className = 'vacio';
+          li.textContent = 'Ningún usuario coincide';
+          lista.append(li);
+        }
+        resultados.forEach((u, i) => {
+          const li = document.createElement('li');
+          li.setAttribute('role', 'option');
+          li.id = `sugerencia-${i}`;
+          const principal = document.createElement('span');
+          principal.className = 'principal';
+          resaltar(principal, `${u.nombre || u.nombreUsuario}${u.eliminado ? ' (eliminado)' : ''}`, palabra);
+          const secundaria = document.createElement('span');
+          secundaria.className = 'secundaria';
+          resaltar(secundaria, [u.dni && `DNI ${u.dni}`, u.nombreUsuario, u.email, u.rol].filter(Boolean).join(' · '), palabra);
+          li.append(principal, secundaria);
+          li.addEventListener('mousedown', (e) => { e.preventDefault(); elegir(u); });
+          lista.append(li);
+        });
+        lista.hidden = false;
+        campo.setAttribute('aria-expanded', 'true');
+      };
+
+      const marcar = (i) => {
+        const items = lista.querySelectorAll('[role=option]');
+        if (!items.length) return;
+        activa = (i + items.length) % items.length;
+        items.forEach((li, j) => li.classList.toggle('activa', j === activa));
+        campo.setAttribute('aria-activedescendant', items[activa].id);
+      };
+
+      campo.addEventListener('input', () => {
+        clearTimeout(espera);
+        const texto = campo.value.trim();
+        if (texto.length < 2) return cerrar();
+        // Se espera a que deje de escribir un momento para no consultar la base en cada tecla
+        espera = setTimeout(async () => {
+          const pedido = ++ultimoPedido;
+          try {
+            const r = await fetch(`/admin/actividad/usuarios?q=${encodeURIComponent(texto)}`, { headers: { Accept: 'application/json' } });
+            if (!r.ok || pedido !== ultimoPedido) return; // descarta respuestas viejas
+            resultados = await r.json();
+            activa = -1;
+            mostrar(texto);
+          } catch { cerrar(); }
+        }, 200);
+      });
+
+      campo.addEventListener('keydown', (e) => {
+        if (lista.hidden) return;
+        if (e.key === 'ArrowDown') { e.preventDefault(); marcar(activa + 1); }
+        else if (e.key === 'ArrowUp') { e.preventDefault(); marcar(activa - 1); }
+        else if (e.key === 'Enter' && activa >= 0) { e.preventDefault(); elegir(resultados[activa]); }
+        else if (e.key === 'Escape') cerrar();
+      });
+      campo.addEventListener('blur', cerrar);
+    })();

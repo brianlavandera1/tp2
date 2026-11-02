@@ -1,4 +1,5 @@
 extends ../layoutCliente.pug
+include ../partials/creditoFoto.pug
 
 block titulo
   | Inicio · Urbana Cult
@@ -7,17 +8,72 @@ block content
   if mensajeExito
     .alerta.alerta-exito ✅ #{mensajeExito}
 
-  section.hero
-    h1 ¡Hola, #{usuarioLogueado.nombreUsuario}! 👋
-    p Descubrí las próximas funciones, gestioná tus entradas y aprovechá los beneficios de tu membresía.
-    .fila.mt
+  - const meses = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic']
+  - const plata = (n) => `$${Number(n).toLocaleString('es-AR')}`
+  - const descuento = usuarioCompleto ? Math.round((usuarioCompleto.porcentajeDescuento || 0) * 100) : 0
+
+  //- SALUDO (chico: el protagonista es la cartelera)
+  .saludo-cliente
+    span 👋 Hola, #[strong= usuarioLogueado.nombreUsuario]
+    if descuento > 0
+      a.insignia.insignia-marca(href="/cliente/membresia") ⭐ Tenés #{descuento}% OFF en todas tus compras
+    else
+      a.insignia.insignia-aviso(href="/cliente/membresia") ⭐ Hacete Premium o VIP y ahorrá en cada entrada
+
+  //- CARRUSEL: los últimos eventos agregados, cada uno con su artista de fondo y un botón para comprar
+  if destacados && destacados.length
+    section.carrusel(aria-roledescription="carrusel" aria-label="Nuevos eventos" tabindex="0")
+      .carrusel-pista
+        each d, i in destacados
+          - const ev = d.evento
+          - const fecha = new Date(ev.fecha)
+          - const urlFoto = ev.entidad ? ev.entidad.urlFoto : null
+          article.diapositiva(class=[i === 0 ? 'activa' : '', urlFoto ? 'con-foto' : ''] style=urlFoto ? `--foto:url('${urlFoto}')` : undefined aria-roledescription="diapositiva" aria-label=`${i + 1} de ${destacados.length}` aria-hidden=(i === 0 ? 'false' : 'true'))
+            .diapositiva-contenido
+              .etiquetas
+                if d.esNuevo
+                  span.etiqueta.etiqueta-nuevo ✨ Nuevo
+                if d.diasFaltan <= 7
+                  span.etiqueta.etiqueta-urgente ⏳ ¡Faltan #{d.diasFaltan} día(s)!
+                else if ev.entradasDisponibles <= 50
+                  span.etiqueta.etiqueta-urgente 🔥 Últimas #{ev.entradasDisponibles} entradas
+                if ev.entidad
+                  span.etiqueta 🎤 #{ev.entidad.nombre}
+              h2= ev.nombre
+              .datos
+                span 📅 #{fecha.getDate()} #{meses[fecha.getMonth()]} · #{ev.hora || '21:00'} hs
+                if ev.sala
+                  span 📍 #{ev.sala.nombre}
+              .compra
+                .precio-destacado
+                  if descuento > 0 && d.desdeConDescuento < d.desde
+                    span.antes Desde #{plata(d.desde)}
+                    span.ahora #{plata(d.desdeConDescuento)} #[small con tu #{descuento}% OFF]
+                  else
+                    span.antes Entradas desde
+                    span.ahora= plata(d.desde)
+                a.btn.btn-grande.btn-comprar(href=`/cliente/comprar#evento-${ev._id}` tabindex=(i === 0 ? 0 : -1)) 🎟️ Comprar entradas
+            if urlFoto
+              +creditoFoto(ev.entidad.fotoCredito, 'sobre-foto')
+
+      if destacados.length > 1
+        button.carrusel-flecha.anterior(type="button" aria-label="Evento anterior") ‹
+        button.carrusel-flecha.siguiente(type="button" aria-label="Evento siguiente") ›
+        .carrusel-puntos
+          each d, i in destacados
+            button.punto(type="button" class=(i === 0 ? 'activo' : '') aria-label=`Ver ${d.evento.nombre}` aria-current=(i === 0 ? 'true' : 'false'))
+        .carrusel-progreso(aria-hidden="true")
+          span
+  else
+    section.hero
+      h2 Pronto vas a ver acá los próximos shows
+      p Mientras tanto, mirá toda la cartelera.
       a.btn.btn-grande(href="/cliente/comprar" style="background:#fff;color:#161a2b") 🎟️ Ver cartelera
-      if usuarioCompleto && usuarioCompleto.porcentajeDescuento > 0
-        span.insignia(style="background:rgba(255,255,255,.18);color:#fff") ⭐ Tenés #{Math.round(usuarioCompleto.porcentajeDescuento * 100)}% de descuento en todas tus compras
 
   .encabezado-pagina
     div
       h2.mb-0 Accesos rápidos
+    a.btn.btn-secundario(href="/cliente/comprar") Ver toda la cartelera →
 
   .grilla.grilla-4
     a.acceso-rapido(href="/cliente/comprar")
@@ -40,3 +96,149 @@ block content
       div
         h4 Membresía
         p Cambiá de plan y ahorrá
+
+  style.
+    .saludo-cliente { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin-bottom: 14px; font-size: 15px; color: var(--color-texto-suave); }
+    .saludo-cliente strong { color: var(--color-texto); }
+    .saludo-cliente a.insignia { text-decoration: none; }
+
+    /* ---------- Carrusel de nuevos eventos ---------- */
+    .carrusel { position: relative; border-radius: 22px; overflow: hidden; margin-bottom: 30px; color: #fff; background: var(--color-oscuro-2, #1b1830); box-shadow: 0 18px 40px rgba(40, 20, 90, .25); outline: none; }
+    .carrusel:focus-visible { box-shadow: 0 0 0 3px var(--color-marca), 0 18px 40px rgba(40, 20, 90, .25); }
+    .carrusel-pista { display: grid; }
+    .diapositiva {
+      grid-area: 1 / 1; min-height: 330px; display: flex; align-items: flex-end; position: relative; isolation: isolate;
+      opacity: 0; visibility: hidden; transition: opacity .7s ease, visibility .7s;
+      background:
+        radial-gradient(circle at 90% 10%, rgba(255, 77, 125, .5), transparent 42%),
+        linear-gradient(120deg, var(--color-oscuro-2, #1b1830), var(--color-marca));
+    }
+    .diapositiva.activa { opacity: 1; visibility: visible; }
+    /* Foto del artista a la derecha, con zoom lento (efecto "Ken Burns") y fundida con el degradé */
+    .diapositiva.con-foto::before {
+      content: ''; position: absolute; inset: 0 0 0 30%; z-index: -1;
+      background: var(--foto) center 20% / cover no-repeat;
+      -webkit-mask-image: linear-gradient(to right, transparent, #000 40%);
+      mask-image: linear-gradient(to right, transparent, #000 40%);
+      transform: scale(1.08); transition: transform 7s ease-out;
+    }
+    .diapositiva.activa.con-foto::before { transform: scale(1); }
+    .diapositiva::after { content: ''; position: absolute; inset: 0; z-index: -1; background: linear-gradient(to top, rgba(10, 8, 25, .75), transparent 60%); }
+    .diapositiva-contenido { padding: 34px 40px 52px 76px; max-width: 680px; }
+    .diapositiva h2 { font-size: 36px; line-height: 1.1; margin: 10px 0 8px; color: #fff; text-shadow: 0 2px 18px rgba(0, 0, 0, .35); }
+    .diapositiva .datos { display: flex; flex-wrap: wrap; gap: 6px 16px; color: rgba(255, 255, 255, .85); font-weight: 600; font-size: 14px; }
+    .etiquetas { display: flex; flex-wrap: wrap; gap: 8px; }
+    .etiqueta { display: inline-flex; align-items: center; gap: 4px; padding: 4px 11px; border-radius: 999px; font-size: 12px; font-weight: 800; background: rgba(255, 255, 255, .16); backdrop-filter: blur(6px); }
+    .etiqueta-nuevo { background: #ffd43b; color: #3b2a00; }
+    .etiqueta-urgente { background: #ff4d7d; color: #fff; animation: latido 1.6s ease-in-out infinite; }
+    @keyframes latido { 50% { transform: scale(1.06); } }
+    .compra { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 22px; margin-top: 20px; }
+    .precio-destacado { display: flex; flex-direction: column; line-height: 1.15; }
+    .precio-destacado .antes { font-size: 13px; color: rgba(255, 255, 255, .7); }
+    .precio-destacado .ahora { font-size: 28px; font-weight: 900; }
+    .precio-destacado small { font-size: 12px; font-weight: 700; color: #ffd43b; }
+    .btn-comprar { background: #fff; color: #161a2b; box-shadow: 0 8px 24px rgba(0, 0, 0, .25); }
+    .btn-comprar:hover { transform: translateY(-2px); }
+    .carrusel .credito-foto { position: absolute; right: 18px; bottom: 12px; z-index: 2; max-width: 45%; text-align: right; color: rgba(255, 255, 255, .6); }
+
+    .carrusel-flecha {
+      position: absolute; top: 50%; transform: translateY(-50%); z-index: 3; width: 44px; height: 44px; border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, .3); background: rgba(10, 8, 25, .35); color: #fff; font-size: 26px; line-height: 1;
+      cursor: pointer; backdrop-filter: blur(6px); transition: background .2s;
+    }
+    .carrusel-flecha:hover { background: rgba(10, 8, 25, .6); }
+    .carrusel-flecha.anterior { left: 12px; }
+    .carrusel-flecha.siguiente { right: 12px; }
+    .carrusel-puntos { position: absolute; left: 76px; bottom: 20px; z-index: 3; display: flex; gap: 8px; }
+    .carrusel-puntos .punto { width: 9px; height: 9px; padding: 0; border-radius: 999px; border: 0; background: rgba(255, 255, 255, .4); cursor: pointer; transition: width .3s, background .3s; }
+    .carrusel-puntos .punto.activo { width: 28px; background: #fff; }
+    .carrusel-progreso { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: rgba(255, 255, 255, .12); z-index: 3; }
+    .carrusel-progreso span { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #ffd43b, #ff4d7d); }
+    .carrusel-progreso span.corriendo { width: 100%; transition: width linear var(--duracion, 6s); }
+    .carrusel.pausado .carrusel-progreso span { transition: none; }
+
+    @media (max-width: 720px) {
+      .diapositiva { min-height: 380px; }
+      .diapositiva.con-foto::before { inset: 0; -webkit-mask-image: linear-gradient(to top, transparent 10%, #000 70%); mask-image: linear-gradient(to top, transparent 10%, #000 70%); opacity: .6; }
+      .diapositiva-contenido { padding: 24px 20px 48px; }
+      .diapositiva h2 { font-size: 26px; }
+      .carrusel-flecha { display: none; }
+      .carrusel-puntos { left: 20px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .diapositiva, .diapositiva.con-foto::before { transition: none; }
+      .etiqueta-urgente { animation: none; }
+    }
+
+  script.
+    (() => {
+      const carrusel = document.querySelector('.carrusel');
+      if (!carrusel) return;
+      const diapositivas = [...carrusel.querySelectorAll('.diapositiva')];
+      const puntos = [...carrusel.querySelectorAll('.punto')];
+      const barra = carrusel.querySelector('.carrusel-progreso span');
+      if (diapositivas.length < 2) return;
+
+      const DURACION = 6000;
+      const sinMovimiento = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      let actual = 0, temporizador = null;
+      carrusel.style.setProperty('--duracion', `${DURACION}ms`);
+
+      const reiniciarBarra = () => {
+        if (!barra) return;
+        barra.classList.remove('corriendo');
+        void barra.offsetWidth; // fuerza el reinicio de la animación
+        if (temporizador) barra.classList.add('corriendo');
+      };
+
+      const ir = (n) => {
+        actual = (n + diapositivas.length) % diapositivas.length;
+        diapositivas.forEach((d, i) => {
+          const visible = i === actual;
+          d.classList.toggle('activa', visible);
+          d.setAttribute('aria-hidden', String(!visible));
+          d.querySelectorAll('a, button').forEach(el => el.tabIndex = visible ? 0 : -1);
+        });
+        puntos.forEach((p, i) => { p.classList.toggle('activo', i === actual); p.setAttribute('aria-current', String(i === actual)); });
+        reiniciarBarra();
+      };
+
+      const detener = () => { clearInterval(temporizador); temporizador = null; carrusel.classList.add('pausado'); reiniciarBarra(); };
+      const arrancar = () => {
+        if (sinMovimiento) return;
+        clearInterval(temporizador);
+        carrusel.classList.remove('pausado');
+        temporizador = setInterval(() => ir(actual + 1), DURACION);
+        reiniciarBarra();
+      };
+      // Al tocar una flecha o un punto el carrusel sigue pasando solo, empezando de nuevo desde ahí
+      const elegir = (n) => { ir(n); if (temporizador) arrancar(); };
+
+      carrusel.querySelector('.anterior')?.addEventListener('click', () => elegir(actual - 1));
+      carrusel.querySelector('.siguiente')?.addEventListener('click', () => elegir(actual + 1));
+      puntos.forEach((p, i) => p.addEventListener('click', () => elegir(i)));
+
+      // Se pausa mientras el mouse o el foco están encima, para que dé tiempo a leer y comprar
+      carrusel.addEventListener('mouseenter', detener);
+      carrusel.addEventListener('mouseleave', arrancar);
+      carrusel.addEventListener('focusin', detener);
+      carrusel.addEventListener('focusout', (e) => { if (!carrusel.contains(e.relatedTarget)) arrancar(); });
+      carrusel.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft') ir(actual - 1);
+        if (e.key === 'ArrowRight') ir(actual + 1);
+      });
+      document.addEventListener('visibilitychange', () => (document.hidden ? detener() : arrancar()));
+
+      // Deslizar con el dedo en el celular
+      let inicioX = null;
+      carrusel.addEventListener('touchstart', (e) => { inicioX = e.touches[0].clientX; detener(); }, { passive: true });
+      carrusel.addEventListener('touchend', (e) => {
+        if (inicioX === null) return;
+        const dx = e.changedTouches[0].clientX - inicioX;
+        if (Math.abs(dx) > 40) ir(actual + (dx < 0 ? 1 : -1));
+        inicioX = null;
+        arrancar();
+      });
+
+      arrancar();
+    })();

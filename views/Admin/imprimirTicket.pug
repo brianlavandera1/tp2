@@ -1,4 +1,5 @@
 doctype html
+include ../partials/logo.pug
 html(lang="es")
   head
     include ../partials/head.pug
@@ -15,7 +16,9 @@ html(lang="es")
   body
     .acceso-formulario(style="min-height:100vh;background:var(--color-fondo);align-content:center;gap:24px")
       .ticket-impreso
-        h2 🎭 URBANA CULT
+        .centro(style="display:flex;justify-content:center;margin-bottom:6px")
+          +logoIcono(46)
+        h2 URBANA CULT
         p.centro Boletería · Sucursal principal
         hr
         p

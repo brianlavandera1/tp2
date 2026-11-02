@@ -64,6 +64,12 @@ block content
           div
             h4 Cancelaciones
             p Historial de devoluciones
+        if usuarioLogueado && ['Administrador', 'Supervisor'].includes(usuarioLogueado.rol)
+          a.acceso-rapido(href="/admin/actividad")
+            span.icono-grande 🕵️
+            div
+              h4 Actividad
+              p #{ind.actividadHoy || 0} registro(s) hoy · quién hizo qué
 
     aside.tarjeta
       h3 Próxima función

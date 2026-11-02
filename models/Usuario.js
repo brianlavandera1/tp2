@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import borradoLogico from './plugins/borradoLogico.js';
 
 const usuarioSchema = new mongoose.Schema({
   nombreUsuario: { type: String, required: true, unique: true },
@@ -34,5 +35,8 @@ const usuarioSchema = new mongoose.Schema({
   tipoCliente: { type: String, enum: ['ESTANDAR', 'PREMIUM', 'VIP', 'Regular'], default: 'ESTANDAR' },
   porcentajeDescuento: { type: Number, default: 0 }
 }, { timestamps: true });
+
+// Borrado lógico: "eliminar" solo marca el documento, nunca se pierde del histórico
+usuarioSchema.plugin(borradoLogico);
 
 export default mongoose.model('Usuario', usuarioSchema);

@@ -1,4 +1,5 @@
 doctype html
+include partials/logo.pug
 html(lang="es")
   head
     include partials/head.pug
@@ -11,10 +12,7 @@ html(lang="es")
       //- ENCABEZADO: marca, menú principal, carrito y usuario
       header.encabezado
         .contenedor
-          a.marca(href="/cliente/menu")
-            span.marca-icono 🎭
-            span Urbana Cult
-              small Entradas
+          +logoMarca("/cliente/menu", "Entradas")
 
           - const enlaces = [['/cliente/menu', 'Inicio'], ['/cliente/comprar', 'Cartelera'], ['/cliente/mis-compras', 'Mis entradas'], ['/cliente/membresia', 'Membresía']]
           nav.nav-principal(aria-label="Menú principal")

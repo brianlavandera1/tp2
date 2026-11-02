@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import borradoLogico from './plugins/borradoLogico.js';
 
 export const ZONAS = Object.freeze(['General', 'Platea', 'VIP']);
 const errorDatos = message => Object.assign(new Error(message), { status: 400 });
@@ -65,12 +66,15 @@ salaSchema.statics.actualizarConZonas = async function(id, datos) {
   sala.set(datos);
   return await sala.save();
 };
-salaSchema.statics.eliminarConEventos = async function(id) {
+salaSchema.statics.eliminarConEventos = async function(id, usuario) {
   if (await mongoose.model('Evento').exists({ sala: id })) {
     throw Object.assign(new Error('No se puede eliminar una sala con eventos vinculados.'), { status: 409 });
   }
-  return await this.findByIdAndDelete(id);
+  return await this.eliminarLogico(id, usuario);
 };
 
+
+// Borrado lógico: "eliminar" solo marca el documento, nunca se pierde del histórico
+salaSchema.plugin(borradoLogico);
 
 export default mongoose.model('Sala', salaSchema);

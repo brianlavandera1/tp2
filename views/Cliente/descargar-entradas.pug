@@ -1,0 +1,54 @@
+doctype html
+include ../partials/logo.pug
+include ../partials/ticket.pug
+html(lang="es")
+  head
+    include ../partials/head.pug
+    title Entradas · #{evento ? evento.nombre : 'Urbana Cult'}
+    style.
+      body { background: var(--color-fondo); }
+      .descarga { max-width: 860px; margin: 0 auto; padding: 28px 16px 48px; }
+      .descarga-encabezado { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 22px; }
+      .descarga-encabezado h1 { font-size: 24px; margin: 0; }
+      .descarga-encabezado p { margin: 4px 0 0; color: var(--color-texto-suave); }
+      .descarga-marca { display: flex; align-items: center; gap: 12px; }
+      .lista-tickets { display: flex; flex-direction: column; gap: 0; }
+      .ticket-separado { break-inside: avoid; page-break-inside: avoid; }
+      /* Línea de corte entre entrada y entrada */
+      .corte { display: flex; align-items: center; gap: 10px; margin: 18px 0; color: var(--color-texto-tenue); font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+      .corte::before, .corte::after { content: ''; flex: 1; border-top: 2px dashed var(--color-borde); }
+      .numero-ticket { font-size: 12px; font-weight: 800; color: var(--color-texto-suave); margin-bottom: 8px; letter-spacing: .06em; text-transform: uppercase; }
+
+      @media print {
+        @page { margin: 12mm; }
+        body { background: #fff; }
+        * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        .descarga { padding: 0; max-width: none; }
+        .no-imprimir { display: none !important; }
+        /* En papel siempre se imprime el diseño horizontal de la entrada */
+        .ticket { grid-template-columns: 1fr 190px !important; box-shadow: none !important; }
+        .ticket-principal { border-radius: 16px 0 0 16px !important; }
+        .ticket-talon { flex-direction: column !important; flex-wrap: nowrap !important; border-radius: 0 16px 16px 0 !important; border-top: 0 !important; border-left: 2px dashed rgba(166, 124, 0, .55) !important; }
+        .corte { margin: 10mm 0; }
+      }
+  body
+    main.descarga
+      .descarga-encabezado
+        .descarga-marca
+          +logoIcono(46)
+          div
+            h1= evento ? evento.nombre : 'Tus entradas'
+            p #{entradas.length} #{entradas.length === 1 ? 'entrada' : 'entradas'} a nombre de #{usuarioLogueado.nombreUsuario}. Cada una tiene su propio QR.
+        .fila.no-imprimir
+          button.btn(type="button" onclick="window.print()") ⬇️ Guardar PDF / Imprimir
+          a.btn.btn-secundario(href="/cliente/mis-compras") ← Volver
+
+      .lista-tickets
+        each entrada, i in entradas
+          if i > 0
+            .corte ✂ Cortar aquí
+          .ticket-separado
+            .numero-ticket Entrada #{i + 1} de #{entradas.length}
+            +ticketDorado(entrada, qrs[entrada._id], false)
+
+      p.texto-tenue(style="text-align:center;margin-top:28px;font-size:12px") Presentá cada QR en el acceso. Urbana Cult · Sistema desarrollado por Sintaxia

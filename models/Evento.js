@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import borradoLogico from './plugins/borradoLogico.js';
 import Sala from './Sala.js';
 
 const { ZONAS, obtenerZonas } = Sala;
@@ -41,7 +42,7 @@ async function prepararStockZonas(eventoId, session = null) {
   let evento = await mongoose.model('Evento').findById(eventoId).populate('sala').session(session);
   if (!evento) throw Object.assign(new Error('Evento no encontrado.'), { status: 404 });
   if (!evento.vendidosPorZona) {
-    const entradas = await mongoose.model('Entrada').find({ evento: eventoId }).session(session);
+    const entradas = await mongoose.model('Entrada').find({ evento: eventoId, estado: { $ne: 'Cancelada' } }).session(session);
     const vendidos = { General: 0, Platea: 0, VIP: 0 };
     for (const entrada of entradas) {
       const sector = ZONAS.includes(entrada.sector) ? entrada.sector : 'General';
@@ -101,4 +102,7 @@ async function validarCupoEvento(salaId, entradasDisponibles, eventoId) {
 }
 
 eventoSchema.statics = { prepararStockZonas, disponibilidadZonas, reservarZona, liberarZona, validarCupoEvento };
+// Borrado lógico: "eliminar" solo marca el documento, nunca se pierde del histórico
+eventoSchema.plugin(borradoLogico);
+
 export default mongoose.model('Evento', eventoSchema);

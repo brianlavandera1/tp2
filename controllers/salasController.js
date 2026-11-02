@@ -151,7 +151,8 @@ const deleteSala = async (req, res) => {
       return res.status(400).json({ message: 'No se puede eliminar una sala con eventos asociados' });
     }
 
-    const salaEliminada = await Sala.findByIdAndDelete(req.params.id);
+    // Borrado lógico: la sala queda en el histórico marcada como eliminada
+    const salaEliminada = await Sala.eliminarLogico(req.params.id, req.session.usuario);
     if (!salaEliminada) {
       if (isHtmlRequest(req)) return res.redirect('/admin/salas?error=Sala+no+encontrada');
       return res.status(404).json({ message: 'Sala no encontrada' });

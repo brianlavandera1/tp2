@@ -67,7 +67,7 @@ Si la conexión a Atlas falla o no está configurada, la aplicación se conecta 
 
    > ⚠️ El seed **borra** usuarios, artistas, salas, eventos, entradas y transacciones de la base configurada antes de cargar los datos de ejemplo. No ejecutarlo sobre una base con datos reales.
 
-   El seed carga 6 usuarios, 10 artistas (todos con foto), 3 salas y 11 funciones. Las funciones son **ficticias**: existen solo como datos de demostración del proyecto.
+   El seed carga 6 usuarios de prueba, 10 artistas (todos con foto), 3 salas, 11 funciones y un **historial de ventas de demostración**: 20 clientes más y unas 1.700 compras de los últimos 45 días (online y en boletería, con descuentos y algunas cancelaciones), para que el informe, el panel y la auditoría tengan datos. Las funciones y las ventas son **ficticias**: existen solo como datos de demostración del proyecto. El historial se genera siempre igual (semilla fija) y respeta el cupo de cada sector.
 
 5. **Iniciar el servidor**
 
@@ -77,6 +77,14 @@ Si la conexión a Atlas falla o no está configurada, la aplicación se conecta 
    ```
 
    Abrir [http://localhost:3000](http://localhost:3000).
+
+### Publicar en Vercel
+
+El proyecto ya está preparado para Vercel: `vercel.json` incluye las vistas Pug, e `index.js` exporta la app, así que en Vercel no se llama a `app.listen`. Además, la app confía en el proxy HTTPS (`trust proxy`) para que la cookie de sesión funcione. En el panel del proyecto en Vercel:
+
+1. En **Settings → Environment Variables**, cargar `MONGODB_URI`, `SESSION_SECRET` y `NODE_ENV=production`. `JWT_SECRET` es opcional. Sin estas variables la función falla al arrancar, y en los logs se ve el motivo.
+2. En **MongoDB Atlas → Network Access**, permitir `0.0.0.0/0`, porque Vercel no tiene una IP fija.
+3. Hacer *push* a GitHub: Vercel publica el último commit de la rama conectada.
 
 ---
 
@@ -107,18 +115,42 @@ Se pueden crear más usuarios de personal desde el panel del administrador, en *
 | Crear, editar y eliminar salas, eventos y artistas | | | ✅ | ✅ |
 | Boletería física (venta en sucursal) | | | ✅ | ✅ |
 | Validar entradas en la puerta (QR) | | | ✅ | ✅ |
-| Crear, editar y eliminar usuarios y personal | | | | ✅ |
+| Crear, editar y eliminar usuarios y personal (los administradores están protegidos) | | | | ✅ |
+| Ver el registro de actividad de todos los usuarios y el histórico de eliminados | | | ✅ | ✅ |
 | API `/entradas`: alta, modificación y baja | | | | ✅ |
 
-La autenticación usa **sesiones** (`express-session`) guardadas en **MongoDB** (`connect-mongo`), con contraseñas encriptadas con **bcrypt**. La autorización se resuelve con los middlewares `verificarAutenticacion` y `verificarRol(roles)`.
+### 🔑 Autenticación: sesiones para la web, JWT para la API
+
+| | Web (vistas Pug) | API JSON (`/entradas`) |
+|---|---|---|
+| Mecanismo | **Sesión** (`express-session` + `connect-mongo`) | **JWT** (`jsonwebtoken`) |
+| Login | `POST /auth/login` | `POST /auth/token` → `{ token, tipo: "Bearer", expiraEn }` |
+| Cómo se envía | Cookie `connect.sid` (solo el id de sesión) | Encabezado `Authorization: Bearer <token>` |
+| Dónde vive el estado | En el servidor (colección `sesiones`) | En el token firmado (*stateless*) |
+
+Se eligieron **sesiones** para la web porque es una aplicación clásica con formularios y Pug: el cliente solo guarda un identificador y los datos quedan en el servidor. Para la **API** se agregó **JWT**, la opción adecuada cuando la consumen otros clientes (apps móviles, un frontend en React, integraciones):
+
+- Firmado con **HS256** y una clave propia (`JWT_SECRET`), distinta de la de las sesiones.
+- Incluye `sub` (id del usuario), `rol`, `iat` y **`exp`** (vence en 1 hora, configurable con `JWT_EXPIRA`).
+- Se valida la **audiencia** (`aud: urbana-cult-api`) y el **emisor** (`iss: urbana-cult`), así un token emitido para otra aplicación no sirve acá.
+- **No lleva datos sensibles** (ni contraseña, ni email, ni DNI): el payload se puede decodificar.
+- Se rechazan firmas inválidas, tokens adulterados, vencidos y el algoritmo `none` (`401` con `WWW-Authenticate: Bearer`).
+
+La **autorización** es la misma para los dos mecanismos: los middlewares `verificarAutenticacion` (protege la ruta) y `verificarRol(roles)` toman el usuario de la sesión o del token. Las contraseñas se guardan con **bcrypt** (hash + *salt*, 10 rondas).
 
 ### 🛡️ Seguridad
 
 - **Encabezados HTTP seguros** con `helmet`: política de contenido (CSP) que solo permite recursos del propio sitio, protección contra *clickjacking* (`frame-ancestors 'none'`) y `X-Content-Type-Options: nosniff`.
-- **Límite de intentos de login** (middleware propio `limiteLogin`): después de 5 intentos fallidos en 15 minutos para la misma IP y usuario, se bloquea temporalmente (HTTP 429).
+- **XSS:** Pug escapa todo el texto que se muestra y la CSP impide cargar scripts de otros sitios.
+- **CSRF** (middleware propio `verificarOrigen`): en los `POST/PUT/DELETE` se verifica que el encabezado `Origin` (o `Referer`) sea del propio sitio; si viene de otro, responde `403`. Se suma a la cookie `sameSite`. Las peticiones con JWT no usan cookies, así que no aplica.
+- **Cookie de sesión** `httpOnly` (JavaScript no puede leerla), `sameSite=lax` y `secure` en producción (solo HTTPS). Se usa `lax` y no `strict` para que un usuario que llega desde un enlace externo (un mail, una red social) no pierda la sesión; la protección contra CSRF la completa `verificarOrigen`.
+- **Límite de intentos de login** (middleware propio `limiteLogin`): después de 5 intentos fallidos en 15 minutos para la misma IP y usuario se bloquea temporalmente (HTTP 429). Aplica al login web y al de la API.
 - **Sesiones persistentes en MongoDB**: sobreviven a reinicios del servidor y MongoDB borra solas las vencidas. Al iniciar sesión se genera un id nuevo (previene la fijación de sesión) y al salir se borra la sesión y la cookie.
-- **Cookie de sesión** `httpOnly`, `sameSite=lax` y `secure` en producción.
+- **No se exponen datos sensibles**: la API nunca devuelve contraseñas y los errores 500 no muestran detalles internos.
+- **Cuentas de administrador protegidas**: ningún usuario puede editar ni eliminar a un Administrador (se controla en el servidor, no solo ocultando botones), nadie puede eliminarse a sí mismo y al editar solo se aceptan los campos del formulario.
 - **Validación en el servidor** de todos los formularios y de los archivos subidos (tipo real de imagen por sus primeros bytes y tamaño máximo).
+
+> **Decisiones:** no se usa **Passport** porque hay una sola forma de login por usuario y contraseña, y la lógica propia con bcrypt da control total (es el caso en que no conviene, según lo visto en clase). Tampoco se usa **mongoose-unique-validator**, que no es compatible con Mongoose 8/9: los campos únicos se validan con índices `unique` de MongoDB y el error `11000` se traduce a un mensaje claro.
 
 ---
 
@@ -136,8 +168,12 @@ La autenticación usa **sesiones** (`express-session`) guardadas en **MongoDB** 
 - **Mis compras y cancelaciones:** el cliente cancela sus entradas, el cupo vuelve al evento y la cancelación queda registrada para auditoría.
 - **Entradas con código QR:** cada entrada (online y de boletería) tiene un QR con su URL de validación. En la puerta, el personal lo escanea con el celular y la marca como usada; una entrada usada no se puede volver a usar ni cancelar.
 - **Boletería física:** venta en sucursal con descuento por pago en efectivo e impresión del ticket con QR.
-- **Auditoría e informes:** historial de pagos con búsqueda y filtro del día, historial de cancelaciones e informe de ventas por evento con filtro de fechas.
+- **Auditoría e informes:** historial de pagos con búsqueda y filtro del día, historial de cancelaciones e informe de ventas con filtro de fechas: caja del día, totales del período, **gráfico de recaudación por día**, desglose **por canal** (online o boletería) y **por sector**, y ocupación de cada evento. Todo se calcula con agregaciones de MongoDB sobre lo efectivamente cobrado (sin cancelaciones y con descuentos).
 - **Paginación** de usuarios, pagos y cancelaciones (15 por página), conservando la búsqueda y los filtros.
+- **Nada se elimina (borrado lógico)**: eliminar un usuario, evento, sala o artista solo lo marca (`eliminado`, `eliminadoEn`, `eliminadoPor`) y deja de mostrarse; queda guardado en la base. Las entradas canceladas pasan a estado `Cancelada` (no se borran). Lo implementa el plugin de Mongoose `models/plugins/borradoLogico.js`, que oculta los eliminados en todas las búsquedas.
+- **Registro de actividad de cada sesión** (Administrador y Supervisor, en **Actividad**): inicio y cierre de sesión (también intentos fallidos), cada página abierta, cada acción (comprar, editar, eliminar, cancelar, validar...) y **cada clic** en botones, enlaces y solapas, con usuario, rol, sesión, IP, navegador y hora. Incluye el ranking de botones y solapas más usados, la actividad por usuario, las sesiones (qué hizo cada una de principio a fin) y el histórico de eliminados. Nunca se guardan contraseñas ni datos de tarjetas.
+  - **Búsqueda libre de usuario:** el filtro Usuario es un texto libre que busca por usuario, nombre, apellido, DNI o email, y acepta varias palabras ("juan perez"). Primero se buscan los usuarios que coinciden, hasta 30, incluidos los eliminados, y después su actividad por índice. Los usuarios encontrados se muestran como enlaces para quedarse con uno solo. Mientras se escribe aparece una lista de sugerencias (`GET /admin/actividad/usuarios?q=`, solo Administrador y Supervisor). Muestra hasta 8 usuarios y se puede usar con el teclado. Un número se toma como el comienzo del DNI: con "3014" aparecen los DNI 3014…, y al completarlo queda solo esa persona.
+  - **Rendimiento:** el registro crece con cada clic, por eso la pantalla no carga todo el historial. Por defecto muestra **las últimas 24 horas**. Con un texto o un tipo, busca en los **últimos 7 días**. Con un usuario o una sesión puntual, busca en **todo su historial**, y esa consulta va por índice. Con fechas, consulta el período pedido, hasta **92 días** por vez. Un aviso indica qué período se está viendo. La tabla trae de a 25 registros, solo con los campos que muestra (consulta `lean`). Además hay índices compuestos `usuario + fecha`, `sesión + fecha` y `tipo + fecha`. Con 200.000 registros de prueba, la página bajó de 0,9–1,5 s a unos 0,4 s, igual que cualquier otra página.
 - **Manejo de errores:** página 403 para accesos denegados, respuestas JSON para la API y página de error genérica.
 
 ---
@@ -158,6 +194,9 @@ La autenticación usa **sesiones** (`express-session`) guardadas en **MongoDB** 
 │   ├── validateSala.js            # Validación de salas y sectores
 │   ├── subirFoto.middleware.js    # Recepción de fotos con multer (tipo y tamaño)
 │   ├── limiteLogin.middleware.js  # Límite de intentos de login (fuerza bruta)
+│   ├── actividad.middleware.js    # Registro de actividad de cada petición
+│   ├── origen.middleware.js       # Protección CSRF (verifica Origin/Referer)
+│   ├── jwt.middleware.js          # Firma y verificación de JWT (API)
 │   └── index.js                   # Exporta los middlewares generales
 ├── models/                # Esquemas de Mongoose (M de MVC)
 ├── routes/                # Definición de rutas por módulo
@@ -169,6 +208,7 @@ La autenticación usa **sesiones** (`express-session`) guardadas en **MongoDB** 
 │   └── Admin/, Cliente/, auth/, errores/
 ├── scripts/
 │   ├── seed.js                # Carga de datos de prueba
+│   ├── ventasDemo.js          # Historial de ventas de demostración (para el informe)
 │   └── seed-fotos/            # Fotos de artistas (Creative Commons) y sus créditos (CREDITOS.md)
 ├── utils/                 # Transacciones, paginación, QR y escape de búsquedas
 ├── docs/API.md            # Documentación de la API JSON
@@ -280,6 +320,7 @@ erDiagram
 | **Transaccion** | Compra online o venta en boletería, con sus ítems y totales. | `cliente` → Usuario, `items.eventoId` → Evento |
 | **Entrada** | Ticket emitido con código único. | `cliente` → Usuario, `evento` → Evento, `transaccion` → Transaccion |
 | **CancelacionLog** | Registro de auditoría de cada cancelación. | `cliente` → Usuario, `evento` → Evento |
+| **Actividad** | Registro de auditoría: sesión, navegación, acciones y clics de cada usuario. | `usuario` → Usuario |
 
 Las validaciones se aplican en los esquemas (campos obligatorios, formatos de email, DNI y teléfono, valores permitidos y mínimos) y además en los middlewares y controladores antes de guardar.
 
@@ -289,7 +330,7 @@ Las validaciones se aplican en los esquemas (campos obligatorios, formatos de em
 
 | Prefijo | Descripción |
 |---|---|
-| `/auth` | `GET/POST /login`, `GET/POST /registro`, `GET /logout` |
+| `/auth` | `GET/POST /login`, `GET/POST /registro`, `GET /logout`, `POST /token` (JWT para la API) |
 | `/cliente` | `menu`, `comprar`, `membresia`, `mis-compras`, `configuracion`, `POST cancelar-entrada/:id` |
 | `/cliente/carrito` | Ver carrito, `POST agregar`, `POST quitar/:index`, `checkout`, `POST procesar-pago` |
 | `/admin` | `dashboard`, `usuarios`, `crear-personal`, `pagos`, `cancelaciones`, `informe`, `boleteria`, `entidades`, `validar` |
@@ -310,6 +351,7 @@ Las validaciones se aplican en los esquemas (campos obligatorios, formatos de em
 | `connect-mongo` | Guarda las sesiones en MongoDB |
 | `helmet` | Encabezados HTTP de seguridad |
 | `qrcode` | Genera el código QR (SVG) de cada entrada |
+| `jsonwebtoken` | Firma y verificación de los JWT de la API |
 | `mongoose` | Modelado y acceso a MongoDB |
 | `pug` | Motor de plantillas para las vistas |
 | `bcrypt` | Encriptado de contraseñas |

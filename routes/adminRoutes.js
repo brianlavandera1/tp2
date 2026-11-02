@@ -14,6 +14,7 @@ import {
 } from '../controllers/adminController.js';
 import { mostrarGestionEntradas, mostrarValidacion, validarEntrada } from '../controllers/entradasController.js';
 import { listarEntidades, crearEntidad, actualizarEntidad, eliminarEntidad } from '../controllers/entidadesController.js';
+import { mostrarActividad, sugerirUsuarios } from '../controllers/actividadController.js';
 import { verificarRol } from '../middlewares/authMiddleware.js';
 import asyncHandler from '../middlewares/asyncHandler.middleware.js';
 import subirFoto from '../middlewares/subirFoto.middleware.js';
@@ -21,6 +22,10 @@ import subirFoto from '../middlewares/subirFoto.middleware.js';
 const router = express.Router();
 
 router.use(verificarRol(['Administrador', 'Supervisor', 'Lector']));
+
+// Registro de actividad de todos los usuarios: solo lo ven Administrador y Supervisor
+router.get('/actividad', verificarRol(['Administrador', 'Supervisor']), asyncHandler(mostrarActividad));
+router.get('/actividad/usuarios', verificarRol(['Administrador', 'Supervisor']), asyncHandler(sugerirUsuarios));
 
 // Panel y Gestión de Usuarios
 router.get('/dashboard', asyncHandler(mostrarDashboard));

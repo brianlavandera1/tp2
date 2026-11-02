@@ -86,13 +86,16 @@ style.
     box-shadow: 0 2px 12px rgba(0, 0, 0, .18);
   }
   .encabezado .contenedor { display: flex; align-items: center; gap: 24px; min-height: 66px; flex-wrap: wrap; }
-  .marca { display: inline-flex; align-items: center; gap: 10px; color: #fff; font-weight: 800; font-size: 20px; letter-spacing: -.02em; }
+  /* Logo: ícono SVG (entrada troquelada + "U" + destello) y nombre con "Cult" en degradé */
+  .marca { display: inline-flex; align-items: center; gap: 11px; color: #fff; font-weight: 800; font-size: 20px; letter-spacing: -.02em; line-height: 1.1; }
   .marca:hover { color: #fff; }
-  .marca-icono {
-    width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center;
-    background: linear-gradient(135deg, var(--color-marca), var(--color-acento)); font-size: 17px;
-  }
-  .marca small { display: block; font-size: 11px; font-weight: 600; color: rgba(255, 255, 255, .55); letter-spacing: .08em; text-transform: uppercase; }
+  .logo-icono { flex-shrink: 0; display: block; filter: drop-shadow(0 4px 10px rgba(178, 60, 240, .45)); transition: transform .35s cubic-bezier(.2, .8, .2, 1.3); }
+  .marca:hover .logo-icono { transform: rotate(-8deg) scale(1.06); }
+  .marca-texto { display: flex; flex-direction: column; }
+  .marca-nombre { white-space: nowrap; }
+  .marca-cult { background: linear-gradient(90deg, #c4a6ff, #ff7aa2 55%, #f2c94c); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .marca small { display: block; margin-top: 2px; font-size: 10px; font-weight: 700; color: rgba(255, 255, 255, .5); letter-spacing: .22em; text-transform: uppercase; }
+  @media (prefers-reduced-motion: reduce) { .marca:hover .logo-icono { transform: none; } }
   
   .nav-principal { display: flex; gap: 4px; flex-wrap: wrap; }
   .nav-principal a {
@@ -318,10 +321,31 @@ style.
   .kpi.destacado .etiqueta-kpi { color: rgba(255, 255, 255, .8); }
   .barra { height: 8px; border-radius: 999px; background: var(--color-superficie-2); overflow: hidden; min-width: 80px; }
   .barra span { display: block; height: 100%; background: var(--color-marca); border-radius: inherit; }
+
+  /* Gráfico de barras del informe (recaudación por día) */
+  .grafico { overflow-x: auto; overflow-y: hidden; padding: 0 18px; }
+  .grafico-barras { display: flex; align-items: flex-end; gap: 4px; height: 200px; min-width: 520px; padding-top: 22px; border-bottom: 1px solid var(--color-borde); }
+  .barra-dia {
+    position: relative; flex: 1; min-width: 6px; border-radius: 6px 6px 2px 2px; cursor: default;
+    background: linear-gradient(180deg, #8b6dff, var(--color-marca)); transition: filter .15s, transform .15s; transform-origin: bottom;
+  }
+  .barra-dia:hover { filter: brightness(1.15); transform: scaleY(1.02); }
+  .barra-dia.hoy { background: linear-gradient(180deg, #ff8fb0, var(--color-acento)); }
+  .barra-dia .valor-barra {
+    position: absolute; bottom: calc(100% + 4px); left: 50%; transform: translateX(-50%);
+    font-size: 10px; font-weight: 700; color: var(--color-texto-suave); white-space: nowrap; opacity: 0; transition: opacity .15s;
+  }
+  .barra-dia:hover .valor-barra, .barra-dia.hoy .valor-barra { opacity: 1; }
+  .grafico-ejes { display: flex; gap: 4px; min-width: 520px; margin-top: 6px; }
+  .grafico-ejes span { flex: 1; min-width: 6px; font-size: 10px; color: var(--color-texto-tenue); text-align: center; white-space: nowrap; overflow: visible; }
+  .desglose-fila + .desglose-fila { margin-top: 14px; }
   
   /* ---------- Tarjetas de evento ---------- */
   .evento { display: flex; flex-direction: column; background: var(--color-superficie); border: 1px solid var(--color-borde); border-radius: 18px; overflow: hidden; box-shadow: var(--sombra); transition: transform .15s, box-shadow .15s; }
   .evento:hover { transform: translateY(-3px); box-shadow: var(--sombra-alta); }
+  /* Al llegar desde el carrusel del inicio (#evento-...), la tarjeta del evento se resalta */
+  .evento:target { scroll-margin-top: 90px; animation: resaltarEvento 2.4s ease-out; }
+  @keyframes resaltarEvento { 0%, 40% { box-shadow: 0 0 0 4px var(--color-marca), var(--sombra-alta); } 100% { box-shadow: var(--sombra); } }
   .evento-portada { position: relative; height: 150px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; color: #fff; }
   .evento-portada.tono-0 { background: linear-gradient(135deg, #5b3df5, #ff4d7d); }
   .evento-portada.tono-1 { background: linear-gradient(135deg, #0f766e, #22c55e); }
@@ -403,15 +427,75 @@ style.
   .acceso-rapido p { margin: 0; font-size: 13px; color: var(--color-texto-suave); }
   
   /* ---------- Entradas (tickets) ---------- */
-  .ticket { display: grid; grid-template-columns: 1fr auto; background: var(--color-superficie); border: 1px solid var(--color-borde); border-radius: 16px; overflow: hidden; box-shadow: var(--sombra); }
-  .ticket-principal { padding: 18px 20px; border-left: 6px solid var(--color-marca); }
-  .ticket-principal h4 { font-size: 17px; margin-bottom: 4px; }
-  .ticket-talon {
-    position: relative; padding: 18px; min-width: 140px; display: flex; flex-direction: column; justify-content: space-between; align-items: center; gap: 10px;
-    background: var(--color-superficie-2); border-left: 2px dashed var(--color-borde); text-align: center;
+  /* Entrada estilo "premium": foto del artista difuminada, detalles dorados y talón de papel troquelado */
+  :root {
+    --oro: #d4af37;
+    --oro-claro: #f6e7a6;
+    --oro-degrade: linear-gradient(115deg, #a67c00 0%, #f6e7a6 22%, #d4af37 45%, #fff3c4 58%, #b8860b 80%, #f2d675 100%);
+    --papel: #fbf6e8;
   }
-  .ticket-talon::before, .ticket-talon::after { content: ''; position: absolute; left: -11px; width: 20px; height: 20px; border-radius: 50%; background: var(--color-fondo); }
-  .ticket-talon::before { top: -10px; } .ticket-talon::after { bottom: -10px; }
+  .ticket {
+    position: relative; display: grid; grid-template-columns: 1fr 190px; border-radius: 18px;
+    padding: 2px; background: var(--oro-degrade); box-shadow: 0 14px 34px rgba(18, 16, 31, .22), 0 2px 6px rgba(18, 16, 31, .12);
+  }
+  .ticket-principal {
+    position: relative; overflow: hidden; isolation: isolate; color: #fff;
+    border-radius: 16px 0 0 16px; padding: 22px 26px 20px; min-height: 200px;
+    background: linear-gradient(120deg, var(--color-oscuro), var(--color-oscuro-2) 55%, #3b2a9b);
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  /* Foto del artista de fondo: difuminada y teñida para que el texto siempre se lea */
+  .ticket-principal.con-foto::before {
+    content: ''; position: absolute; inset: -12px; z-index: -2;
+    background-image: var(--foto); background-size: cover; background-position: center 20%;
+    filter: blur(3px) saturate(1.15); transform: scale(1.05);
+  }
+  .ticket-principal::after {
+    content: ''; position: absolute; inset: 0; z-index: -1;
+    background:
+      linear-gradient(100deg, rgba(18, 16, 31, .96) 0%, rgba(18, 16, 31, .82) 45%, rgba(59, 42, 155, .55) 100%),
+      radial-gradient(circle at 100% 0%, rgba(212, 175, 55, .28), transparent 45%);
+  }
+  .ticket-marca {
+    display: flex; justify-content: space-between; align-items: center; gap: 10px;
+    font-size: 11px; font-weight: 800; letter-spacing: .22em; text-transform: uppercase;
+  }
+  .texto-oro { background: var(--oro-degrade); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .ticket-principal h4 { font-size: 24px; font-weight: 800; letter-spacing: -.01em; margin: 6px 0 0; color: #fff; text-shadow: 0 2px 10px rgba(0, 0, 0, .4); }
+  .ticket-artista { font-size: 14px; font-weight: 600; color: var(--oro-claro); }
+  .ticket-linea { height: 1px; background: linear-gradient(90deg, var(--oro), rgba(212, 175, 55, 0)); opacity: .7; margin: 4px 0; }
+  .ticket-datos { display: flex; flex-wrap: wrap; gap: 8px 24px; margin-top: auto; }
+  .ticket-datos small { display: block; font-size: 10px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--oro); opacity: .9; }
+  .ticket-datos strong { display: block; font-size: 15px; font-weight: 700; color: #fff; white-space: nowrap; }
+  .sello-oro {
+    display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 999px;
+    border: 1px solid rgba(212, 175, 55, .7); color: var(--oro-claro); background: rgba(212, 175, 55, .12);
+    font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase;
+  }
+  /* Talón: papel crema separado por un troquelado con muescas */
+  .ticket-talon {
+    position: relative; border-radius: 0 16px 16px 0; padding: 18px 16px;
+    background: radial-gradient(circle at 50% 0%, #fffdf6, var(--papel) 70%);
+    border-left: 2px dashed rgba(166, 124, 0, .55);
+    display: flex; flex-direction: column; justify-content: space-between; align-items: center; gap: 10px; text-align: center; color: #3b2f12;
+  }
+  .ticket-talon::before, .ticket-talon::after {
+    content: ''; position: absolute; left: -13px; width: 24px; height: 24px; border-radius: 50%;
+    background: var(--color-fondo); box-shadow: inset 0 0 0 2px var(--oro);
+  }
+  .ticket-talon::before { top: -14px; } .ticket-talon::after { bottom: -14px; }
+  .ticket-talon .qr { width: 128px; padding: 7px; border: 2px solid var(--oro); border-radius: 12px; box-shadow: 0 0 0 4px rgba(212, 175, 55, .18); }
+  .ticket-talon .admite { font-size: 10px; font-weight: 800; letter-spacing: .2em; text-transform: uppercase; color: #8a6a00; }
+  .ticket-talon .codigo { color: #3b2f12; font-size: 12px; }
+  .ticket-talon .btn-cancelar { background: none; border: 0; color: #a51c30; font: inherit; font-size: 12px; font-weight: 700; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+  .ticket-talon .btn-cancelar:hover { color: #7d1324; }
+  /* Entrada ya validada en la puerta: sello "USADA" */
+  .ticket.usada .ticket-principal, .ticket.usada .ticket-talon .qr { filter: grayscale(.85); }
+  .ticket .sello-usada {
+    position: absolute; top: 46%; left: 58%; transform: translate(-50%, -50%) rotate(-12deg); z-index: 5; pointer-events: none;
+    padding: 6px 20px; border: 3px double var(--oro); border-radius: 10px; color: var(--oro-claro);
+    font-size: 24px; font-weight: 800; letter-spacing: .3em; text-transform: uppercase; background: rgba(18, 16, 31, .6);
+  }
   .codigo { font-family: ui-monospace, 'Cascadia Code', Consolas, monospace; font-weight: 700; font-size: 13px; letter-spacing: .04em; }
   .qr { width: 120px; background: #fff; padding: 6px; border-radius: 10px; border: 1px solid var(--color-borde); }
   .qr svg { display: block; width: 100%; height: auto; }
@@ -490,8 +574,12 @@ style.
     .grilla-2, .grilla-3, .grilla-4, .campos, .campos-3, .planes, .datos-lista { grid-template-columns: 1fr; }
     .tarjeta { padding: 18px; }
     .ticket { grid-template-columns: 1fr; }
-    .ticket-talon { border-left: 0; border-top: 2px dashed var(--color-borde); flex-direction: row; }
-    .ticket-talon::before, .ticket-talon::after { display: none; }
+    .ticket-principal { border-radius: 16px 16px 0 0; padding: 20px; }
+    .ticket-principal h4 { font-size: 21px; }
+    .ticket-talon { border-radius: 0 0 16px 16px; border-left: 0; border-top: 2px dashed rgba(166, 124, 0, .55); flex-direction: row; flex-wrap: wrap; justify-content: center; }
+    .ticket-talon::before, .ticket-talon::after { top: -13px; bottom: auto; }
+    .ticket-talon::before { left: -13px; } .ticket-talon::after { left: auto; right: -13px; }
+    .ticket .sello-usada { left: 50%; top: 35%; }
     .encabezado-pagina h1 { font-size: 22px; }
   }
   

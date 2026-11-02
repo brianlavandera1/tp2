@@ -15,6 +15,8 @@ block content
 
   if exito
     .alerta.alerta-exito ✅ #{exito}
+  if error
+    .alerta.alerta-error(role="alert") ⚠️ #{error}
 
   .tarjeta
     if usuarios && usuarios.length > 0
@@ -44,10 +46,15 @@ block content
                 td= user.tipoCliente
                 if esAdmin
                   td
-                    .acciones-celda
-                      a.btn.btn-chico.btn-secundario(href=`/admin/usuarios/editar/${user._id}`) Editar
-                      form.en-linea(action=`/admin/usuarios/eliminar/${user._id}` method="POST" onsubmit="return confirm('¿Seguro que querés eliminar este usuario?');")
-                        button.btn.btn-chico.btn-peligro-suave(type="submit") Eliminar
+                    //- Los administradores están protegidos: no se editan ni se eliminan
+                    if user.rol === 'Administrador'
+                      span.insignia.insignia-neutra(title="Las cuentas de administrador no se pueden editar ni eliminar") 🔒 Protegido
+                    else
+                      .acciones-celda
+                        a.btn.btn-chico.btn-secundario(href=`/admin/usuarios/editar/${user._id}`) Editar
+                        if String(user._id) !== String(usuarioLogueado._id)
+                          form.en-linea(action=`/admin/usuarios/eliminar/${user._id}` method="POST" onsubmit="return confirm('¿Seguro que querés eliminar este usuario? Queda guardado en el histórico.');")
+                            button.btn.btn-chico.btn-peligro-suave(type="submit") Eliminar
       +paginacion(paginacion, "usuarios")
     else
       .vacio

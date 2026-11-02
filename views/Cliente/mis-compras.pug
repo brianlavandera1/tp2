@@ -1,48 +1,87 @@
 extends ../layoutCliente.pug
+include ../partials/creditoFoto.pug
 
 block titulo
   | Mis entradas · Urbana Cult
 
 block content
+  - const meses = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic']
+
   .encabezado-pagina
     div
       h1 Mis entradas
-      p Mostrá el código de tu entrada en el acceso. Podés cancelarla si no vas a asistir.
+      p Mostrá el código de tu entrada en el acceso. Pasá de una entrada a otra con las flechas o descargalas todas juntas.
 
   .grilla.grilla-lateral
-    //- ENTRADAS ACTIVAS
+    //- ENTRADAS ACTIVAS: una tarjeta por evento, como en la cartelera
     section
       h2 Entradas activas
-      if misEntradasCompradas && misEntradasCompradas.length > 0
-        .lista
-          each entrada in misEntradasCompradas
-            article.ticket(id=`ticket-${entrada._id}`)
-              .ticket-principal
-                if entrada.evento
-                  h4= entrada.evento.nombre
-                  if entrada.evento.entidad
-                    p.texto-suave.mb-0 🎤 #{entrada.evento.entidad.nombre}
-                  .evento-meta.mt(style="margin-top:10px")
-                    span 📅 #{new Date(entrada.evento.fecha).toLocaleDateString('es-AR')}
-                    span ⏰ #{entrada.evento.hora || '21:00'} hs
-                    if entrada.evento.sala
-                      span 📍 #{entrada.evento.sala.nombre}
-                else
-                  h4= entrada.nombre
-                .fila(style="margin-top:12px")
-                  span.insignia.insignia-marca 💺 #{entrada.sector || 'General'}
-                  span.insignia.insignia-neutra 🎟️ #{entrada.cantidad || 1} entrada(s)
-                  if entrada.estado === 'Usado'
-                    span.insignia.insignia-aviso ✔ Usada el #{new Date(entrada.usadaEn).toLocaleDateString('es-AR')}
-              .ticket-talon
-                //- QR generado en el servidor (SVG) con la URL de validación de esta entrada
-                if qrs && qrs[entrada._id]
-                  .qr(role="img" aria-label=`Código QR de la entrada ${entrada.codigoBoleto}`)!= qrs[entrada._id]
-                div
-                  .texto-tenue Código
-                  .codigo= entrada.codigoBoleto
-                if entrada.estado !== 'Usado'
-                  button.btn.btn-chico.btn-peligro-suave(type="button" onclick=`cancelarEntrada('${entrada._id}')`) Cancelar
+      if eventosConEntradas && eventosConEntradas.length > 0
+        .grilla-mis-eventos
+          each grupo, g in eventosConEntradas
+            - const ev = grupo.evento
+            - const fecha = ev ? new Date(ev.fecha) : null
+            - const urlFoto = ev && ev.entidad ? ev.entidad.urlFoto : null
+            - const total = grupo.entradas.length
+            article.evento.evento-mis-entradas(data-visor)
+              .evento-portada(class=[`tono-${g % 6}`, urlFoto ? 'con-foto' : ''] style=urlFoto ? `--foto:url('${urlFoto}')` : undefined)
+                if urlFoto
+                  .portada-foto(aria-hidden="true")
+                  .portada-color(aria-hidden="true")
+                  .portada-sombra(aria-hidden="true")
+                if fecha
+                  span.fecha-chip
+                    span.dia= fecha.getDate()
+                    span.mes= meses[fecha.getMonth()]
+                .fila-entre(style="align-items:center;gap:8px")
+                  if ev && ev.entidad
+                    span.artista 🎤 #{ev.entidad.nombre}
+                  span.cantidad-entradas 🎟️ #{total} #{total === 1 ? 'entrada' : 'entradas'} · #{grupo.personas} #{grupo.personas === 1 ? 'persona' : 'personas'}
+                if urlFoto
+                  +creditoFoto(ev.entidad.fotoCredito, 'sobre-foto')
+
+              .evento-cuerpo
+                h3.nombre-evento= ev ? ev.nombre : grupo.entradas[0].nombre
+                if ev
+                  .evento-meta
+                    span 📅 #{fecha.toLocaleDateString('es-AR', { weekday: 'short', day: '2-digit', month: 'short' })}
+                    span ⏰ #{ev.hora || '21:00'} hs
+                    if ev.sala
+                      span 📍 #{ev.sala.nombre}
+
+                //- VISOR: se ve una entrada por vez y se pasa con las flechas, los puntos o deslizando
+                .visor(aria-roledescription="carrusel" aria-label=`Entradas para ${ev ? ev.nombre : 'el evento'}` tabindex="0")
+                  .visor-pista
+                    each entrada, i in grupo.entradas
+                      - const usada = entrada.estado === 'Usado'
+                      - const cantidad = entrada.cantidad || 1
+                      .pase(class=[i === 0 ? 'activo' : '', usada ? 'usada' : ''] aria-roledescription="entrada" aria-label=`Entrada ${i + 1} de ${total}` aria-hidden=(i === 0 ? 'false' : 'true'))
+                        .pase-encabezado
+                          span.texto-oro ✦ Entrada #{i + 1} de #{total}
+                          span.sello-oro= entrada.sector || 'General'
+                        if qrs && qrs[entrada._id]
+                          .qr(role="img" aria-label=`Código QR de la entrada ${entrada.codigoBoleto}`)!= qrs[entrada._id]
+                        .codigo= entrada.codigoBoleto
+                        span.admite Admite #{cantidad} #{cantidad === 1 ? 'persona' : 'personas'}
+                        if usada
+                          span.insignia.insignia-neutra ✔ Usada el #{new Date(entrada.usadaEn).toLocaleDateString('es-AR')}
+                        else
+                          button.btn-cancelar(type="button" onclick=`cancelarEntrada('${entrada._id}')` tabindex=(i === 0 ? 0 : -1)) Cancelar esta entrada
+
+                  if total > 1
+                    .visor-controles
+                      button.visor-flecha.anterior(type="button" aria-label="Entrada anterior") ‹
+                      //- Con muchas entradas, en vez de puntos se muestra un contador "3 / 14"
+                      if total <= 8
+                        .visor-puntos
+                          each entrada, i in grupo.entradas
+                            button.punto(type="button" class=(i === 0 ? 'activo' : '') aria-label=`Ver entrada ${i + 1}` aria-current=(i === 0 ? 'true' : 'false'))
+                      else
+                        span.visor-contador(aria-live="polite") 1 / #{total}
+                      button.visor-flecha.siguiente(type="button" aria-label="Entrada siguiente") ›
+
+                if ev
+                  a.btn.btn-bloque.btn-descargar(href=`/cliente/mis-entradas/${ev._id}/descargar`) ⬇️ Descargar #{total === 1 ? 'entrada' : `las ${total} entradas`}
       else
         .tarjeta.vacio
           .icono-vacio 🎟️
@@ -70,7 +109,77 @@ block content
       else
         p.texto-tenue No hay compras registradas.
 
+  style.
+    .grilla-mis-eventos { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+    .evento-mis-entradas:hover { transform: none; }
+    .cantidad-entradas { background: rgba(18, 16, 31, .7); backdrop-filter: blur(6px); color: #fff; font-size: 12px; font-weight: 800; padding: 5px 10px; border-radius: 999px; }
+
+    /* Visor de entradas: un "talón" dorado por vez */
+    .visor { margin-top: 14px; border-radius: 16px; outline: none; }
+    .visor:focus-visible { box-shadow: 0 0 0 3px var(--color-marca); }
+    .visor-pista { display: grid; }
+    .pase {
+      grid-area: 1 / 1; display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 16px 14px 14px; text-align: center;
+      background: linear-gradient(160deg, #fffaf0, #f7ecd0); border: 2px solid var(--oro, #d4af37); border-radius: 16px;
+      opacity: 0; visibility: hidden; transform: translateX(14px); transition: opacity .35s, transform .35s, visibility .35s;
+    }
+    .pase.activo { opacity: 1; visibility: visible; transform: none; }
+    .pase.usada .qr { filter: grayscale(1); opacity: .5; }
+    .pase-encabezado { display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 8px; }
+    .pase-encabezado .texto-oro { font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: #8a6a00; }
+    .pase-encabezado .sello-oro { color: #6b5200; border-color: rgba(138, 106, 0, .5); background: rgba(212, 175, 55, .15); }
+    .pase .qr { width: 150px; padding: 7px; border: 2px solid var(--oro, #d4af37); border-radius: 12px; box-shadow: 0 0 0 4px rgba(212, 175, 55, .18); }
+    .pase .codigo { color: #3b2f12; font-size: 13px; font-weight: 700; }
+    .pase .admite { font-size: 10px; font-weight: 800; letter-spacing: .2em; text-transform: uppercase; color: #8a6a00; }
+    .pase .btn-cancelar { background: none; border: 0; color: #a51c30; font: inherit; font-size: 12px; font-weight: 700; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+
+    .visor-controles { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 10px; }
+    .visor-flecha { width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--color-borde); background: var(--color-superficie); color: var(--color-texto); font-size: 20px; line-height: 1; cursor: pointer; }
+    .visor-flecha:hover { border-color: var(--color-marca); color: var(--color-marca); }
+    .visor-puntos { display: flex; gap: 6px; }
+    .visor-puntos .punto { width: 8px; height: 8px; padding: 0; border: 0; border-radius: 999px; background: var(--color-borde); cursor: pointer; transition: width .25s, background .25s; }
+    .visor-puntos .punto.activo { width: 22px; background: var(--oro, #d4af37); }
+    .visor-contador { min-width: 64px; text-align: center; font-size: 13px; font-weight: 800; color: var(--color-texto-suave); font-variant-numeric: tabular-nums; }
+    .btn-descargar { margin-top: 14px; }
+    @media (prefers-reduced-motion: reduce) { .pase { transition: none; transform: none; } }
+
   script.
+    // Visor de cada evento: muestra una entrada por vez
+    document.querySelectorAll('[data-visor]').forEach((tarjeta) => {
+      const visor = tarjeta.querySelector('.visor');
+      const pases = [...tarjeta.querySelectorAll('.pase')];
+      const puntos = [...tarjeta.querySelectorAll('.visor-puntos .punto')];
+      const contador = tarjeta.querySelector('.visor-contador');
+      if (pases.length < 2) return;
+      let actual = 0;
+      const ir = (n) => {
+        actual = (n + pases.length) % pases.length;
+        pases.forEach((p, i) => {
+          const visible = i === actual;
+          p.classList.toggle('activo', visible);
+          p.setAttribute('aria-hidden', String(!visible));
+          p.querySelectorAll('button').forEach(b => b.tabIndex = visible ? 0 : -1);
+        });
+        puntos.forEach((p, i) => { p.classList.toggle('activo', i === actual); p.setAttribute('aria-current', String(i === actual)); });
+        if (contador) contador.textContent = `${actual + 1} / ${pases.length}`;
+      };
+      tarjeta.querySelector('.anterior').addEventListener('click', () => ir(actual - 1));
+      tarjeta.querySelector('.siguiente').addEventListener('click', () => ir(actual + 1));
+      puntos.forEach((p, i) => p.addEventListener('click', () => ir(i)));
+      visor.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft') ir(actual - 1);
+        if (e.key === 'ArrowRight') ir(actual + 1);
+      });
+      let inicioX = null;
+      visor.addEventListener('touchstart', (e) => { inicioX = e.touches[0].clientX; }, { passive: true });
+      visor.addEventListener('touchend', (e) => {
+        if (inicioX === null) return;
+        const dx = e.changedTouches[0].clientX - inicioX;
+        if (Math.abs(dx) > 40) ir(actual + (dx < 0 ? 1 : -1));
+        inicioX = null;
+      });
+    });
+
     async function cancelarEntrada(id) {
       if (!confirm('¿Seguro que querés cancelar esta entrada? El cupo se libera para otra persona.')) return;
       try {

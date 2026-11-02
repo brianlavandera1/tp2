@@ -1,4 +1,5 @@
 doctype html
+include partials/logo.pug
 html(lang="es")
   head
     include partials/head.pug
@@ -9,10 +10,7 @@ html(lang="es")
     .acceso
       //- Panel ilustrativo con la propuesta del sitio
       section.acceso-arte
-        a.marca(href="/auth/login")
-          span.marca-icono 🎭
-          span Urbana Cult
-            small Entradas
+        +logoMarca("/auth/login", "Entradas")
         div
           h1 Las mejores funciones, a un clic.
           p Teatro, música y espectáculos en un solo lugar. Elegí tu sector, pagá online y llevá tu entrada en el celular.

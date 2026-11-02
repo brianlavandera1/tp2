@@ -11,6 +11,8 @@ import { conectarDB } from './config/db.js';
 
 // Middlewares
 import { requestLogger, notFoundHandler, errorHandler } from './middlewares/index.js';
+import verificarOrigen from './middlewares/origen.middleware.js';
+import { registrarActividad } from './middlewares/actividad.middleware.js';
 
 // Rutas
 import authRoutes from './routes/authRoutes.js';
@@ -21,11 +23,16 @@ import eventosRoutes from './routes/eventosRoutes.js';
 import carritoRoutes from './routes/carritoRoutes.js';
 import entradasRoutes from './routes/entradasRoutes.js';
 import mediaRoutes from './routes/mediaRoutes.js';
+import actividadRoutes from './routes/actividadRoutes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
+
+// En Vercel (y cualquier hosting con proxy) la app recibe las peticiones a través de un proxy HTTPS:
+// sin esto Express cree que la conexión es HTTP, no envía la cookie de sesión "secure" y no se puede iniciar sesión
+app.set('trust proxy', 1);
 
 app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, 'views'));
@@ -47,13 +54,20 @@ app.use(helmet({
       frameAncestors: ["'none'"],
       upgradeInsecureRequests: config.esProduccion ? [] : null
     }
-  }
+  },
+  // Con el valor por defecto de helmet ("no-referrer") los navegadores envían "Origin: null" al enviar
+  // un formulario, y la protección CSRF (verificarOrigen) no podría reconocer al propio sitio.
+  // Esta política manda el origen completo dentro del sitio y solo el dominio hacia sitios externos.
+  referrerPolicy: { policy: 'strict-origin-when-cross-origin' }
 }));
 
 app.use(requestLogger);
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Protección CSRF: rechaza POST/PUT/DELETE que vengan de otro sitio
+app.use(verificarOrigen);
 
 if (!config.sessionSecret) {
   console.error('❌ Falta SESSION_SECRET en el archivo .env (ver .env.example)');
@@ -87,7 +101,11 @@ app.use((req, res, next) => {
   next();
 });
 
+// Registro de actividad: cada sesión deja constancia de lo que hace (páginas, acciones, login/logout)
+app.use(registrarActividad);
+
 // Configuración de rutas
+app.use('/actividad', actividadRoutes);
 app.use('/auth', authRoutes);
 app.use('/cliente/carrito', carritoRoutes);
 app.use('/cliente', clienteRoutes);
@@ -104,13 +122,19 @@ app.get('/', (req, res) => {
 app.use(notFoundHandler);
 app.use(errorHandler);
 
-conexion
-  .then(() => {
-    // El seed borra la base: se ejecuta solo a mano con `npm run seed`
-    app.listen(config.port, '0.0.0.0', () => {
-      console.log(`🚀 Servidor corriendo en http://localhost:${config.port}`);
+// En Vercel no se levanta un servidor: la plataforma usa la app exportada como función.
+// En la computadora (npm run dev / npm start) se escucha en el puerto configurado.
+if (!process.env.VERCEL) {
+  conexion
+    .then(() => {
+      // El seed borra la base: se ejecuta solo a mano con `npm run seed`
+      app.listen(config.port, '0.0.0.0', () => {
+        console.log(`🚀 Servidor corriendo en http://localhost:${config.port}`);
+      });
+    })
+    .catch(err => {
+      console.error('❌ Error crítico al iniciar la aplicación:', err);
     });
-  })
-  .catch(err => {
-    console.error('❌ Error crítico al iniciar la aplicación:', err);
-  });
+}
+
+export default app;

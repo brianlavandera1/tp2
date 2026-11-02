@@ -1,5 +1,24 @@
 import Usuario from '../models/Usuario.js';
 import bcrypt from 'bcrypt';
+import config from '../config/config.js';
+import { firmarToken } from '../middlewares/jwt.middleware.js';
+
+// Devuelve el usuario si el identificador (nombre o email) y la contraseña coinciden; si no, null
+const buscarPorCredenciales = async (identificador, password) => {
+  if (typeof identificador !== 'string' || typeof password !== 'string' || !identificador.trim() || !password) return null;
+  const usuario = await Usuario.findOne({ $or: [{ nombreUsuario: identificador.trim() }, { email: identificador.trim() }] });
+  if (!usuario) return null;
+  return (await bcrypt.compare(password, usuario.password)) ? usuario : null;
+};
+
+// POST /auth/token — login para la API: devuelve un JWT para usar en "Authorization: Bearer <token>"
+export const emitirToken = async (req, res) => {
+  const usuario = await buscarPorCredenciales(req.body?.identificador, req.body?.password);
+  if (!usuario) {
+    return res.status(401).json({ error: 'Usuario o contraseña incorrectos.' });
+  }
+  res.json({ token: firmarToken(usuario), tipo: 'Bearer', expiraEn: config.jwtExpira });
+};
 
 // Procesar el inicio de sesión
 export const procesarLogin = async (req, res) => {
@@ -13,26 +32,11 @@ export const procesarLogin = async (req, res) => {
       });
     }
 
-    const usuario = await Usuario.findOne({ 
-      $or: [
-        { nombreUsuario: identificador.trim() }, 
-        { email: identificador.trim() }
-      ] 
-    });
-
+    const usuario = await buscarPorCredenciales(identificador, password);
     if (!usuario) {
-      return res.status(400).render('auth/login', { 
+      return res.status(400).render('auth/login', {
         error: 'Usuario o contraseña incorrectos.',
-        datos: req.body 
-      });
-    }
-
-    const passwordMatch = await bcrypt.compare(password, usuario.password);
-
-    if (!passwordMatch) {
-      return res.status(400).render('auth/login', { 
-        error: 'Usuario o contraseña incorrectos.',
-        datos: req.body 
+        datos: req.body
       });
     }
 

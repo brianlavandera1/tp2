@@ -74,7 +74,8 @@ export const eliminarEntidad = async (req, res) => {
   if (await Evento.exists({ entidad: req.params.id })) {
     return res.redirect('/admin/entidades?error=No se puede eliminar un artista con eventos asociados');
   }
-  await Entidad.findByIdAndDelete(req.params.id);
+  // Borrado lógico: el artista queda en el histórico marcado como eliminado
+  await Entidad.eliminarLogico(req.params.id, req.session.usuario);
   res.redirect('/admin/entidades?exito=Artista eliminado correctamente');
 };
 

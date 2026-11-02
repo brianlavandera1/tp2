@@ -10,7 +10,10 @@ import Sala from '../models/Sala.js';
 import Evento from '../models/Evento.js';
 import Entrada from '../models/Entrada.js';
 import Transaccion from '../models/Transaccion.js';
-import Entidad from '../models/Entidad.js'; 
+import Entidad from '../models/Entidad.js';
+import CancelacionLog from '../models/CancelacionLog.js';
+import Actividad from '../models/Actividad.js';
+import { generarVentasDemo } from './ventasDemo.js';
 
 const __filename = fileURLToPath(import.meta.url);
 
@@ -63,7 +66,9 @@ async function poblarBaseDeDatos() {
     await Evento.deleteMany({});
     await Sala.deleteMany({});
     await Usuario.deleteMany({});
-    await Entidad.deleteMany({}); 
+    await Entidad.deleteMany({});
+    await CancelacionLog.deleteMany({});
+    await Actividad.deleteMany({});
 
     console.log('🧹 Base de datos limpiada.');
 
@@ -249,6 +254,11 @@ async function poblarBaseDeDatos() {
     }
 
     console.log(`🎟️ ${eventosCargados} eventos cargados en 3 salas.`);
+
+    // --- HISTORIAL DE VENTAS DE DEMOSTRACIÓN (para que el informe y la auditoría tengan datos) ---
+    const clientesBase = await Usuario.find({ rol: 'Cliente' });
+    const ventas = await generarVentasDemo({ passwordHash, clientesBase });
+    console.log(`📈 Historial: ${ventas.transacciones} compras de los últimos 45 días, ${ventas.entradas} entradas vigentes, ${ventas.cancelaciones} cancelaciones y ${ventas.clientes} clientes de demostración.`);
     console.log('✨ ¡Seed ejecutado por completo!');
 
   } catch (error) {

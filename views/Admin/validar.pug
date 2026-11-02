@@ -32,7 +32,13 @@ block content
           p No existe una entrada con el código #[strong= codigo].
       else
         - const usada = entrada.estado === 'Usado'
-        if validada
+        - const cancelada = entrada.estado === 'Cancelada'
+        if cancelada
+          .resultado.invalida(role="alert")
+            .icono ✖
+            h2 Entrada cancelada
+            p Se canceló el #{new Date(entrada.canceladaEn).toLocaleString('es-AR')}. No permite el ingreso.
+        else if validada
           .resultado.puede(role="status")
             .icono ✔
             h2 ¡Puede ingresar!
@@ -71,7 +77,7 @@ block content
             small Código
             strong.codigo= entrada.codigoBoleto
 
-        if !usada
+        if !usada && !cancelada
           form(action=`/admin/validar/${encodeURIComponent(entrada.codigoBoleto)}` method="POST")
             button.btn.btn-exito.btn-bloque.btn-grande(type="submit") ✔ Marcar como usada y dejar pasar
         else

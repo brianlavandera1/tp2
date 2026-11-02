@@ -170,12 +170,13 @@ const updateEvento = async (req, res) => {
 const deleteEvento = async (req, res) => {
   try {
     // Un evento con entradas vendidas no se borra: las entradas quedarían huérfanas
-    if (await Entrada.exists({ evento: req.params.id })) {
+    if (await Entrada.exists({ evento: req.params.id, estado: { $ne: 'Cancelada' } })) {
       const mensaje = 'No se puede eliminar un evento con entradas vendidas.';
       if (isHtmlRequest(req)) return res.redirect(`/admin/eventos?error=${encodeURIComponent(mensaje)}`);
       return res.status(409).json({ message: mensaje });
     }
-    const eventoEliminado = await Evento.findByIdAndDelete(req.params.id);
+    // Borrado lógico: el evento queda en el histórico marcado como eliminado
+    const eventoEliminado = await Evento.eliminarLogico(req.params.id, req.session.usuario);
     if (!eventoEliminado) {
       if (isHtmlRequest(req)) return res.redirect('/admin/eventos?error=Evento+no+encontrado');
       return res.status(404).json({ message: 'Evento no encontrado' });

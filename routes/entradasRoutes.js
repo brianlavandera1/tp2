@@ -1,5 +1,6 @@
 import express from 'express';
 import { verificarRol, verificarAutenticacion } from '../middlewares/authMiddleware.js';
+import { autenticarToken } from '../middlewares/jwt.middleware.js';
 import { 
   getEntradas, 
   getEntradaById, 
@@ -10,7 +11,8 @@ import {
 
 const router = express.Router();
 
-// 1. Requerir autenticación previa para cualquier consulta de entradas
+// 1. Requerir autenticación previa: sesión (web) o token JWT en "Authorization: Bearer ..." (API)
+router.use(autenticarToken);
 router.use(verificarAutenticacion);
 
 // 2. Consultas (los clientes solo ven sus propias entradas)

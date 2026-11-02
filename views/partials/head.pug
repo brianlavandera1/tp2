@@ -2,5 +2,8 @@ meta(charset="UTF-8")
 meta(name="viewport" content="width=device-width, initial-scale=1")
 meta(name="author" content="Sintaxia")
 meta(name="description" content="Urbana Cult · Venta de entradas para eventos culturales")
-link(rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎭</text></svg>")
+//- Ícono de la pestaña: el mismo logo (entrada troquelada + "U" + destello dorado) como SVG en línea
+- const iconoSvg = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'><defs><linearGradient id='f' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#6d4dff'/><stop offset='.55' stop-color='#b23cf0'/><stop offset='1' stop-color='#ff4d7d'/></linearGradient></defs><path d='M10 8H38A7 7 0 0 1 45 15V20A4 4 0 0 0 45 28V33A7 7 0 0 1 38 40H10A7 7 0 0 1 3 33V28A4 4 0 0 0 3 20V15A7 7 0 0 1 10 8Z' fill='url(#f)'/><path d='M14.5 15.5V24.5A7.5 7.5 0 0 0 29.5 24.5V15.5' fill='none' stroke='#fff' stroke-width='4.6' stroke-linecap='round'/><path d='M37 11.5L38.3 14.7L41.5 16L38.3 17.3L37 20.5L35.7 17.3L32.5 16L35.7 14.7Z' fill='#f2c94c'/></svg>"
+link(rel="icon" type="image/svg+xml" href="data:image/svg+xml," + encodeURIComponent(iconoSvg))
 include estilos.pug
+include seguimiento.pug

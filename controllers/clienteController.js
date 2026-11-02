@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import Usuario from '../models/Usuario.js';
 import Entrada from '../models/Entrada.js';
 import Evento from '../models/Evento.js';
@@ -7,9 +8,33 @@ import bcrypt from 'bcrypt';
 import { escapeRegex } from '../utils/escapeRegex.js';
 import { generarQR, urlValidacion } from '../utils/qr.js';
 
+// Cuántos días un evento lleva la etiqueta "Nuevo" en la portada del cliente
+const DIAS_NUEVO = 14;
+
 export const mostrarMenu = async (req, res) => {
-  const usuarioCompleto = await Usuario.findById(req.session.usuario._id);
-  res.render('Cliente/menu', { usuarioLogueado: req.session.usuario, usuarioCompleto, mensajeExito: req.query.exito });
+  const ahora = new Date();
+  const [usuarioCompleto, ultimosEventos] = await Promise.all([
+    Usuario.findById(req.session.usuario._id),
+    // Carrusel de la portada: los últimos eventos agregados que todavía no pasaron y tienen entradas
+    Evento.find({ fecha: { $gte: ahora }, entradasDisponibles: { $gt: 0 } })
+      .sort({ createdAt: -1 }).limit(6)
+      .populate('sala', 'nombre').populate('entidad', 'nombre fotoActualizada fotoCredito')
+  ]);
+
+  const descuento = usuarioCompleto?.porcentajeDescuento || 0;
+  const destacados = ultimosEventos.map(evento => {
+    const precios = [evento.precio, evento.precioPlatea, evento.precioVIP].filter(p => p > 0);
+    const desde = precios.length ? Math.min(...precios) : 0;
+    return {
+      evento,
+      desde,
+      desdeConDescuento: Math.round(desde * (1 - descuento)),
+      esNuevo: evento.createdAt && (ahora - evento.createdAt) < DIAS_NUEVO * 24 * 60 * 60 * 1000,
+      diasFaltan: Math.ceil((evento.fecha - ahora) / (24 * 60 * 60 * 1000))
+    };
+  });
+
+  res.render('Cliente/menu', { usuarioLogueado: req.session.usuario, usuarioCompleto, destacados, mensajeExito: req.query.exito });
 };
 
 export const mostrarMembresia = async (req, res) => {
@@ -71,17 +96,52 @@ export const procesarMembresia = async (req, res) => {
   res.redirect('/cliente/menu?exito=Membresía actualizada');
 };
 
-export const mostrarMisCompras = async (req, res) => {
-  const misEntradasCompradas = await Entrada.find({ cliente: req.session.usuario._id }).populate({ path: 'evento', populate: ['sala', 'entidad'] });
-  const misCompras = await Transaccion.find({ cliente: req.session.usuario._id }).sort({ fechaCompra: -1 });
+// Entradas vigentes del cliente (sin las canceladas), con su evento, sala y artista.
+// filtroExtra permite pedir solo las de un evento (para la descarga)
+const entradasDelCliente = (req, filtroExtra = {}) =>
+  Entrada.find({ cliente: req.session.usuario._id, estado: { $ne: 'Cancelada' }, ...filtroExtra })
+    .sort({ _id: 1 })
+    .populate({ path: 'evento', populate: ['sala', 'entidad'] });
 
-  // Un QR por entrada con la URL de validación (se muestra en la puerta del evento)
+// Un QR por entrada con la URL de validación (se muestra en la puerta del evento)
+async function qrsDe(req, entradas) {
   const qrs = {};
-  await Promise.all(misEntradasCompradas.map(async (entrada) => {
+  await Promise.all(entradas.map(async (entrada) => {
     qrs[entrada._id] = await generarQR(urlValidacion(req, entrada.codigoBoleto));
   }));
+  return qrs;
+}
 
-  res.render('Cliente/mis-compras', { usuarioLogueado: req.session.usuario, misEntradasCompradas, misCompras, qrs });
+export const mostrarMisCompras = async (req, res) => {
+  const [misEntradasCompradas, misCompras] = await Promise.all([
+    entradasDelCliente(req),
+    Transaccion.find({ cliente: req.session.usuario._id }).sort({ fechaCompra: -1 })
+  ]);
+  const qrs = await qrsDe(req, misEntradasCompradas);
+
+  // Una tarjeta por evento, como en la cartelera: si compró 3 entradas para el mismo show,
+  // se ven juntas y se pasan de a una (las funciones más próximas primero)
+  const grupos = new Map();
+  for (const entrada of misEntradasCompradas) {
+    const clave = String(entrada.evento?._id || entrada.nombre);
+    if (!grupos.has(clave)) grupos.set(clave, { evento: entrada.evento, entradas: [], personas: 0 });
+    const grupo = grupos.get(clave);
+    grupo.entradas.push(entrada);
+    grupo.personas += entrada.cantidad || 1;
+  }
+  const eventosConEntradas = [...grupos.values()].sort((a, b) => new Date(a.evento?.fecha || 0) - new Date(b.evento?.fecha || 0));
+
+  res.render('Cliente/mis-compras', { usuarioLogueado: req.session.usuario, eventosConEntradas, misCompras, qrs });
+};
+
+// GET /cliente/mis-entradas/:eventoId/descargar — todas las entradas de un evento, una debajo de la otra,
+// listas para imprimir o guardar como PDF
+export const descargarEntradas = async (req, res) => {
+  if (!mongoose.isValidObjectId(req.params.eventoId)) return res.redirect('/cliente/mis-compras');
+  const entradas = await entradasDelCliente(req, { evento: req.params.eventoId });
+  if (!entradas.length) return res.redirect('/cliente/mis-compras');
+  const qrs = await qrsDe(req, entradas);
+  res.render('Cliente/descargar-entradas', { usuarioLogueado: req.session.usuario, evento: entradas[0].evento, entradas, qrs });
 };
 
 export const cancelarEntrada = async (req, res) => {

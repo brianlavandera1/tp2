@@ -1,0 +1,48 @@
+//- Entrada dorada: foto del artista difuminada de fondo, datos de la función y talón con el QR.
+//- Se usa en la descarga de entradas (una debajo de la otra). conCancelar muestra el botón de cancelar.
+mixin ticketDorado(entrada, qr, conCancelar)
+  - const ev = entrada.evento
+  - const usada = entrada.estado === 'Usado'
+  - const urlFoto = ev && ev.entidad ? ev.entidad.urlFoto : null
+  - const fecha = ev ? new Date(ev.fecha) : null
+  - const cantidad = entrada.cantidad || 1
+  article.ticket(id=`ticket-${entrada._id}` class=usada ? 'usada' : '')
+    .ticket-principal(class=urlFoto ? 'con-foto' : '' style=urlFoto ? `--foto:url('${urlFoto}')` : undefined)
+      .ticket-marca
+        span.texto-oro ✦ Urbana Cult · Entrada
+        span.sello-oro= entrada.sector || 'General'
+      h4= ev ? ev.nombre : entrada.nombre
+      if ev && ev.entidad
+        .ticket-artista 🎤 #{ev.entidad.nombre}
+      .ticket-linea
+      .ticket-datos
+        if fecha
+          div
+            small Fecha
+            strong= fecha.toLocaleDateString('es-AR', { weekday: 'short', day: '2-digit', month: 'short' })
+          div
+            small Año
+            strong= fecha.getFullYear()
+        div
+          small Hora
+          strong #{ev && ev.hora ? ev.hora : '21:00'} hs
+        if ev && ev.sala
+          div
+            small Sala
+            strong= ev.sala.nombre
+        div
+          small Personas
+          strong= cantidad
+      if usada
+        span.sello-oro(style="align-self:flex-start;margin-top:6px") ✔ Usada el #{new Date(entrada.usadaEn).toLocaleDateString('es-AR')}
+
+    .ticket-talon
+      span.admite Admite #{cantidad} #{cantidad === 1 ? 'persona' : 'personas'}
+      if qr
+        .qr(role="img" aria-label=`Código QR de la entrada ${entrada.codigoBoleto}`)!= qr
+      .codigo= entrada.codigoBoleto
+      if conCancelar && !usada
+        button.btn-cancelar(type="button" onclick=`cancelarEntrada('${entrada._id}')`) Cancelar entrada
+
+    if usada
+      span.sello-usada(aria-hidden="true") Usada

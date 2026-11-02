@@ -3,7 +3,8 @@ import {
   mostrarMenu, 
   mostrarMembresia, 
   procesarMembresia, 
-  mostrarMisCompras, 
+  mostrarMisCompras,
+  descargarEntradas,
   cancelarEntrada, 
   mostrarComprar,
   mostrarConfiguracion,
@@ -19,6 +20,7 @@ router.get('/menu', asyncHandler(mostrarMenu));
 router.get('/membresia', asyncHandler(mostrarMembresia));
 router.post('/procesar-membresia', asyncHandler(procesarMembresia));
 router.get('/mis-compras', asyncHandler(mostrarMisCompras));
+router.get('/mis-entradas/:eventoId/descargar', asyncHandler(descargarEntradas));
 router.post('/cancelar-entrada/:id', asyncHandler(cancelarEntrada));
 router.get('/comprar', asyncHandler(mostrarComprar));
 

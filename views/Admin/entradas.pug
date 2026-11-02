@@ -49,6 +49,55 @@ block content
         .etiqueta-kpi Recaudación
         .valor $#{Math.round(resumen.totalRecaudado).toLocaleString('es-AR')}
 
+  //- RECAUDACIÓN POR DÍA (gráfico de barras hecho con Pug + CSS)
+  if ventasPorDia && ventasPorDia.length
+    - const maximo = Math.max(1, ...ventasPorDia.map(d => d.recaudado))
+    - const totalPeriodo = ventasPorDia.reduce((s, d) => s + d.recaudado, 0)
+    - const mejor = ventasPorDia.reduce((a, b) => (b.recaudado > a.recaudado ? b : a), ventasPorDia[0])
+    - const hoyClave = new Date().toDateString()
+    - const cadaCuanto = Math.max(1, Math.ceil(ventasPorDia.length / 8))
+    .tarjeta.mb
+      .tarjeta-titulo
+        h2 Recaudación por día
+        span.texto-tenue #{hayFiltro ? 'Período seleccionado' : 'Últimos 30 días'}
+      .fila.mb(style="gap:28px")
+        div
+          .texto-tenue Total del período
+          strong(style="font-size:20px") $#{totalPeriodo.toLocaleString('es-AR')}
+        div
+          .texto-tenue Promedio por día
+          strong(style="font-size:20px") $#{Math.round(totalPeriodo / ventasPorDia.length).toLocaleString('es-AR')}
+        div
+          .texto-tenue Mejor día
+          strong(style="font-size:20px") #{mejor.fecha.toLocaleDateString('es-AR', { day: '2-digit', month: 'short' })} · $#{mejor.recaudado.toLocaleString('es-AR')}
+      .grafico(role="img" aria-label=`Gráfico de recaudación diaria. Total $${totalPeriodo.toLocaleString('es-AR')}`)
+        .grafico-barras
+          each dia in ventasPorDia
+            - const etiqueta = dia.fecha.toLocaleDateString('es-AR', { weekday: 'short', day: '2-digit', month: 'short' })
+            .barra-dia(class=dia.fecha.toDateString() === hoyClave ? 'hoy' : '' style=`height:${Math.max(1.5, dia.recaudado / maximo * 100)}%` title=`${etiqueta}: $${dia.recaudado.toLocaleString('es-AR')} · ${dia.vendidas} entrada(s)`)
+              span.valor-barra $#{dia.recaudado >= 1000000 ? (dia.recaudado / 1000000).toFixed(1) + 'M' : Math.round(dia.recaudado / 1000) + 'k'}
+        .grafico-ejes
+          each dia, i in ventasPorDia
+            span= (ventasPorDia.length - 1 - i) % cadaCuanto === 0 ? dia.fecha.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit' }) : ''
+
+  //- DESGLOSE POR CANAL Y POR SECTOR
+  - const desglose = (filas) => { const total = filas.reduce((s, f) => s + f.recaudado, 0) || 1; return filas.map(f => ({ ...f, porcentaje: Math.round(f.recaudado / total * 100) })) }
+  .grilla.grilla-2.mb
+    each bloque in [{ titulo: 'Por canal de venta', filas: desglose(porCanal || []), nombres: { Online: '🌐 Online', Sucursal: '🎫 Boletería' } }, { titulo: 'Por sector', filas: desglose(porSector || []), nombres: { General: 'General', Platea: 'Platea', VIP: '⭐ VIP' } }]
+      .tarjeta(style="margin:0")
+        h3= bloque.titulo
+        if bloque.filas.length
+          each fila in bloque.filas
+            .desglose-fila
+              .fila-entre
+                strong= bloque.nombres[fila._id] || fila._id
+                span.negrita $#{fila.recaudado.toLocaleString('es-AR')}
+              .barra(style="margin:6px 0")
+                span(style=`width:${fila.porcentaje}%`)
+              .texto-tenue #{fila.porcentaje}% · #{fila.operaciones} operaciones · #{fila.vendidas} entradas
+        else
+          p.texto-tenue Sin ventas en el período.
+
   .tarjeta
     h2 Desglose por evento
     if eventos && eventos.length > 0

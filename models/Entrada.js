@@ -18,28 +18,37 @@ const entradaSchema = new mongoose.Schema({
   sector: { type: String, enum: ZONAS, default: 'General' },
   // 10 caracteres hexadecimales aleatorios + índice único para evitar códigos repetidos
   codigoBoleto: { type: String, unique: true, default: () => 'TICK-' + crypto.randomBytes(5).toString('hex').toUpperCase() },
-  // 'Usado' = ya validada en la puerta con el QR
-  estado: { type: String, enum: ['Completado', 'Usado'], default: 'Completado' },
+  // 'Usado' = ya validada en la puerta con el QR · 'Cancelada' = cancelada (no se borra: queda en el histórico)
+  estado: { type: String, enum: ['Completado', 'Usado', 'Cancelada'], default: 'Completado', index: true },
   usadaEn: { type: Date, default: null },
-  validadaPor: { type: String, default: null }
+  validadaPor: { type: String, default: null },
+  canceladaEn: { type: Date, default: null },
+  canceladaPor: { type: String, default: null }
 }, { timestamps: true });
 
 /**
- * Cancela una entrada del cliente en una sola transacción:
- * borra la entrada, devuelve el cupo, lo descuenta de la compra original y deja el registro de auditoría.
+ * Cancela una entrada en una sola transacción. La entrada NO se borra: pasa a estado 'Cancelada'
+ * (queda en el histórico), devuelve el cupo, se descuenta de la compra original y deja el registro de auditoría.
+ * `quien` = nombre del usuario que cancela (el cliente o un administrador).
  */
-async function cancelarEntradaZona(entradaId, clienteId, nombreCliente) {
+async function cancelarEntradaZona(entradaId, clienteId, quien) {
   const Entrada = mongoose.model('Entrada');
-  const entrada = await Entrada.findOne({ _id: entradaId, cliente: clienteId });
+  const filtro = clienteId ? { _id: entradaId, cliente: clienteId } : { _id: entradaId };
+  const entrada = await Entrada.findOne(filtro);
   if (!entrada) throw Object.assign(new Error('Entrada no encontrada.'), { status: 404 });
   if (entrada.estado === 'Usado') throw Object.assign(new Error('La entrada ya fue usada y no se puede cancelar.'), { status: 409 });
+  if (entrada.estado === 'Cancelada') throw Object.assign(new Error('La entrada ya fue cancelada.'), { status: 409 });
 
   await mongoose.model('Evento').prepararStockZonas(entrada.evento);
 
   return conTransaccion(async ({ session, alDeshacer }) => {
-    const eliminada = await Entrada.findOneAndDelete({ _id: entradaId, estado: { $ne: 'Usado' } }, { session });
+    const eliminada = await Entrada.findOneAndUpdate(
+      { _id: entradaId, estado: 'Completado' },
+      { estado: 'Cancelada', canceladaEn: new Date(), canceladaPor: quien || 'sistema' },
+      { new: true, session }
+    );
     if (!eliminada) throw Object.assign(new Error('La entrada ya fue cancelada o usada.'), { status: 409 });
-    alDeshacer(() => Entrada.create(eliminada.toObject()));
+    alDeshacer(() => Entrada.updateOne({ _id: entradaId }, { estado: 'Completado', canceladaEn: null, canceladaPor: null }));
 
     const sector = ZONAS.includes(eliminada.sector) ? eliminada.sector : 'General';
     await mongoose.model('Evento').liberarZona(eliminada.evento, sector, eliminada.cantidad, session);
@@ -49,7 +58,7 @@ async function cancelarEntradaZona(entradaId, clienteId, nombreCliente) {
     alDeshacer(() => registrarCancelacionEnTransaccion({ ...eliminada.toObject(), cantidad: -eliminada.cantidad }));
 
     await new (mongoose.model('CancelacionLog'))({
-      cliente: eliminada.cliente, evento: eliminada.evento, nombreCliente,
+      cliente: eliminada.cliente, evento: eliminada.evento, nombreCliente: quien || 'sistema',
       eventoNombre: eliminada.nombre, codigoBoleto: eliminada.codigoBoleto, cantidad: eliminada.cantidad
     }).save({ session });
 

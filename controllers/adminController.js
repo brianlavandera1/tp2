@@ -3,6 +3,7 @@ import CancelacionLog from '../models/CancelacionLog.js';
 import Transaccion from '../models/Transaccion.js';
 import Evento from '../models/Evento.js';
 import Entrada from '../models/Entrada.js';
+import Actividad from '../models/Actividad.js';
 import mongoose from 'mongoose';
 import crypto from 'crypto';
 import { conTransaccion } from '../utils/transaccion.js';
@@ -31,11 +32,14 @@ export const mostrarDashboard = async (req, res) => {
     } }
   ]);
 
-  const [eventosActivos, proximoEvento, cancelacionesHoy, totalClientes] = await Promise.all([
+  // La actividad solo la ven Administrador y Supervisor: para los demás no se consulta
+  const veActividad = ['Administrador', 'Supervisor'].includes(req.session.usuario?.rol);
+  const [eventosActivos, proximoEvento, cancelacionesHoy, totalClientes, actividadHoy] = await Promise.all([
     Evento.countDocuments({ fecha: { $gte: ahora } }),
     Evento.findOne({ fecha: { $gte: ahora } }).sort({ fecha: 1 }).populate('sala'),
     CancelacionLog.countDocuments({ fechaCancelacion: { $gte: inicioHoy } }),
-    Usuario.countDocuments({ rol: 'Cliente' })
+    Usuario.countDocuments({ rol: 'Cliente' }),
+    veActividad ? Actividad.countDocuments({ fecha: { $gte: inicioHoy } }) : null
   ]);
 
   res.render('Admin/dashboard', {
@@ -45,7 +49,8 @@ export const mostrarDashboard = async (req, res) => {
       recaudadoHoy: ventasHoy ? Math.round(ventasHoy.recaudado) : 0,
       eventosActivos,
       cancelacionesHoy,
-      totalClientes
+      totalClientes,
+      actividadHoy
     },
     proximoEvento
   });
@@ -80,19 +85,39 @@ export const registrarPersonalInterno = async (req, res) => {
 
 export const listarUsuarios = async (req, res) => {
   const { docs: usuarios, paginacion } = await paginar(Usuario, {}, req, { orden: { createdAt: -1 } });
-  res.render('Admin/usuarios', { usuarioLogueado: req.session.usuario, usuarios, paginacion, exito: req.query.exito });
+  res.render('Admin/usuarios', { usuarioLogueado: req.session.usuario, usuarios, paginacion, exito: req.query.exito, error: req.query.error });
 };
 
+// Las cuentas de Administrador están protegidas: nadie puede editarlas ni eliminarlas desde el sistema.
+// Devuelve el usuario si se puede modificar; si no, responde con un error y devuelve null.
+const usuarioModificable = async (req, res) => {
+  const usuario = /^[a-f0-9]{24}$/i.test(req.params.id) ? await Usuario.findOne({ _id: req.params.id, eliminado: { $ne: true } }) : null;
+  if (!usuario) {
+    res.redirect('/admin/usuarios?error=' + encodeURIComponent('El usuario no existe o fue eliminado.'));
+    return null;
+  }
+  if (usuario.rol === 'Administrador') {
+    res.status(403).redirect('/admin/usuarios?error=' + encodeURIComponent('Los usuarios administradores están protegidos: no se pueden editar ni eliminar.'));
+    return null;
+  }
+  return usuario;
+};
+
+// Solo estos campos se pueden cambiar desde el formulario (evita que se envíen otros a mano, como "eliminado")
+const CAMPOS_EDITABLES = ['nombreUsuario', 'nombre', 'apellido', 'email', 'dni', 'telefono', 'fechaNacimiento', 'rol', 'tipoCliente'];
+
 export const mostrarFormularioEditarUsuario = async (req, res) => {
-  const usuarioAEditar = await Usuario.findById(req.params.id);
+  const usuarioAEditar = await usuarioModificable(req, res);
+  if (!usuarioAEditar) return;
   res.render('Admin/editarUsuario', { usuarioLogueado: req.session.usuario, usuarioAEditar });
 };
 
 export const actualizarUsuario = async (req, res) => {
+  if (!(await usuarioModificable(req, res))) return;
   try {
+    const cambios = Object.fromEntries(CAMPOS_EDITABLES.filter(c => req.body[c] !== undefined).map(c => [c, req.body[c]]));
     // La contraseña nunca se guarda tal cual: si viene vacía se ignora, si no se encripta
-    const { password, ...cambios } = req.body;
-    if (password && password.trim()) cambios.password = await bcrypt.hash(password.trim(), 10);
+    if (req.body.password && req.body.password.trim()) cambios.password = await bcrypt.hash(req.body.password.trim(), 10);
     await Usuario.findByIdAndUpdate(req.params.id, cambios, { runValidators: true });
     res.redirect('/admin/usuarios?exito=Usuario actualizado');
   } catch (error) {
@@ -108,9 +133,14 @@ export const actualizarUsuario = async (req, res) => {
   }
 };
 
+// Borrado lógico: el usuario queda en el histórico (no puede iniciar sesión ni aparece en los listados)
 export const eliminarUsuario = async (req, res) => {
-  await Usuario.findByIdAndDelete(req.params.id);
-  res.redirect('/admin/usuarios?exito=Eliminado');
+  if (!(await usuarioModificable(req, res))) return;
+  if (String(req.params.id) === String(req.session.usuario._id)) {
+    return res.redirect('/admin/usuarios?error=' + encodeURIComponent('No podés eliminar tu propio usuario.'));
+  }
+  await Usuario.eliminarLogico(req.params.id, req.session.usuario);
+  res.redirect('/admin/usuarios?exito=' + encodeURIComponent('Usuario eliminado (queda guardado en el histórico).'));
 };
 
 export const listarAuditoriaPagos = async (req, res) => {

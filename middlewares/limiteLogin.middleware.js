@@ -27,20 +27,21 @@ const limiteLogin = (req, res, next) => {
   const actual = intentos.get(clave);
   if (actual && actual.fallos >= MAXIMO_FALLOS) {
     const minutos = Math.ceil((VENTANA_MS - (ahora - actual.desde)) / 60000);
+    const error = `Demasiados intentos fallidos. Probá de nuevo en ${minutos} minuto(s).`;
     res.set('Retry-After', String(minutos * 60));
-    return res.status(429).render('auth/login', {
-      error: `Demasiados intentos fallidos. Probá de nuevo en ${minutos} minuto(s).`,
-      datos: { identificador: req.body?.identificador }
-    });
+    // El login de la API (/auth/token) responde en JSON; el login web vuelve a mostrar el formulario
+    if (req.path === '/token') return res.status(429).json({ error });
+    return res.status(429).render('auth/login', { error, datos: { identificador: req.body?.identificador } });
   }
 
-  // Al terminar la respuesta: 400 = credenciales inválidas (suma un fallo), 302 = login correcto (reinicia)
+  // Al terminar la respuesta: 400/401 = credenciales inválidas (suma un fallo),
+  // 302 (login web) o 200 (token de la API) = login correcto (reinicia el contador)
   res.on('finish', () => {
-    if (res.statusCode === 400) {
+    if (res.statusCode === 400 || res.statusCode === 401) {
       const r = intentos.get(clave) || { fallos: 0, desde: Date.now() };
       r.fallos += 1;
       intentos.set(clave, r);
-    } else if (res.statusCode === 302) {
+    } else if (res.statusCode === 302 || res.statusCode === 200) {
       intentos.delete(clave);
     }
   });

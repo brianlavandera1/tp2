@@ -28,14 +28,16 @@ export const mostrarValidacion = async (req, res) => {
 export const validarEntrada = async (req, res) => {
   const codigo = normalizarCodigo(req.params.codigo);
   // Operación atómica: solo cambia si todavía no se usó, así dos escaneos simultáneos no la validan dos veces
+  // (solo pasan las entradas vigentes: ni usadas ni canceladas)
   const entrada = await Entrada.findOneAndUpdate(
-    { codigoBoleto: codigo, estado: { $ne: 'Usado' } },
+    { codigoBoleto: codigo, estado: 'Completado' },
     { estado: 'Usado', usadaEn: new Date(), validadaPor: req.session.usuario.nombreUsuario },
     { new: true }
   );
   if (!entrada) {
-    const existe = await Entrada.exists({ codigoBoleto: codigo });
-    const mensaje = existe ? 'Esta entrada ya fue usada.' : 'No existe una entrada con ese código.';
+    const existente = await Entrada.findOne({ codigoBoleto: codigo }).select('estado');
+    const mensaje = !existente ? 'No existe una entrada con ese código.'
+      : existente.estado === 'Cancelada' ? 'Esta entrada fue cancelada y no es válida.' : 'Esta entrada ya fue usada.';
     return res.redirect(`/admin/validar/${encodeURIComponent(codigo)}?error=${encodeURIComponent(mensaje)}`);
   }
   res.redirect(`/admin/validar/${encodeURIComponent(codigo)}?validada=1`);
@@ -79,6 +81,36 @@ export const mostrarGestionEntradas = async (req, res) => {
     const statsFiltro = await Transaccion.aggregate(etapasAgregacion);
     const totalTransaccionesFiltro = await Transaccion.countDocuments(matchFiltro);
 
+    // Desglose del período por canal (online / boletería) y por sector
+    const desglosar = (campo) => Transaccion.aggregate([
+      { $match: matchFiltro },
+      { $unwind: '$items' },
+      { $group: { _id: campo, operaciones: { $addToSet: '$_id' }, vendidas: { $sum: vendidasNetas }, recaudado: { $sum: recaudadoNeto } } },
+      { $project: { operaciones: { $size: '$operaciones' }, vendidas: 1, recaudado: { $round: ['$recaudado', 0] } } },
+      { $sort: { recaudado: -1 } }
+    ]);
+    const [porCanal, porSector] = await Promise.all([desglosar({ $ifNull: ['$canal', 'Online'] }), desglosar('$items.tipoEntrada')]);
+
+    // Recaudación por día: del período filtrado o, si no hay filtro, de los últimos 30 días
+    const zonaHoraria = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const hastaDia = fechaFin ? new Date(fechaFin + 'T00:00:00') : new Date(inicioHoy);
+    const desdeDia = fechaInicio ? new Date(fechaInicio + 'T00:00:00') : new Date(hastaDia.getTime() - 29 * 24 * 60 * 60 * 1000);
+    const porDiaBD = await Transaccion.aggregate([
+      { $match: { fechaCompra: { $gte: desdeDia, $lte: new Date(hastaDia.getTime() + 24 * 60 * 60 * 1000 - 1) } } },
+      { $unwind: '$items' },
+      { $group: {
+        _id: { $dateToString: { format: '%Y-%m-%d', date: '$fechaCompra', timezone: zonaHoraria } },
+        vendidas: { $sum: vendidasNetas }, recaudado: { $sum: recaudadoNeto }
+      } }
+    ]);
+    // Se completan los días sin ventas con 0 para que el gráfico sea continuo (máximo 92 días)
+    const ventasPorDia = [];
+    for (let d = new Date(desdeDia), n = 0; d <= hastaDia && n < 92; d.setDate(d.getDate() + 1), n++) {
+      const clave = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+      const dia = porDiaBD.find(x => x._id === clave);
+      ventasPorDia.push({ fecha: new Date(d), vendidas: dia ? dia.vendidas : 0, recaudado: dia ? Math.round(dia.recaudado) : 0 });
+    }
+
     const eventosBD = await Evento.find().populate('sala').lean();
     let totalV = 0, totalR = 0;
 
@@ -101,6 +133,9 @@ export const mostrarGestionEntradas = async (req, res) => {
       resumenHoy: statsHoy[0] ? { totalTransacciones: statsHoy[0].totalTx.length, totalVendidas: statsHoy[0].vendidas, totalRecaudado: statsHoy[0].recaudado } : { totalTransacciones: 0, totalVendidas: 0, totalRecaudado: 0 },
       resumen: { totalTransacciones: totalTransaccionesFiltro, totalVendidas: totalV, totalRecaudado: totalR },
       eventos,
+      porCanal,
+      porSector,
+      ventasPorDia,
       filtrosApli: { fechaInicio, fechaFin }
     });
   } catch (error) { 
@@ -112,14 +147,14 @@ export const mostrarGestionEntradas = async (req, res) => {
 const CAMPOS_PUBLICOS_CLIENTE = 'nombreUsuario nombre apellido email';
 
 export const getEntradas = async (req, res) => res.json(
-  await Entrada.find(req.session.usuario.rol === 'Cliente' ? { cliente: req.session.usuario._id } : {})
+  await Entrada.find(req.usuario.rol === 'Cliente' ? { cliente: req.usuario._id } : {})
     .populate('evento', 'nombre fecha hora sala')
     .populate('cliente', CAMPOS_PUBLICOS_CLIENTE)
 );
 // Un cliente solo puede ver sus propias entradas
 export const getEntradaById = async (req, res) => {
   const filtro = { _id: req.params.id };
-  if (req.session.usuario.rol === 'Cliente') filtro.cliente = req.session.usuario._id;
+  if (req.usuario.rol === 'Cliente') filtro.cliente = req.usuario._id;
   const entrada = await Entrada.findOne(filtro);
   if (!entrada) return res.status(404).json({ error: 'Entrada no encontrada.' });
   res.json(entrada);
@@ -155,11 +190,8 @@ export const updateEntrada = async (req, res) => {
   res.json(entrada);
 };
 
-// Al borrar una entrada se devuelve el cupo al evento
+// DELETE no borra: cancela la entrada (queda en el histórico), devuelve el cupo y deja el registro de auditoría
 export const deleteEntrada = async (req, res) => {
-  const entrada = await Entrada.findByIdAndDelete(req.params.id);
-  if (!entrada) return res.status(404).json({ error: 'Entrada no encontrada.' });
-  await Evento.liberarZona(entrada.evento, entrada.sector, entrada.cantidad);
-  await Entrada.registrarCancelacionEnTransaccion(entrada);
+  const entrada = await Entrada.cancelarEntradaZona(req.params.id, null, req.usuario.nombreUsuario);
   res.json(entrada);
 };
