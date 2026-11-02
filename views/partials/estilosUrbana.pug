@@ -67,6 +67,7 @@ style.
   .avatar { background: var(--color-superficie-2); color: #fff; font-weight: 600; }
   .marca-cult { font-weight: 700; }
   .salir { color: var(--color-texto-tenue); font-weight: 400; }
+  .salir svg { display: none; width: 18px; height: 18px; }
 
   /* Barra inferior tipo app: solo en el celular */
   .barra-app { display: none; }
@@ -170,7 +171,17 @@ style.
   }
   @media (max-width: 720px) {
     .encabezado .contenedor { min-height: 56px; padding-top: 6px; padding-bottom: 6px; flex-wrap: nowrap; }
-    .nav-principal, .salir, .chip-usuario { display: none; }
+    .nav-principal, .chip-usuario { display: none; }
+    /* Los campos con letra de 16px evitan que el celular haga zoom al tocarlos */
+    input, select, textarea { font-size: 16px; }
+    .salir, .usuario-panel .salir { display: inline-flex; align-items: center; gap: 5px; min-height: 38px; padding: 0 12px; border: 1px solid var(--color-borde); border-radius: 999px; color: #fff; font-size: 13px; font-weight: 500; }
+    .salir svg { display: block; }
+    /* Celulares muy angostos: la marca achica para que Salir siga entrando */
+    @media (max-width: 380px) {
+      .encabezado .contenedor { gap: 4px; padding-left: 12px; padding-right: 12px; }
+      .encabezado .marca { font-size: 15px; }
+      .salir { padding: 0 9px; }
+    }
     .sitio { padding-bottom: 64px; }
     .sitio main { padding: 18px 0 40px; }
     .pie .contenedor { justify-content: center; text-align: center; }

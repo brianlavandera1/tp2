@@ -28,7 +28,9 @@ html(lang="es")
             if usuarioLogueado
               a.chip-usuario(href="/cliente/configuracion" title="Mi perfil" aria-label="Mi perfil")
                 span.avatar= usuarioLogueado.nombreUsuario.charAt(0)
-              a.salir(href="/auth/logout") Salir
+              a.salir(href="/auth/logout")
+                +icono('salir')
+                span Salir
 
       //- CONTENIDO DINÁMICO DE CADA VISTA
       main

@@ -26,6 +26,8 @@ style.
   .usuario-panel .rol { color: var(--color-texto-suave); }
   .lateral .credito-panel, .lateral .credito-panel strong { color: var(--color-texto-tenue); }
 
+  .boton-menu { display: none; }
+
   /* ---------- Contenido ---------- */
   .panel-contenido h1 { font-size: clamp(26px, 3vw, 34px); }
   .encabezado-pagina p { color: var(--color-texto-suave); }
@@ -78,9 +80,52 @@ style.
 
   @media (max-width: 960px) {
     .panel { grid-template-columns: minmax(0, 1fr); }
-    .lateral { border-right: 0; border-bottom: 1px solid var(--color-borde); padding: 12px 14px; }
+    /* Barra fija arriba: marca, Salir y el botón que abre el menú */
+    .lateral { position: sticky; top: 0; z-index: 40; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 8px; height: auto; max-height: 100dvh; padding: 10px 14px; border-right: 0; border-bottom: 1px solid var(--color-borde); }
+    .lateral .marca { flex: 1; min-width: 0; padding: 0; }
     .lateral .credito-panel { display: none; }
-    .panel-contenido { padding: 20px 16px 48px; }
+    .lateral .usuario-panel { order: 1; padding: 0; background: none; }
+    .usuario-panel > div, .usuario-panel .avatar { display: none; }
+    .boton-menu { order: 2; display: inline-flex; align-items: center; gap: 6px; min-height: 38px; padding: 0 14px; border: 0; border-radius: 999px; background: var(--color-superficie-2); color: #fff; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
+    .boton-menu svg { width: 18px; height: 18px; }
+    .salir { display: inline-flex; align-items: center; gap: 5px; min-height: 38px; padding: 0 12px; border: 1px solid var(--color-borde); border-radius: 999px; color: #fff; font-size: 13px; font-weight: 500; }
+    .salir svg { display: block; }
+    .menu-lateral { order: 3; display: none; flex-direction: column; flex-basis: 100%; overflow: visible; gap: 2px; padding: 0 0 8px; }
+    .lateral.menu-abierto .menu-lateral { display: flex; }
+    .lateral.menu-abierto { overflow-y: auto; }
+    .menu-lateral .titulo-grupo { display: block; }
+    .menu-lateral a { padding: 12px; }
+    .panel-contenido { padding: 18px 16px 48px; }
+  }
+  @media (max-width: 350px) {
+    .boton-menu span { display: none; }
+    .boton-menu { padding: 0 11px; }
+    .lateral .marca { font-size: 15px; }
+  }
+
+  @media (max-width: 720px) {
+    /* Números de a dos para que entren más en la pantalla */
+    .grilla:has(> .kpi) { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .grilla-3 > .kpi-plata { grid-column: 1 / -1; }
+    .kpi { padding: 14px; }
+    .kpi .valor { font-size: clamp(19px, 6vw, 23px); overflow-wrap: anywhere; }
+    .kpi .etiqueta-kpi { font-size: 12px; }
+    .kpi:has(.kpi-icono) { display: block; }
+    .kpi .kpi-icono { display: none; }
+
+    /* Las tablas pasan a ser tarjetas: cada dato con el título de su columna */
+    .tarjeta:has(.tabla-tarjetas) { padding: 14px; }
+    .tabla-contenedor:has(.tabla-tarjetas) { overflow: visible; border: 0; border-radius: 0; }
+    table.tabla-tarjetas { display: block; background: none; }
+    .tabla-tarjetas thead { display: none; }
+    .tabla-tarjetas > tbody, .tabla-tarjetas > tfoot { display: grid; gap: 10px; }
+    .tabla-tarjetas > tfoot { margin-top: 10px; }
+    .tabla-tarjetas > tbody > tr, .tabla-tarjetas > tfoot > tr { display: block; padding: 10px 14px; border: 1px solid var(--color-borde); border-radius: 14px; background: var(--color-superficie-2); }
+    .tabla-tarjetas > tbody > tr > td, .tabla-tarjetas > tfoot > tr > td { display: block; padding: 6px 0; border: 0; background: none; text-align: left !important; overflow-wrap: anywhere; }
+    .tabla-tarjetas > tbody > tr > td[data-titulo], .tabla-tarjetas > tfoot > tr > td[data-titulo] { position: relative; min-height: 30px; padding-left: 96px; }
+    .tabla-tarjetas td[data-titulo]::before { content: attr(data-titulo); position: absolute; top: 8px; left: 0; width: 90px; color: var(--area); font-size: 12px; font-weight: 600; line-height: 1.25; overflow-wrap: normal; }
+    .tabla-tarjetas td:empty { display: none; }
+    .tabla-tarjetas .btn-chico { min-height: 38px; padding: 8px 14px; }
   }
 
   @media print {

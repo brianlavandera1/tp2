@@ -149,6 +149,13 @@ block content
       .planes { grid-template-columns: 1fr; }
       .calculadora { grid-template-columns: 1fr; padding: 20px; gap: 18px; }
     }
+    @media (max-width: 720px) {
+      .plan-caja { padding: 18px; border-radius: 20px; }
+      .plan-caja p.plan-lema { margin-bottom: 12px; }
+      .plan-descuento { flex-direction: row; align-items: baseline; gap: 8px; margin-bottom: 12px; }
+      .plan-descuento strong { font-size: 46px; }
+      .plan-beneficios { margin-bottom: 16px; padding-top: 12px; gap: 6px; }
+    }
     @media (prefers-reduced-motion: reduce) { .plan-caja, .calc-barra i { transition: none; } }
 
   script.
