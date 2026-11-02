@@ -1,9 +1,13 @@
 extends ../layoutCliente.pug
+include ../partials/plan.pug
 
 block titulo
   | Pago · Urbana Cult
 
 block content
+  - const plata = (n) => `$${Math.round(n).toLocaleString('es-AR')}`
+  - const nombrePlan = { PREMIUM: 'Premium', VIP: 'VIP' }[usuarioLogueado.tipoCliente] || 'Estándar'
+
   .encabezado-pagina
     h1 Pago
 
@@ -40,20 +44,33 @@ block content
           button.btn.btn-grande(type="submit") Confirmar pago
 
     aside.tarjeta.caja-total
+      +avisoPlan(usuarioLogueado)
+      ul.detalle-compra
+        each item in carrito
+          li
+            span
+              strong= item.nombreEvento
+              small #{item.tipoEntrada} · #{item.cantidad} #{item.cantidad === 1 ? 'entrada' : 'entradas'}
+            span= plata(item.precio * item.cantidad)
       .resumen
+        .linea
+          span Precio original
+          span= plata(subtotal)
         if porcentajeDescuento > 0
-          .linea
-            span Subtotal
-            span $#{subtotal.toLocaleString('es-AR')}
-          .linea
-            span Descuento (#{porcentajeDescuento}%)
-            span −$#{descuentoAplicado.toLocaleString('es-AR')}
+          .linea.linea-ahorro
+            span Descuento plan #{nombrePlan} (#{Math.round(porcentajeDescuento)}%)
+            span −#{plata(descuentoAplicado)}
         .total
-          span Total
-          span.precio $#{total.toLocaleString('es-AR')}
+          span Precio final
+          span.precio= plata(total)
       p.texto-tenue.mt.mb-0 Pago simulado: no se realizan cobros reales.
 
   style.
     .caja-total { position: sticky; top: 88px; }
+    .detalle-compra { display: grid; gap: 10px; margin: 0 0 14px; padding: 0 0 14px; border-bottom: 1px solid var(--color-borde); list-style: none; font-size: 14px; }
+    .detalle-compra li { display: flex; justify-content: space-between; gap: 12px; }
+    .detalle-compra strong { display: block; font-weight: 600; }
+    .detalle-compra small { color: var(--color-texto-suave); font-size: 13px; }
+    .caja-total .resumen .linea-ahorro { color: var(--color-exito); }
     .caja-total .resumen .total { border-top: 0; padding-top: 0; }
     .caja-total .resumen .linea + .total { border-top: 1px solid var(--color-borde); padding-top: 12px; }

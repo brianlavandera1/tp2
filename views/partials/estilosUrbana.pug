@@ -151,6 +151,33 @@ style.
   .buscador input { color: #141418; color-scheme: light; }
   .buscador input::placeholder { color: #6c6588; }
 
+  /* ---------- Contraseña con ojo ---------- */
+  .campo-password { position: relative; }
+  .campo-password input { width: 100%; padding-right: 50px; }
+  .campo-password input::-ms-reveal { display: none; }
+  .ojo { position: absolute; top: 50%; right: 5px; display: grid; place-items: center; width: 40px; height: 40px; margin-top: -20px; border: 0; border-radius: 10px; background: none; color: var(--color-texto-suave); cursor: pointer; }
+  .ojo:hover { background: rgba(255, 255, 255, .08); color: #fff; }
+  .ojo svg { width: 20px; height: 20px; }
+  .ojo .ojo-cerrado, .ojo[aria-pressed="true"] .ojo-abierto { display: none; }
+  .ojo[aria-pressed="true"] .ojo-cerrado { display: block; }
+
+  /* ---------- Plan del cliente: el logo y "Cult" toman el color del plan ---------- */
+  .marca-vip .logo-icono { filter: drop-shadow(0 3px 9px rgba(242, 201, 76, .5)); }
+  .marca-premium .logo-icono { filter: drop-shadow(0 3px 9px rgba(195, 203, 230, .4)); }
+  .marca-vip .marca-cult { color: #f2c94c; -webkit-text-fill-color: #f2c94c; }
+  .marca-premium .marca-cult { color: #c3cbe6; -webkit-text-fill-color: #c3cbe6; }
+  .marca-plan { font-size: 11px; font-weight: 600; line-height: 1.1; letter-spacing: 0; }
+  .marca-vip .marca-plan { color: #f2c94c; }
+  .marca-premium .marca-plan { color: #c3cbe6; }
+  .aviso-plan { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 18px; padding: 12px 16px; border: 1px solid var(--color-borde); border-radius: 14px; background: var(--color-superficie-2); color: #fff; }
+  .aviso-plan:hover { color: #fff; filter: brightness(1.12); }
+  .aviso-plan.con-descuento { border-color: rgba(111, 216, 160, .45); background: rgba(111, 216, 160, .1); }
+  .aviso-plan-texto { display: grid; gap: 1px; min-width: 0; }
+  .aviso-plan-texto strong { font-weight: 600; }
+  .aviso-plan-texto span { color: var(--color-texto-suave); font-size: 13px; }
+  .aviso-plan.con-descuento .aviso-plan-texto span { color: var(--color-exito); }
+  .aviso-plan-accion { flex: none; color: var(--enlace); font-size: 13px; font-weight: 600; }
+
   /* ---------- Acceso ---------- */
   .acceso { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); background: var(--noche); position: relative; overflow: hidden; }
   .acceso-arte { display: flex; flex-direction: column; justify-content: center; gap: 22px; padding: clamp(28px, 5vw, 72px); background: radial-gradient(70% 60% at 15% 15%, rgba(109, 77, 255, .5), transparent 70%), radial-gradient(60% 60% at 90% 95%, rgba(207, 58, 166, .3), transparent 70%), var(--noche); }

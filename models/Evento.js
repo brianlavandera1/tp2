@@ -4,9 +4,12 @@ import Sala from './Sala.js';
 
 const { ZONAS, obtenerZonas } = Sala;
 
+const CATEGORIAS = ['Teatrales', 'Musicales', 'Recitales y conciertos', 'Comedia y stand-up', 'Exposiciones', 'Festivales', 'Otros'];
+
 const eventoSchema = new mongoose.Schema({
   nombre: { type: String, required: true },
   descripcion: { type: String, required: true },
+  categoria: { type: String, enum: CATEGORIAS, default: 'Otros' },
   fecha: { type: Date, required: true },
   hora: { type: String },
   precio: { type: Number, required: true, default: 5000, min: 0 },
@@ -105,4 +108,5 @@ eventoSchema.statics = { prepararStockZonas, disponibilidadZonas, reservarZona, 
 // Borrado lógico: "eliminar" solo marca el documento, nunca se pierde del histórico
 eventoSchema.plugin(borradoLogico);
 
+eventoSchema.statics.CATEGORIAS = CATEGORIAS;
 export default mongoose.model('Evento', eventoSchema);

@@ -1,0 +1,134 @@
+extends layoutCliente.pug
+
+block titulo
+  | Centro de ayuda · Urbana Cult
+
+block content
+  //- Cada tema: [id, título, [[pregunta, respuesta], ...], [texto del enlace, destino]]
+  -
+    const temas = [
+      ['cuenta', 'Registro e inicio de sesión', [
+        ['¿Cómo me registro?', 'Entrá a Crear cuenta y completá tu nombre de usuario, nombre, apellido, correo, contraseña, DNI, teléfono y fecha de nacimiento. Después iniciá sesión con tu cuenta nueva.'],
+        ['¿Cómo inicio sesión?', 'Escribí tu nombre de usuario o tu correo y tu contraseña. En el usuario y el correo no importan las mayúsculas; en la contraseña sí. Tocá el ojo del campo para ver lo que escribiste.'],
+        ['Me aparece "Demasiados intentos fallidos"', 'Después de 5 intentos incorrectos, ese usuario se bloquea por un rato para proteger tu cuenta. Esperá hasta 15 minutos y volvé a probar.'],
+        ['Olvidé mi contraseña', 'Si todavía tenés la sesión iniciada, cambiala desde Perfil. Si no, por ahora no hay recuperación automática: pedile ayuda al personal de Urbana Cult con tu DNI.']
+      ], ['Crear cuenta', '/auth/registro']],
+      ['planes', 'Contratar o cambiar de plan', [
+        ['¿Qué planes hay?', 'Estándar es gratis y no tiene descuento. Premium cuesta $2.000 por mes y da 15% menos en tus entradas. VIP cuesta $5.000 por mes y da 30% menos.'],
+        ['¿Cómo contrato o cambio mi plan?', 'Entrá a Plan, elegí el que quieras y confirmá. Premium y VIP piden los datos de una tarjeta. El cambio se aplica enseguida, también al carrito que tengas armado.'],
+        ['¿Cómo vuelvo al plan gratis?', 'En Plan, elegí Estándar y confirmá. No te pide tarjeta. Desde ese momento dejás de tener descuento en las compras nuevas.'],
+        ['¿Dónde veo qué plan tengo?', 'En Perfil, en la pantalla Plan, en el carrito y al pagar. También en el logo de arriba: es dorado con VIP y plateado con Premium.']
+      ], ['Ver planes', '/cliente/membresia']],
+      ['comprar', 'Comprar entradas', [
+        ['¿Cómo compro?', 'En Cartelera elegí el evento, el sector (General, Platea o VIP) y la cantidad, y tocá Agregar. Después abrí el carrito, revisá tu compra, tocá Ir a pagar y completá el pago.'],
+        ['¿Cómo encuentro un evento?', 'En Cartelera podés buscar por nombre o artista, elegir una fecha y filtrar por categoría o por mes.'],
+        ['¿Puedo cambiar la cantidad antes de pagar?', 'Sí. En el carrito usá − y + en cada entrada, o la × para quitarla.']
+      ], ['Ir a la cartelera', '/cliente/comprar']],
+      ['descuentos', 'Cómo funcionan los descuentos', [
+        ['¿Cómo se aplica el descuento de mi plan?', 'Se aplica solo sobre el total de tu compra. En el carrito y al pagar ves el precio original, cuánto se descuenta por tu plan y el precio final.'],
+        ['¿Me das un ejemplo?', 'Una entrada de $30.000 con Premium (15%) tiene $4.500 de descuento: pagás $25.500. Con VIP (30%) tiene $9.000 de descuento: pagás $21.000.'],
+        ['¿Qué plan me conviene?', 'Depende de cuánto salís. En la pantalla Plan está la calculadora ¿Cuál te conviene?, que ya descuenta el costo mensual de cada plan.'],
+        ['¿Hay descuento en boletería?', 'Sí, en la boletería el pago en efectivo tiene 25% de descuento.']
+      ], null],
+      ['pagos', 'Cómo realizar pagos', [
+        ['¿Qué medios de pago aceptan?', 'Tarjeta de crédito, tarjeta de débito y Mercado Pago.'],
+        ['¿Qué datos me piden?', 'El titular (solo letras), el número de 16 dígitos, el vencimiento en formato MM/AA y el código de 3 dígitos. Solo se guardan los últimos 4 números de la tarjeta.'],
+        ['¿Me cobran de verdad?', 'No. Esta plataforma usa pagos simulados: no se realizan cobros reales.']
+      ], null],
+      ['entradas', 'Consultar tus entradas', [
+        ['¿Dónde están mis entradas?', 'En Mis entradas, con un QR por cada compra. Si tenés varias para el mismo evento, pasalas con las flechas.'],
+        ['¿Por qué dice "Vale para 3 personas"?', 'Porque compraste esos lugares juntos en el mismo sector: un solo QR sirve para que entren todas las personas de esa entrada.'],
+        ['¿Puedo descargarlas?', 'Sí. Debajo de cada entrada tocá Descargar para verlas una debajo de la otra y guardarlas o imprimirlas.'],
+        ['¿Cómo veo mis compras anteriores?', 'Al final de Mis entradas abrí Historial de compras.']
+      ], ['Ver mis entradas', '/cliente/mis-compras']],
+      ['problemas', 'Problemas con una compra', [
+        ['El pago me da un error', 'Revisá el mensaje en pantalla: suele ser un dato mal escrito de la tarjeta. Tus entradas siguen en el carrito, así que podés corregirlo y volver a confirmar.'],
+        ['Me dice que cambió el precio', 'El evento cambió de precio después de que agregaste la entrada. Revisá el nuevo total y confirmá de nuevo si te sirve.'],
+        ['Me dice que no hay cupo', 'Ese sector se llenó o no quedan tantas entradas. Bajá la cantidad o elegí otro sector.'],
+        ['¿Cómo cancelo una entrada?', 'En Mis entradas tocá Cancelar y confirmá. Se cancelan todos los lugares de esa entrada, su QR deja de funcionar y no se puede deshacer. Una entrada ya usada no se puede cancelar.'],
+        ['Compré y no veo la entrada', 'Mirá Mis entradas y el Historial de compras. Si no aparece, consultá en la boletería con tu DNI y tu número de comprobante, el que empieza con REC.'],
+        ['El QR no funciona en la puerta', 'Mostrá el código que aparece debajo del QR, el que empieza con TICK, para que el personal lo revise.']
+      ], null],
+      ['perfil', 'Modificar tus datos', [
+        ['¿Qué datos puedo cambiar?', 'Desde Perfil podés cambiar nombre, apellido, correo, teléfono y contraseña. Tocá Guardar cambios para confirmar.'],
+        ['¿Cómo cambio mi contraseña?', 'En Perfil escribí la nueva en Nueva contraseña y guardá. Si dejás el campo vacío, sigue la que tenías.'],
+        ['¿Puedo cambiar mi usuario o mi DNI?', 'No desde tu perfil. Si necesitás corregirlos, pedile ayuda al personal de Urbana Cult.']
+      ], null],
+      ['frecuentes', 'Preguntas frecuentes', [
+        ['No puedo entrar desde el celular', 'Revisá la contraseña con el ojo del campo, porque el teclado del celular puede agregar mayúsculas o espacios.'],
+        ['¿Dónde cierro sesión?', 'Con el botón Salir, arriba a la derecha. En Perfil también está Cerrar sesión.'],
+        ['No veo un evento que busco', 'Quitá los filtros de categoría y de mes, o tocá Limpiar en el buscador. Si el evento se agotó, sigue apareciendo marcado como Agotado.']
+      ], null]
+    ]
+
+  .ayuda-pagina
+    h1 Centro de ayuda
+    p.ayuda-bajada Encontrá cómo usar Urbana Cult y qué hacer si algo no funciona.
+    .ayuda-buscador
+      label.oculto-lector(for="buscar-ayuda") Buscar en la ayuda
+      input#buscar-ayuda(type="search" placeholder="Buscá tu duda, por ejemplo: cancelar" autocomplete="off")
+
+    nav.ayuda-temas(aria-label="Temas de ayuda")
+      each tema in temas
+        a(href=`#${tema[0]}`)= tema[1]
+
+    p#ayuda-vacio.ayuda-vacio.oculto(role="status") No encontramos nada con esa búsqueda. Probá con otra palabra.
+
+    each tema in temas
+      section.ayuda-tema(id=tema[0])
+        h2= tema[1]
+        each pregunta in tema[2]
+          details.ayuda-pregunta
+            summary= pregunta[0]
+            p= pregunta[1]
+        if tema[3]
+          a.ayuda-enlace(href=tema[3][1]) #{tema[3][0]} →
+
+  style.
+    .ayuda-pagina { max-width: 820px; margin: 0 auto; }
+    .ayuda-pagina h1 { margin: 0 0 6px; font-size: clamp(30px, 4.4vw, 46px); }
+    .ayuda-bajada { margin: 0 0 18px; color: var(--color-texto-suave); }
+    .oculto-lector { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+    .ayuda-buscador input { width: 100%; padding: 14px 18px; border-radius: 14px; }
+    .ayuda-temas { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0 26px; }
+    .ayuda-temas a { padding: 8px 14px; border: 1px solid var(--color-borde); border-radius: 999px; background: var(--color-superficie); color: var(--color-texto-suave); font-size: 13px; font-weight: 500; }
+    .ayuda-temas a:hover { background: var(--color-superficie-2); color: #fff; }
+    .ayuda-vacio { padding: 18px; border-radius: 14px; background: var(--color-superficie); color: var(--color-texto-suave); text-align: center; }
+    .ayuda-tema { margin-bottom: 26px; scroll-margin-top: 84px; }
+    .ayuda-tema h2 { margin: 0 0 10px; font-size: 21px; }
+    .ayuda-pregunta { border: 1px solid var(--color-borde); border-radius: 14px; background: var(--color-superficie); }
+    .ayuda-pregunta + .ayuda-pregunta { margin-top: 8px; }
+    .ayuda-pregunta summary { padding: 14px 16px; color: #fff; font-weight: 500; cursor: pointer; }
+    .ayuda-pregunta[open] summary { color: var(--enlace); }
+    .ayuda-pregunta p { margin: 0; padding: 0 16px 15px; color: var(--color-texto-suave); line-height: 1.55; }
+    .ayuda-enlace { display: inline-block; margin-top: 10px; font-size: 14px; font-weight: 500; }
+    @media (max-width: 720px) {
+      .ayuda-temas { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+      .ayuda-temas::-webkit-scrollbar { display: none; }
+      .ayuda-temas a { flex: none; }
+    }
+
+  script.
+    // Buscador: deja a la vista solo las preguntas que coinciden y las abre (sin distinguir acentos ni mayúsculas)
+    (() => {
+      const normalizar = (texto) => texto.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+      const campo = document.getElementById('buscar-ayuda');
+      const preguntas = [...document.querySelectorAll('.ayuda-pregunta')];
+      const temas = [...document.querySelectorAll('.ayuda-tema')];
+      const vacio = document.getElementById('ayuda-vacio');
+      campo.addEventListener('input', () => {
+        const busqueda = normalizar(campo.value.trim());
+        let hay = 0;
+        preguntas.forEach((pregunta) => {
+          const coincide = !busqueda || normalizar(pregunta.textContent).includes(busqueda);
+          pregunta.classList.toggle('oculto', !coincide);
+          pregunta.open = Boolean(busqueda) && coincide;
+          if (coincide) hay++;
+        });
+        temas.forEach(tema => tema.classList.toggle('oculto', !tema.querySelector('.ayuda-pregunta:not(.oculto)')));
+        vacio.classList.toggle('oculto', hay > 0);
+      });
+    })();
+
+    // Al entrar por un enlace a un tema (#planes), abre su primera pregunta
+    if (location.hash) document.querySelector(`${location.hash} .ayuda-pregunta`)?.setAttribute('open', '');

@@ -12,6 +12,7 @@ import { conectarDB } from './config/db.js';
 // Middlewares
 import { requestLogger, notFoundHandler, errorHandler } from './middlewares/index.js';
 import verificarOrigen from './middlewares/origen.middleware.js';
+import Evento from './models/Evento.js';
 import { registrarActividad } from './middlewares/actividad.middleware.js';
 
 // Rutas
@@ -36,6 +37,7 @@ app.set('trust proxy', 1);
 
 app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, 'views'));
+app.locals.categoriasEvento = Evento.CATEGORIAS;
 
 // La conexión arranca primero: el almacén de sesiones usa la misma conexión (Atlas o local)
 const conexion = conectarDB();
@@ -116,6 +118,9 @@ app.use('/admin', adminRoutes);
 app.use('/admin/eventos', eventosRoutes);
 app.use('/entradas', entradasRoutes);
 app.use('/media', mediaRoutes);
+
+// Centro de ayuda: se puede consultar sin iniciar sesión (explica también cómo registrarse)
+app.get('/ayuda', (req, res) => res.render('ayuda'));
 
 app.get('/', (req, res) => {
   res.redirect('/auth/login');

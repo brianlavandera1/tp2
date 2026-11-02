@@ -40,6 +40,16 @@ block content
   - const claveMes = (ev) => { const f = ev.fecha ? new Date(ev.fecha) : null; return f ? `${f.getFullYear()}-${f.getMonth()}` : 'sin-fecha'; }
   - const mesesConEventos = [...new Map((eventos || []).filter(ev => ev.fecha).map(ev => [claveMes(ev), nombresMes[new Date(ev.fecha).getMonth()]])).entries()]
 
+  - const descuento = usuarioLogueado.porcentajeDescuento || 0
+  - const plata = (n) => `$${Math.round(n).toLocaleString('es-AR')}`
+
+  //- FILTRO POR CATEGORÍA
+  .filtros-categoria(role="group" aria-label="Filtrar por categoría")
+    button.filtro-categoria.activo(type="button" data-categoria="" aria-pressed="true") Todas
+    each categoria in categoriasEvento
+      - const cantidad = (eventos || []).filter(ev => (ev.categoria || 'Otros') === categoria).length
+      button.filtro-categoria(type="button" data-categoria=categoria aria-pressed="false") #{categoria} #[span= cantidad]
+
   //- FILTRO POR MES
   .barra-filtros
     if mesesConEventos.length > 1
@@ -59,7 +69,7 @@ block content
         - const precioPlatea = evento.precioPlatea != null ? evento.precioPlatea : precioGeneral
         - const precioVIP = evento.precioVIP != null ? evento.precioVIP : precioGeneral
         - const urlFoto = evento.entidad ? evento.entidad.urlFoto : null
-        article.evento.afiche(id=`evento-${evento._id}` data-mes=claveMes(evento))
+        article.evento.afiche(id=`evento-${evento._id}` data-mes=claveMes(evento) data-categoria=(evento.categoria || 'Otros'))
           .evento-portada(class=[`tono-${i % 6}`, urlFoto ? 'con-foto' : ''] style=urlFoto ? `--foto:url('${urlFoto}')` : undefined)
             if urlFoto
               .portada-foto(aria-hidden="true")
@@ -78,6 +88,7 @@ block content
 
           .evento-cuerpo
             .evento-meta
+              span.categoria-evento= evento.categoria || 'Otros'
               span #{evento.hora || '21:00'} hs
               if evento.sala
                 span= evento.sala.nombre
@@ -98,7 +109,11 @@ block content
                     input(type="radio" name="tipoEntrada" value=sector[0] checked=(sector[0] === 'General'))
                     span.sector-caja
                       span= sector[0]
-                      small $#{sector[1].toLocaleString('es-AR')}
+                      if descuento > 0
+                        small.sector-final= plata(sector[1] * (1 - descuento))
+                        del.sector-original(aria-label=`Precio original ${plata(sector[1])}`)= plata(sector[1])
+                      else
+                        small= plata(sector[1])
               .compra-fila
                 .cantidad-control
                   button(type="button" data-paso="-1" aria-label="Una entrada menos") −
@@ -108,6 +123,9 @@ block content
                   button.btn(type="button" disabled) Agotado
                 else
                   button.btn.btn-agregar(type="submit") Agregar
+    #sin-resultados.tarjeta.vacio.oculto(role="status")
+      h3 No hay eventos con estos filtros
+      p Probá con otra categoría o con otro mes.
   else
     .tarjeta.vacio
       h3 No encontramos eventos
@@ -116,6 +134,16 @@ block content
 
   style.
     .hero { margin-bottom: 18px; }
+    .filtros-categoria { display: flex; gap: 6px; margin-bottom: 10px; overflow-x: auto; scrollbar-width: none; }
+    .filtros-categoria::-webkit-scrollbar { display: none; }
+    .filtro-categoria { flex: none; padding: 10px 16px; border: 1px solid var(--color-borde); border-radius: 12px; background: var(--color-superficie); color: var(--color-texto-suave); font: inherit; font-size: 14px; font-weight: 500; cursor: pointer; }
+    .filtro-categoria span { margin-left: 3px; color: var(--color-texto-tenue); font-size: 12px; }
+    .filtro-categoria:hover { color: #fff; }
+    .filtro-categoria.activo { border-color: #a78fff; background: rgba(124, 92, 255, .28); color: #fff; font-weight: 600; }
+    .filtro-categoria.activo span { color: #e6e1f5; }
+    .categoria-evento { color: var(--enlace); font-weight: 600; }
+    .sector-original { color: var(--color-texto-tenue); font-size: 11px; font-weight: 400; }
+    .sector input:checked + .sector-caja .sector-original { color: #6b6b75; }
     .barra-filtros { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
     .filtros-mes { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; }
     .filtros-mes::-webkit-scrollbar { display: none; }
@@ -190,21 +218,32 @@ block content
       });
     }
 
-    // Filtro por mes: muestra solo los eventos de ese mes, sin recargar la página
+    // Filtros por categoría y por mes: se combinan y actualizan la lista sin recargar la página
     (() => {
-      const botones = [...document.querySelectorAll('.filtro-mes')];
       const eventos = [...document.querySelectorAll('.evento[data-mes]')];
       const conteo = document.getElementById('conteo-eventos');
-      botones.forEach(boton => boton.addEventListener('click', () => {
-        botones.forEach(b => { const activo = b === boton; b.classList.toggle('activo', activo); b.setAttribute('aria-pressed', String(activo)); });
+      const sinResultados = document.getElementById('sin-resultados');
+      const filtros = { categoria: '', mes: '' };
+
+      const aplicar = () => {
         let visibles = 0;
-        eventos.forEach(ev => {
-          const mostrar = !boton.dataset.mes || ev.dataset.mes === boton.dataset.mes;
+        eventos.forEach((ev) => {
+          const mostrar = (!filtros.categoria || ev.dataset.categoria === filtros.categoria) && (!filtros.mes || ev.dataset.mes === filtros.mes);
           ev.classList.toggle('oculto', !mostrar);
           if (mostrar) visibles++;
         });
         conteo.textContent = `${visibles} evento(s)`;
-      }));
+        sinResultados?.classList.toggle('oculto', visibles > 0);
+      };
+
+      [['.filtro-categoria', 'categoria'], ['.filtro-mes', 'mes']].forEach(([selector, filtro]) => {
+        const botones = [...document.querySelectorAll(selector)];
+        botones.forEach(boton => boton.addEventListener('click', () => {
+          botones.forEach((b) => { const activo = b === boton; b.classList.toggle('activo', activo); b.setAttribute('aria-pressed', String(activo)); });
+          filtros[filtro] = boton.dataset[filtro];
+          aplicar();
+        }));
+      });
     })();
 
     // Botones − y + de la cantidad: respetan el mínimo y el stock del evento

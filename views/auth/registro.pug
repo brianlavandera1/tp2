@@ -1,4 +1,5 @@
 extends ../layoutAcceso.pug
+include ../partials/password.pug
 
 block titulo
   | Crear cuenta · Urbana Cult
@@ -28,7 +29,7 @@ block content
         input#email(type="email" name="email" value=(datos ? datos.email : '') required autocomplete="email" placeholder="correo@ejemplo.com")
       .campo
         label(for="password") Contraseña
-        input#password(type="password" name="password" required autocomplete="new-password" placeholder="••••••••")
+        +campoPassword()(id="password" name="password" required autocomplete="new-password" placeholder="••••••••")
 
     .campos
       .campo

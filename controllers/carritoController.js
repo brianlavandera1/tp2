@@ -123,7 +123,8 @@ export const checkout = (req, res) => {
   const desc = Number((subtotal * (req.session.usuario.porcentajeDescuento || 0)).toFixed(2));
 
   res.render('Cliente/checkout', { 
-    usuarioLogueado: req.session.usuario, 
+    usuarioLogueado: req.session.usuario,
+    carrito, 
     subtotal, 
     descuentoAplicado: desc, 
     porcentajeDescuento: (req.session.usuario.porcentajeDescuento || 0) * 100,
@@ -150,6 +151,7 @@ export const procesarPago = async (req, res) => {
     const desc = Number((subtotal * (req.session.usuario.porcentajeDescuento || 0)).toFixed(2));
     return res.status(400).render('Cliente/checkout', {
       usuarioLogueado: req.session.usuario,
+    carrito,
       subtotal,
       descuentoAplicado: desc,
       porcentajeDescuento: (req.session.usuario.porcentajeDescuento || 0) * 100,

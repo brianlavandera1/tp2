@@ -1,4 +1,5 @@
 extends ../layoutAcceso.pug
+include ../partials/password.pug
 
 block titulo
   | Iniciar sesión · Urbana Cult
@@ -17,8 +18,10 @@ block content
       input#identificador(type="text" name="identificador" required autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="ej: cliente1 o correo@email.com" value=(typeof datos !== 'undefined' && datos ? datos.identificador : ''))
     .campo
       label(for="password") Contraseña
-      input#password(type="password" name="password" required autocomplete="current-password" placeholder="••••••••")
+      +campoPassword()(id="password" name="password" required autocomplete="current-password" placeholder="••••••••")
     button.btn.btn-bloque.btn-grande(type="submit") Entrar
 
   p.centrado.texto-suave.mt
     | ¿No tenés cuenta? #[a.negrita(href="/auth/registro") Registrate gratis]
+  p.centrado.texto-suave
+    a(href="/ayuda") ¿Necesitás ayuda?

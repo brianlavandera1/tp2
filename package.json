@@ -13,7 +13,8 @@
     "start": "node index.js",
     "dev": "nodemon index.js",
     "test": "node --test",
-    "seed": "node scripts/seed.js"
+    "seed": "node scripts/seed.js",
+    "categorias": "node scripts/asignarCategorias.js"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",

@@ -1,4 +1,5 @@
 extends ../layoutCliente.pug
+include ../partials/plan.pug
 
 block titulo
   | Mi carrito · Urbana Cult
@@ -7,6 +8,8 @@ block content
   - const plata = (n) => `$${Math.round(n).toLocaleString('es-AR')}`
   - const meses = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic']
   - const totalEntradas = (carrito || []).reduce((suma, item) => suma + item.cantidad, 0)
+  - const nombrePlan = { PREMIUM: 'Premium', VIP: 'VIP' }[usuarioLogueado.tipoCliente] || 'Estándar'
+  - const conDescuento = (n) => n * (1 - porcentajeDescuento / 100)
 
   if carrito && carrito.length > 0
     .carrito-encabezado
@@ -42,22 +45,26 @@ block content
                   form.en-linea(action=`/cliente/carrito/cantidad/${index}` method="POST")
                     input(type="hidden" name="paso" value="1")
                     button(type="submit" disabled=(item.restantes <= 0) aria-label=`Una entrada más de ${item.nombreEvento}`) +
-                strong.linea-importe= plata(item.precio * item.cantidad)
+                span.linea-precios
+                  if porcentajeDescuento > 0
+                    del.linea-original(aria-label=`Precio original ${plata(item.precio * item.cantidad)}`)= plata(item.precio * item.cantidad)
+                  strong.linea-importe= plata(conDescuento(item.precio * item.cantidad))
               if item.restantes <= 0
                 p.linea-aviso Ya tenés todas las entradas disponibles de este evento.
 
       aside.caja-total
         h2 Resumen
+        +avisoPlan(usuarioLogueado)
         .resumen
           .linea
-            span #{totalEntradas} #{totalEntradas === 1 ? 'entrada' : 'entradas'}
+            span Precio original (#{totalEntradas} #{totalEntradas === 1 ? 'entrada' : 'entradas'})
             span= plata(subtotal)
           if porcentajeDescuento > 0
             .linea.linea-ahorro
-              span Descuento de tu plan (#{Math.round(porcentajeDescuento)}%)
+              span Descuento plan #{nombrePlan} (#{Math.round(porcentajeDescuento)}%)
               span −#{plata(descuentoAplicado)}
           .total
-            span Total
+            span Precio final
             span.precio= plata(total)
         if porcentajeDescuento > 0
           p.ahorro-destacado Con tu plan ahorrás #{plata(descuentoAplicado)} en esta compra
@@ -105,6 +112,8 @@ block content
     .linea-cantidad button { width: 36px; height: 38px; border: 0; background: none; color: #fff; font-size: 18px; cursor: pointer; }
     .linea-cantidad button:disabled { color: var(--color-texto-tenue); opacity: .5; cursor: not-allowed; }
     .linea-cantidad output { min-width: 24px; text-align: center; font-weight: 600; font-variant-numeric: tabular-nums; }
+    .linea-precios { display: grid; justify-items: end; line-height: 1.15; }
+    .linea-original { color: var(--color-texto-tenue); font-size: 13px; }
     .linea-importe { min-width: 92px; text-align: right; font-size: 20px; font-weight: 600; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
     .linea-aviso { margin: 0; color: var(--color-aviso); font-size: 13px; }
 
@@ -131,6 +140,7 @@ block content
       .linea-carrito { grid-template-columns: minmax(0, 1fr); }
       .linea-foto { min-height: 130px; }
       .linea-unidad { display: block; }
-      .linea-importe { min-width: 0; margin-left: auto; }
+      .linea-precios { margin-left: auto; }
+      .linea-importe { min-width: 0; }
       .linea-sector { width: 100%; }
     }

@@ -7,3 +7,14 @@ meta(name="description" content="Urbana Cult · Venta de entradas para eventos c
 link(rel="icon" type="image/svg+xml" href="data:image/svg+xml," + encodeURIComponent(iconoSvg))
 include estilos.pug
 include seguimiento.pug
+script.
+  // Ojo de los campos de contraseña: muestra u oculta lo escrito (ver partials/password.pug)
+  document.addEventListener('click', (e) => {
+    const ojo = e.target.closest('[data-ojo]');
+    if (!ojo) return;
+    const campo = ojo.previousElementSibling;
+    const mostrar = campo.type === 'password';
+    campo.type = mostrar ? 'text' : 'password';
+    ojo.setAttribute('aria-pressed', String(mostrar));
+    ojo.setAttribute('aria-label', mostrar ? 'Ocultar contraseña' : 'Mostrar contraseña');
+  });

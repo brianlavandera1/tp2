@@ -37,6 +37,7 @@ block content
                 td
                   .negrita= ev.nombre
                   .texto-tenue= ev.entidad ? ev.entidad.nombre : 'Sin artista'
+                  .texto-tenue= ev.categoria
                 td= ev.sala ? ev.sala.nombre : 'Sin asignar'
                 td
                   | #{new Date(ev.fecha).toLocaleDateString('es-AR')}

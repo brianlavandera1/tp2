@@ -67,7 +67,7 @@ Si la conexión a Atlas falla o no está configurada, la aplicación se conecta 
 
    > ⚠️ El seed **borra** usuarios, artistas, salas, eventos, entradas y transacciones de la base configurada antes de cargar los datos de ejemplo. No ejecutarlo sobre una base con datos reales.
 
-   El seed carga 6 usuarios de prueba, 10 artistas (todos con foto), 3 salas, 11 funciones y un **historial de ventas de demostración**: 20 clientes más y unas 1.700 compras de los últimos 45 días (online y en boletería, con descuentos y algunas cancelaciones), para que el informe, el panel y la auditoría tengan datos. Las funciones y las ventas son **ficticias**: existen solo como datos de demostración del proyecto. El historial se genera siempre igual (semilla fija) y respeta el cupo de cada sector.
+   El seed carga pocos datos, con al menos dos de cada cosa: 12 usuarios (dos por rol y dos clientes por plan), 14 artistas (todos con foto), 3 salas, 16 eventos (dos o más por categoría) y un **historial de ventas de demostración** de 32 compras de la última semana, con 2 cancelaciones.
 
 5. **Iniciar el servidor**
 
@@ -94,12 +94,12 @@ Todos usan la contraseña `123` y se puede entrar con el nombre de usuario o con
 
 | Usuario | Email | Rol |
 |---|---|---|
-| `admin` | admin@email.com | Administrador |
-| `supervisor` | supervisor@email.com | Supervisor |
-| `lector` | lector@email.com | Lector |
-| `cliente1` | juan.perez@email.com | Cliente con membresía VIP (30 % de descuento) |
-| `cliente3` | pedro.ruiz@email.com | Cliente con membresía Premium (15 % de descuento) |
-| `cliente2` | maria.gomez@email.com | Cliente con membresía Estándar (sin descuento) |
+| `admin`, `admin2` | admin@email.com, admin2@email.com | Administrador |
+| `supervisor`, `supervisor2` | supervisor@email.com, supervisor2@email.com | Supervisor |
+| `lector`, `lector2` | lector@email.com, lector2@email.com | Lector |
+| `cliente1`, `cliente4` | juan.perez@email.com, lucia.torres@email.com | Cliente con membresía VIP (30 % de descuento) |
+| `cliente3`, `cliente6` | pedro.ruiz@email.com, sofia.romero@email.com | Cliente con membresía Premium (15 % de descuento) |
+| `cliente2`, `cliente5` | maria.gomez@email.com, mateo.diaz@email.com | Cliente con membresía Estándar (sin descuento) |
 
 Se pueden crear más usuarios de personal desde el panel del administrador, en **Usuarios → Crear personal**.
 
@@ -160,7 +160,7 @@ La **autorización** es la misma para los dos mecanismos: los middlewares `verif
 - **Salas:** CRUD con capacidad por sector (General, Platea y VIP).
 - **Eventos:** CRUD asociado a una sala y a un artista o compañía, con precio por sector y control de cupo según la capacidad de la sala.
 - **Artistas / entidades:** alta rápida desde el formulario de eventos o desde su propia sección, con **foto opcional** (JPG, PNG o WEBP de hasta 2 MB) que se puede cambiar o quitar.
-- **Cartelera:** búsqueda por texto (nombre, descripción o artista) y filtro por fecha. Filtro por mes sin recargar la página. Cada afiche muestra la foto del artista con el título encima, la fecha, la sala y el precio por sector, con la elección de sector y cantidad, y la portada muestra al artista destacado.
+- **Cartelera:** búsqueda por texto (nombre, descripción o artista) y filtro por fecha. Filtros por categoría y por mes sin recargar la página. Cada afiche muestra la foto del artista con el título encima, la fecha, la sala y el precio por sector, con la elección de sector y cantidad, y la portada muestra al artista destacado.
 - **Diseño del sitio:** tema oscuro violeta con el degradé del ícono en las acciones principales (`views/partials/estilosUrbana.pug`). El panel de gestión comparte esa identidad (`views/partials/estilosPanel.pug`) y su inicio muestra las ventas de los últimos 7 días y la ocupación de las próximas funciones. En el celular, la navegación del cliente pasa a una barra inferior.
 - **Carrito y pago simulado:** validación de stock por sector, descuento según la membresía, validación de tarjeta en el servidor y comprobante de compra.
 - **Reserva atómica de cupos:** dos compras simultáneas no pueden sobrevender un sector.
@@ -371,6 +371,7 @@ Las validaciones se aplican en los esquemas (campos obligatorios, formatos de em
 | `npm start` | Inicia el servidor. |
 | `npm run dev` | Inicia el servidor con nodemon. |
 | `npm run seed` | Borra y carga datos de prueba en la base configurada. |
+| `npm run categorias` | Completa la categoría de los eventos de demostración que no tienen una, sin borrar ni pisar nada. |
 
 ---
 

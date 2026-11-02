@@ -24,6 +24,12 @@ mixin camposEvento(ev, entidades, salas)
       input#nombreEntidadTexto.oculto(type="text" name="nombreEntidadTexto" placeholder="Nombre del nuevo artista o compañía" autocomplete="off" style="margin-top:8px")
 
     .campo.ancho
+      label(for="categoria") Categoría
+      select#categoria(name="categoria" required)
+        each categoria in categoriasEvento
+          option(value=categoria selected=((ev.categoria || 'Otros') === categoria))= categoria
+
+    .campo.ancho
       label(for="descripcion") Descripción
       textarea#descripcion(name="descripcion" rows="3" required)= ev.descripcion
 

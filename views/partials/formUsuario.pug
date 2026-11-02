@@ -1,3 +1,4 @@
+include password.pug
 //- Campos compartidos por "Crear personal" y "Editar usuario".
 //- u: datos a precargar · conPassword: muestra el campo de contraseña (solo al crear)
 mixin camposUsuario(u, conPassword)
@@ -23,7 +24,7 @@ mixin camposUsuario(u, conPassword)
     if conPassword
       .campo.ancho
         label(for="password") Contraseña
-        input#password(type="password" name="password" required autocomplete="new-password")
+        +campoPassword()(id="password" name="password" required autocomplete="new-password")
     .campo
       label(for="dni") DNI
       input#dni(type="text" name="dni" value=u.dni required pattern="\\d{7,8}" title="7 u 8 números" minlength="7" maxlength="8" inputmode="numeric" onkeypress=soloNumeros)

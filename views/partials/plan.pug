@@ -1,0 +1,11 @@
+//- Plan del cliente: nombre y descuento, con el enlace para cambiarlo
+//- porcentajeDescuento se guarda como fracción (0.15 = 15%)
+mixin avisoPlan(usuario)
+  - const nombres = { PREMIUM: 'Premium', VIP: 'VIP' }
+  - const nombre = nombres[usuario.tipoCliente] || 'Estándar'
+  - const porcentaje = Math.round((usuario.porcentajeDescuento || 0) * 100)
+  a.aviso-plan(href="/cliente/membresia" class=(porcentaje > 0 ? 'con-descuento' : ''))
+    span.aviso-plan-texto
+      strong Tu plan: #{nombre}
+      span= porcentaje > 0 ? `Pagás ${porcentaje}% menos en todas tus entradas` : 'Sin descuento en tus entradas'
+    span.aviso-plan-accion= porcentaje > 0 ? 'Cambiar' : 'Ver planes'

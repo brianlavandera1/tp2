@@ -8,9 +8,6 @@ block content
     h1 Mientras más salís, más ahorrás
     p Elegí tu plan y pagá menos en todas tus entradas.
 
-  if error
-    .alerta.alerta-error(role="alert") #{error}
-
   - const planActual = usuarioCompleto && usuarioCompleto.tipoCliente ? usuarioCompleto.tipoCliente : 'ESTANDAR'
   - const elegido = datos && datos.tipoCliente ? datos.tipoCliente : planActual
   - const base = ['Acceso a toda la cartelera', 'Entradas digitales con QR', 'Cancelación online']
@@ -72,6 +69,8 @@ block content
     //- Los datos de pago solo aparecen al elegir un plan pago
     .tarjeta#datos-pago
       h2 Datos de pago
+      if error
+        #error-pago.alerta.alerta-error(role="alert") #{error}
       .campo
         label(for="titular") Titular de la tarjeta
         input#titular(type="text" name="titular" placeholder="Nombre y apellido" value=(datos ? datos.titular : '') onkeypress="return (event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || event.charCode === 32 || event.charCode === 209 || event.charCode === 241")
@@ -172,6 +171,15 @@ block content
       };
       opciones.forEach(o => o.addEventListener('change', actualizarPlan));
       actualizarPlan();
+
+      // Si la tarjeta tuvo un error, la pantalla queda en los datos de pago, con el cursor en el campo a corregir
+      const errorPago = document.getElementById('error-pago');
+      if (errorPago) {
+        datosPago.scrollIntoView({ block: 'center' });
+        const campos = { titular: 'titular', 'número': 'numeroTarjeta', vencimiento: 'vencimiento', CVV: 'cvv' };
+        const clave = Object.keys(campos).find(texto => errorPago.textContent.includes(texto));
+        if (clave) document.getElementById(campos[clave]).focus({ preventScroll: true });
+      }
 
       // Calculadora: lo que se paga por mes con cada plan = entradas con descuento + cuota
       const lineas = [...document.querySelectorAll('.calc-linea')];

@@ -20,13 +20,17 @@ block content
                   span.texto-tenue #{item.tipoEntrada} · #{item.cantidad} #{item.cantidad === 1 ? 'entrada' : 'entradas'}
                 td.num $#{(item.precio * item.cantidad).toLocaleString('es-AR')}
 
+      - const nombrePlan = { PREMIUM: 'Premium', VIP: 'VIP' }[usuarioLogueado.tipoCliente] || 'Estándar'
       .resumen.mt
         if transaccion.descuentoAplicado > 0
           .linea
-            span Descuento por membresía
+            span Precio original
+            span $#{transaccion.subtotal.toLocaleString('es-AR')}
+          .linea
+            span Descuento plan #{nombrePlan} (#{Math.round(transaccion.descuentoAplicado / transaccion.subtotal * 100)}%)
             span −$#{transaccion.descuentoAplicado.toLocaleString('es-AR')}
         .total
-          span Total · #{transaccion.medioPago} (•••• #{transaccion.tarjetaUltimosDigitos})
+          span Precio final · #{transaccion.medioPago} (•••• #{transaccion.tarjetaUltimosDigitos})
           span.precio $#{transaccion.total.toLocaleString('es-AR')}
 
       .acciones-formulario.mt.no-imprimir

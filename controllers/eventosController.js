@@ -22,6 +22,8 @@ const combinarFechaHora = (fecha, hora) => {
   return new Date(`${fecha}T${horaValida}`);
 };
 
+const categoriaValida = (categoria) => Evento.CATEGORIAS.includes(categoria) ? categoria : 'Otros';
+
 const isHtmlRequest = (req) => {
   return (req.headers.accept && req.headers.accept.includes('text/html')) || 
          (req.headers['content-type'] && req.headers['content-type'].includes('application/x-www-form-urlencoded'));
@@ -84,6 +86,7 @@ const createEvento = async (req, res) => {
 
     const nuevoEvento = new Evento({
       nombre, descripcion, fecha: combinarFechaHora(fecha, hora), hora,
+      categoria: categoriaValida(req.body.categoria),
       precio: parseFloat(precio) || 5000,
       precioPlatea: precioOpcional(req.body.precioPlatea),
       precioVIP: precioOpcional(req.body.precioVIP),
@@ -126,6 +129,7 @@ const updateEvento = async (req, res) => {
 
     if (nombre) updateData.nombre = nombre;
     if (descripcion) updateData.descripcion = descripcion;
+    if (req.body.categoria !== undefined) updateData.categoria = categoriaValida(req.body.categoria);
     if (fecha) updateData.fecha = combinarFechaHora(fecha, hora);
     if (hora) updateData.hora = hora;
     if (precio !== undefined) updateData.precio = parseFloat(precio);

@@ -14,6 +14,7 @@ import Entidad from '../models/Entidad.js';
 import CancelacionLog from '../models/CancelacionLog.js';
 import Actividad from '../models/Actividad.js';
 import { generarVentasDemo } from './ventasDemo.js';
+import { CATEGORIAS_DEMO } from './categoriasDemo.js';
 
 const __filename = fileURLToPath(import.meta.url);
 
@@ -81,7 +82,12 @@ async function poblarBaseDeDatos() {
       'Gustavo Cerati',
       'Bizarrap',
       'Tini Stoessel',
-      'Wos'
+      'Wos',
+      'Salman Salem',
+      'Starbugs Comedy',
+      'Beyond Experience',
+      'Rokerijada',
+      'Feria Nocturna'
     ];
 
     // Cada artista se guarda con su foto de scripts/seed-fotos. Para que la demo se vea completa,
@@ -99,109 +105,28 @@ async function poblarBaseDeDatos() {
 
     const passwordHash = await bcrypt.hash('123', 10);
 
-    await Usuario.findOneAndUpdate(
-      { nombreUsuario: 'admin' },
-      {
-        nombre: 'Administrador',
-        apellido: 'Principal',
-        email: 'admin@email.com',
-        password: passwordHash,
-        dni: '99887766',
-        fechaNacimiento: new Date('1980-01-01'),
-        telefono: '1100112233',
-        rol: 'Administrador',
-        tipoCliente: 'VIP',
-        porcentajeDescuento: 0.3
-      },
-      { upsert: true, returnDocument: 'after', setDefaultsOnInsert: true }
-    );
-
-    const cliente1 = await Usuario.findOneAndUpdate(
-      { nombreUsuario: 'cliente1' },
-      {
-        nombre: 'Juan',
-        apellido: 'Perez',
-        email: 'juan.perez@email.com',
-        password: passwordHash,
-        dni: '12345678',
-        fechaNacimiento: new Date('1995-05-15'),
-        telefono: '1122334455',
-        rol: 'Cliente',
-        tipoCliente: 'VIP',
-        porcentajeDescuento: 0.3
-      },
-      { upsert: true, returnDocument: 'after', setDefaultsOnInsert: true }
-    );
-
-    await Usuario.findOneAndUpdate(
-      { nombreUsuario: 'supervisor' },
-      {
-        nombre: 'Sara',
-        apellido: 'Lopez',
-        email: 'supervisor@email.com',
-        password: passwordHash,
-        dni: '23456789',
-        fechaNacimiento: new Date('1985-03-10'),
-        telefono: '1133445566',
-        rol: 'Supervisor',
-        tipoCliente: 'ESTANDAR',
-        porcentajeDescuento: 0
-      },
-      { upsert: true, returnDocument: 'after', setDefaultsOnInsert: true }
-    );
-
-    await Usuario.findOneAndUpdate(
-      { nombreUsuario: 'lector' },
-      {
-        nombre: 'Luis',
-        apellido: 'Martinez',
-        email: 'lector@email.com',
-        password: passwordHash,
-        dni: '34567890',
-        fechaNacimiento: new Date('1988-07-22'),
-        telefono: '1144556677',
-        rol: 'Lector',
-        tipoCliente: 'ESTANDAR',
-        porcentajeDescuento: 0
-      },
-      { upsert: true, returnDocument: 'after', setDefaultsOnInsert: true }
-    );
-
-    await Usuario.findOneAndUpdate(
-      { nombreUsuario: 'cliente2' },
-      {
-        nombre: 'Maria',
-        apellido: 'Gomez',
-        email: 'maria.gomez@email.com',
-        password: passwordHash,
-        dni: '45678901',
-        fechaNacimiento: new Date('1998-11-03'),
-        telefono: '1155667788',
-        rol: 'Cliente',
-        tipoCliente: 'ESTANDAR',
-        porcentajeDescuento: 0
-      },
-      { upsert: true, returnDocument: 'after', setDefaultsOnInsert: true }
-    );
-
-    await Usuario.findOneAndUpdate(
-      { nombreUsuario: 'cliente3' },
-      {
-        nombre: 'Pedro',
-        apellido: 'Ruiz',
-        email: 'pedro.ruiz@email.com',
-        password: passwordHash,
-        dni: '56789012',
-        fechaNacimiento: new Date('1992-02-18'),
-        telefono: '1166778899',
-        rol: 'Cliente',
-        tipoCliente: 'PREMIUM',
-        porcentajeDescuento: 0.15
-      },
-      { upsert: true, returnDocument: 'after', setDefaultsOnInsert: true }
-    );
-
-    console.log('👥 6 usuarios de prueba cargados (contraseña: 123).');
+    // Dos usuarios de cada rol y dos clientes de cada plan
+    // [usuario, nombre, apellido, email, DNI, nacimiento, teléfono, rol, plan, descuento]
+    const usuariosSeed = [
+      ['admin', 'Administrador', 'Principal', 'admin@email.com', '99887766', '1980-01-01', '1100112233', 'Administrador', 'VIP', 0.3],
+      ['admin2', 'Ana', 'Rossi', 'admin2@email.com', '99887755', '1982-04-12', '1100112244', 'Administrador', 'VIP', 0.3],
+      ['supervisor', 'Sara', 'Lopez', 'supervisor@email.com', '23456789', '1985-03-10', '1133445566', 'Supervisor', 'ESTANDAR', 0],
+      ['supervisor2', 'Tomas', 'Vega', 'supervisor2@email.com', '23456788', '1986-09-21', '1133445577', 'Supervisor', 'ESTANDAR', 0],
+      ['lector', 'Luis', 'Martinez', 'lector@email.com', '34567890', '1988-07-22', '1144556677', 'Lector', 'ESTANDAR', 0],
+      ['lector2', 'Elena', 'Sosa', 'lector2@email.com', '34567891', '1990-12-05', '1144556688', 'Lector', 'ESTANDAR', 0],
+      ['cliente1', 'Juan', 'Perez', 'juan.perez@email.com', '12345678', '1995-05-15', '1122334455', 'Cliente', 'VIP', 0.3],
+      ['cliente2', 'Maria', 'Gomez', 'maria.gomez@email.com', '45678901', '1998-11-03', '1155667788', 'Cliente', 'ESTANDAR', 0],
+      ['cliente3', 'Pedro', 'Ruiz', 'pedro.ruiz@email.com', '56789012', '1992-02-18', '1166778899', 'Cliente', 'PREMIUM', 0.15],
+      ['cliente4', 'Lucia', 'Torres', 'lucia.torres@email.com', '30100001', '1994-06-09', '1150000001', 'Cliente', 'VIP', 0.3],
+      ['cliente5', 'Mateo', 'Diaz', 'mateo.diaz@email.com', '30100002', '2000-01-27', '1150000002', 'Cliente', 'ESTANDAR', 0],
+      ['cliente6', 'Sofia', 'Romero', 'sofia.romero@email.com', '30100003', '1997-08-14', '1150000003', 'Cliente', 'PREMIUM', 0.15]
+    ];
+    await Usuario.insertMany(usuariosSeed.map(([nombreUsuario, nombre, apellido, email, dni, nacimiento, telefono, rol, tipoCliente, porcentajeDescuento]) => ({
+      nombreUsuario, nombre, apellido, email, dni, telefono, rol, tipoCliente, porcentajeDescuento,
+      password: passwordHash,
+      fechaNacimiento: new Date(nacimiento)
+    })));
+    console.log(`👥 ${usuariosSeed.length} usuarios de prueba cargados (contraseña: 123).`);
 
     // --- SALAS ---
     const salaTeatro = await Sala.create({
@@ -223,13 +148,20 @@ async function poblarBaseDeDatos() {
       ubicacion: 'Sarmiento 3131, CABA'
     });
 
-    // --- EVENTOS (funciones ficticias para la demo, en orden de fecha) ---
-    // [artista, nombre, descripción, fecha, hora, sala, precio General, Platea, VIP]
+    // --- EVENTOS (funciones ficticias para la demo; al menos dos por categoría, ver categoriasDemo.js) ---
+    // [artista, nombre, descripción, fecha, hora, sala, precio General, Platea, VIP, cupo (opcional)]
     const eventosSeed = [
+      ['Salman Salem', 'Mazyoun y Thabya', 'Obra de teatro protagonizada por Salman Salem.', '2026-11-20', '20:30', salaTeatro, 18000, 25000, 32000],
+      ['Starbugs Comedy', 'Starbugs Comedy en Vivo', 'Humor físico, música y coreografías en una noche para reírse sin parar.', '2026-11-28', '22:30', salaTeatro, 24000, 32000, 45000],
+      ['Beyond Experience', 'Beyond Van Gogh: Experiencia Inmersiva', 'Las obras de Van Gogh proyectadas a gran escala en una muestra para recorrer.', '2026-12-06', '16:00', salaKonex, 12000, 12000, 18000],
+      ['Beyond Experience', 'Beyond Monet: Experiencia Inmersiva', 'Los paisajes de Monet con proyecciones y sonido envolvente.', '2026-12-13', '17:00', salaKonex, 12000, 12000, 18000],
+      ['Rokerijada', 'Festival Rokerijada', 'Una noche de rock al aire libre con varias bandas en vivo.', '2026-12-19', '18:00', salaKonex, 15000, 20000, 28000],
+      ['Feria Nocturna', 'Noche de Comida Callejera', 'Puestos de comida, luces y música para recorrer de noche.', '2027-01-09', '19:00', salaKonex, 3000, 3000, 6000],
+      ['Fundación Konex', 'Visita Guiada por la Ciudad Cultural', 'Un recorrido por las salas y el patio de la Ciudad Cultural Konex.', '2027-01-23', '18:30', salaKonex, 2500, 2500, 4000],
       ['Les Luthiers', 'Les Luthiers: Grandes Hitos', 'Humor y música con instrumentos informales en un repaso por sus obras más célebres.', '2026-11-27', '21:00', salaTeatro, 30000, 40000, 55000],
-      ['Gustavo Cerati', 'Homenaje Sinfónico a Gustavo Cerati', 'Sus canciones en versión sinfónica con orquesta y músicos invitados.', '2026-12-04', '21:00', salaTeatro, 22000, 30000, 42000],
+      ['Gustavo Cerati', 'Homenaje Sinfónico a Gustavo Cerati', 'Sus canciones en versión sinfónica con orquesta y músicos invitados.', '2026-12-04', '21:00', salaTeatro, 22000, 30000, 42000, 20],
       ['Cirque du Soleil', 'Cirque du Soleil: Toruk', 'Circo contemporáneo con escenografía y proyecciones monumentales.', '2026-12-05', '20:00', salaEstadio, 45000, 65000, 90000],
-      ['Fundación Konex', 'Ciclo Konex: Noches en el Patio', 'Música en vivo al aire libre en el patio de la Ciudad Cultural.', '2026-12-12', '19:00', salaKonex, 8000, 12000, 16000],
+      ['Fundación Konex', 'Ciclo Konex: Noches en el Patio', 'Música en vivo al aire libre en el patio de la Ciudad Cultural.', '2026-12-12', '19:00', salaKonex, 8000, 12000, 16000, 20],
       ['Orquesta Sinfónica Nacional', 'Gran Concierto Sinfónico de Fin de Año', 'La Orquesta Sinfónica Nacional despide el año con obras clásicas.', '2026-12-28', '22:00', salaTeatro, 5000, 8000, 12000],
       ['Charly García', 'Charly García en Vivo', 'Un recorrido por los clásicos del rock nacional.', '2027-01-15', '21:30', salaEstadio, 35000, 50000, 80000],
       ['Bizarrap', 'Bizarrap Live Session', 'Show en vivo con invitados sorpresa y producción audiovisual.', '2027-02-06', '22:00', salaEstadio, 40000, 60000, 95000],
@@ -238,13 +170,14 @@ async function poblarBaseDeDatos() {
     ];
 
     let eventosCargados = 0;
-    for (const [artista, nombre, descripcion, fecha, hora, sala, precio, precioPlatea, precioVIP] of eventosSeed) {
+    for (const [artista, nombre, descripcion, fecha, hora, sala, precio, precioPlatea, precioVIP, cupo] of eventosSeed) {
       if (!artistas[artista]) continue; // artista omitido por no tener foto
       eventosCargados++;
       await Evento.create({
         nombre, descripcion, hora, precio, precioPlatea, precioVIP,
+        categoria: CATEGORIAS_DEMO[nombre],
         fecha: new Date(`${fecha}T${hora}`),
-        entradasDisponibles: sala.capacidad,
+        entradasDisponibles: cupo || sala.capacidad,
         sala: sala._id,
         entidad: artistas[artista]._id
       });
@@ -253,9 +186,14 @@ async function poblarBaseDeDatos() {
     console.log(`🎟️ ${eventosCargados} eventos cargados en 3 salas.`);
 
     // --- HISTORIAL DE VENTAS DE DEMOSTRACIÓN (para que el informe y la auditoría tengan datos) ---
-    const clientesBase = await Usuario.find({ rol: 'Cliente' });
-    const ventas = await generarVentasDemo({ passwordHash, clientesBase });
-    console.log(`📈 Historial: ${ventas.transacciones} compras de los últimos 45 días, ${ventas.entradas} entradas vigentes, ${ventas.cancelaciones} cancelaciones y ${ventas.clientes} clientes de demostración.`);
+    const clientes = await Usuario.find({ rol: 'Cliente' });
+    const ventas = await generarVentasDemo({
+      clientes,
+      // Los eventos con poco cupo aparecen en "Se están agotando" del inicio
+      casiAgotados: ['Homenaje Sinfónico a Gustavo Cerati', 'Ciclo Konex: Noches en el Patio'],
+      cancelar: ['Beyond Monet: Experiencia Inmersiva', 'Charly García en Vivo']
+    });
+    console.log(`📈 Historial: ${ventas.transacciones} compras de la última semana, ${ventas.entradas} entradas y ${ventas.cancelaciones} cancelaciones.`);
     console.log('✨ ¡Seed ejecutado por completo!');
 
   } catch (error) {
