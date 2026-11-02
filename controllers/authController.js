@@ -6,7 +6,9 @@ import { firmarToken } from '../middlewares/jwt.middleware.js';
 // Devuelve el usuario si el identificador (nombre o email) y la contraseña coinciden; si no, null
 const buscarPorCredenciales = async (identificador, password) => {
   if (typeof identificador !== 'string' || typeof password !== 'string' || !identificador.trim() || !password) return null;
-  const usuario = await Usuario.findOne({ $or: [{ nombreUsuario: identificador.trim() }, { email: identificador.trim() }] });
+  const filtro = { $or: [{ nombreUsuario: identificador.trim() }, { email: identificador.trim() }] };
+  // Primero la coincidencia exacta; si no hay, sin distinguir mayúsculas (el teclado del celular pone la primera sola)
+  const usuario = await Usuario.findOne(filtro) || await Usuario.findOne(filtro).collation({ locale: 'es', strength: 2 });
   if (!usuario) return null;
   return (await bcrypt.compare(password, usuario.password)) ? usuario : null;
 };

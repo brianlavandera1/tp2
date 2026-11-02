@@ -12,7 +12,7 @@ block content
   form(action="/auth/registro" method="POST")
     .campo
       label(for="nombreUsuario") Nombre de usuario
-      input#nombreUsuario(type="text" name="nombreUsuario" value=(datos ? datos.nombreUsuario : '') required autocomplete="username" placeholder="ej: juanperez")
+      input#nombreUsuario(type="text" name="nombreUsuario" value=(datos ? datos.nombreUsuario : '') required autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="ej: juanperez")
 
     .campos
       .campo

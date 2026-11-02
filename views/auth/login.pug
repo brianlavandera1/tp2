@@ -14,7 +14,7 @@ block content
   form(action="/auth/login" method="POST")
     .campo
       label(for="identificador") Email o nombre de usuario
-      input#identificador(type="text" name="identificador" required autocomplete="username" placeholder="ej: cliente1 o correo@email.com" value=(typeof datos !== 'undefined' && datos ? datos.identificador : ''))
+      input#identificador(type="text" name="identificador" required autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="ej: cliente1 o correo@email.com" value=(typeof datos !== 'undefined' && datos ? datos.identificador : ''))
     .campo
       label(for="password") Contraseña
       input#password(type="password" name="password" required autocomplete="current-password" placeholder="••••••••")
