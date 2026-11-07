@@ -3,10 +3,42 @@
 <head>
   <meta charset="UTF-8">
   <title>DOCUMENTACIÓN - Parte 3 (Entrega Final) · Urbana Cult</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --tinta: #1b1530;
+      --texto: #2e2945;
+      --suave: #6b6585;
+      --violeta: #5b3fd9;
+      --violeta-osc: #2d1f63;
+      --magenta: #cf3aa6;
+      --oro: #d4a72c;
+      --fondo-suave: #f6f4ff;
+      --borde: #e3ddf6;
+      --degrade: linear-gradient(100deg, #6d4dff, #a03cf0 70%, #cf3aa6);
+    }
+
     @page {
       size: A4;
-      margin: 13.5mm 15mm 13.5mm 15mm;
+      margin: 16mm 15mm 17mm 15mm;
+      @bottom-left {
+        content: "Urbana Cult · Documentación Parte 3 · Sintaxia (Grupo 19)";
+        font-family: 'Inter', 'Segoe UI', sans-serif;
+        font-size: 7.5pt;
+        color: #8a84a3;
+      }
+      @bottom-right {
+        content: "Página " counter(page) " de " counter(pages);
+        font-family: 'Inter', 'Segoe UI', sans-serif;
+        font-size: 7.5pt;
+        color: #8a84a3;
+      }
+    }
+    @page :first {
+      margin: 0;
+      @bottom-left { content: none; }
+      @bottom-right { content: none; }
     }
 
     * {
@@ -16,307 +48,385 @@
     }
 
     body {
-      font-family: 'Segoe UI', Calibri, 'Helvetica Neue', Arial, sans-serif;
-      color: #1f2937;
-      font-size: 9.6pt;
-      line-height: 1.41;
+      font-family: 'Inter', 'Segoe UI', Calibri, Arial, sans-serif;
+      color: var(--texto);
+      font-size: 9.4pt;
+      line-height: 1.5;
       margin: 0;
-      padding: 0;
       background: #ffffff;
     }
 
-    /* Portada / Encabezado estilo Parte 2 */
-    .header-principal {
-      text-align: center;
-      margin-bottom: 22px;
-      padding-bottom: 6px;
+    /* ---------- PORTADA ---------- */
+    .portada {
+      position: relative;
+      width: 210mm;
+      height: 296mm;
+      overflow: hidden;
+      background: #110d1f;
+      color: #ffffff;
+      padding: 30mm 22mm 24mm;
+      display: flex;
+      flex-direction: column;
+      page-break-after: always;
+      break-after: page;
     }
-
-    .header-principal h1 {
-      font-size: 21pt;
-      font-weight: 800;
-      color: #0f172a;
-      margin: 0 0 8px 0;
-      letter-spacing: 0.3px;
+    .portada::before {
+      content: "";
+      position: absolute;
+      width: 150mm; height: 150mm;
+      right: -50mm; top: -45mm;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(160, 60, 240, .55), rgba(160, 60, 240, 0) 68%);
     }
-
-    .header-principal .subtitulo {
-      font-size: 11.5pt;
-      font-weight: 700;
-      color: #111827;
-      margin: 4px 0;
+    .portada::after {
+      content: "";
+      position: absolute;
+      width: 170mm; height: 170mm;
+      left: -70mm; bottom: -70mm;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(207, 58, 166, .38), rgba(207, 58, 166, 0) 68%);
     }
-
-    .header-principal .integrantes {
-      font-size: 11pt;
-      color: #1f2937;
-      margin-top: 5px;
+    .portada > * { position: relative; z-index: 1; }
+    .portada .marca {
+      display: flex; align-items: center; gap: 12px;
+      font-family: 'Sora', 'Segoe UI', sans-serif;
+      font-size: 17pt; font-weight: 700; letter-spacing: .2px;
     }
-
-    .header-principal .integrantes strong {
-      font-weight: 700;
+    .portada .marca .cult {
+      background: var(--degrade);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
     }
+    .portada .etiqueta {
+      margin-top: 62mm;
+      display: inline-block;
+      align-self: flex-start;
+      font-size: 8.5pt; font-weight: 600; letter-spacing: 2.4px; text-transform: uppercase;
+      color: #d9cfff;
+      border: 1px solid rgba(255, 255, 255, .25);
+      border-radius: 999px;
+      padding: 5px 14px;
+    }
+    .portada h1 {
+      font-family: 'Sora', 'Segoe UI', sans-serif;
+      font-size: 38pt; line-height: 1.05; font-weight: 800;
+      margin: 9mm 0 4mm;
+      letter-spacing: -.5px;
+    }
+    .portada h1 span { color: #b28dff; }
+    .portada .bajada {
+      font-size: 12.5pt; color: #c5bfdb; max-width: 135mm; line-height: 1.45;
+    }
+    .portada .barra {
+      width: 34mm; height: 4px; border-radius: 4px; background: var(--degrade);
+      margin: 10mm 0 0;
+    }
+    .portada .datos {
+      margin-top: auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6mm 10mm;
+      border-top: 1px solid rgba(255, 255, 255, .16);
+      padding-top: 8mm;
+    }
+    .portada .datos .rotulo {
+      font-size: 7.5pt; letter-spacing: 1.8px; text-transform: uppercase; color: #a49dbd;
+      margin-bottom: 3px;
+    }
+    .portada .datos .valor { font-size: 10.5pt; color: #ffffff; font-weight: 500; }
+    .portada .datos .ancho { grid-column: 1 / -1; }
 
-    /* Índice */
+    /* ---------- ÍNDICE ---------- */
+    .indice {
+      background: var(--fondo-suave);
+      border: 1px solid var(--borde);
+      border-radius: 12px;
+      padding: 16px 20px 12px;
+      margin-bottom: 20px;
+      page-break-inside: avoid;
+    }
     .indice-titulo {
-      font-size: 13.5pt;
-      font-weight: 800;
-      color: #111827;
-      margin: 16px 0 10px 0;
+      font-family: 'Sora', 'Segoe UI', sans-serif;
+      font-size: 13pt; font-weight: 700; color: var(--tinta);
+      margin: 0 0 10px;
     }
-
     .indice-lista {
-      list-style: none;
-      padding-left: 22px;
-      margin: 0 0 22px 0;
+      list-style: none; margin: 0; padding: 0;
+      columns: 2; column-gap: 22px;
     }
-
     .indice-lista li {
-      margin: 6px 0;
-      font-size: 10.2pt;
-      color: #374151;
+      break-inside: avoid;
+      display: flex; align-items: baseline; gap: 9px;
+      padding: 5px 0;
+      border-bottom: 1px dashed #d6cff0;
+      font-size: 9.2pt; color: var(--texto);
+    }
+    .indice-lista li b {
+      flex: none;
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 20px; height: 20px; border-radius: 6px;
+      background: var(--violeta); color: #fff;
+      font-size: 8pt; font-weight: 700;
     }
 
-    /* Títulos de sección con línea azul marino inferior */
+    /* ---------- TÍTULOS ---------- */
     h2 {
-      font-size: 13pt;
-      font-weight: 700;
-      color: #0f172a;
-      border-bottom: 2px solid #163a5f;
-      padding-bottom: 5px;
-      margin-top: 24px;
-      margin-bottom: 12px;
-      page-break-after: avoid;
-      break-after: avoid;
+      font-family: 'Sora', 'Segoe UI', sans-serif;
+      font-size: 14pt; font-weight: 700;
+      color: var(--tinta);
+      display: flex; align-items: center; gap: 10px;
+      margin: 26px 0 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--borde);
+      position: relative;
+      page-break-after: avoid; break-after: avoid;
     }
-
+    h2::after {
+      content: "";
+      position: absolute; left: 0; bottom: -1px;
+      width: 60px; height: 3px; border-radius: 3px;
+      background: var(--degrade);
+    }
+    h2 .num {
+      flex: none;
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 28px; height: 28px; border-radius: 8px;
+      background: var(--degrade); color: #fff;
+      font-size: 11pt; font-weight: 700;
+    }
     h3 {
-      font-size: 11pt;
-      font-weight: 700;
-      color: #163a5f;
-      margin-top: 14px;
-      margin-bottom: 6px;
-      page-break-after: avoid;
-      break-after: avoid;
+      font-family: 'Sora', 'Segoe UI', sans-serif;
+      font-size: 11pt; font-weight: 600;
+      color: var(--violeta);
+      margin: 16px 0 7px;
+      page-break-after: avoid; break-after: avoid;
     }
 
-    p {
-      margin: 0 0 10px 0;
-      text-align: justify;
-    }
+    p { margin: 0 0 10px; text-align: justify; }
+    p strong, li strong { color: var(--tinta); }
 
-    p.indent {
-      text-indent: 26px;
-    }
-
-    a {
-      color: #0b57d0;
-      text-decoration: underline;
-      word-break: break-all;
-    }
+    a { color: var(--violeta); text-decoration: none; border-bottom: 1px solid rgba(91, 63, 217, .3); overflow-wrap: anywhere; }
 
     code {
-      font-family: Consolas, 'Courier New', monospace;
-      font-size: 9.2pt;
-      background: #f1f5f9;
-      padding: 1px 4px;
+      font-family: Consolas, 'Cascadia Mono', 'Courier New', monospace;
+      font-size: 8.6pt;
+      background: #f1eefc;
+      padding: 0 3px;
       border-radius: 3px;
-      color: #0f2942;
+      color: #46309e;
     }
 
-    /* Bloque de Links */
+    /* ---------- ENLACES ---------- */
     .links-box {
-      padding-left: 16px;
-      margin-bottom: 14px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin: 4px 0 16px;
     }
-
     .links-box .item-link {
-      margin-bottom: 9px;
+      border: 1px solid var(--borde);
+      border-left: 4px solid var(--violeta);
+      border-radius: 10px;
+      padding: 9px 12px;
+      background: #fff;
+      page-break-inside: avoid;
     }
-
+    .links-box .item-link.ancho { grid-column: 1 / -1; }
     .links-box .item-link strong {
       display: block;
-      color: #111827;
-      margin-bottom: 2px;
+      font-size: 8pt; font-weight: 600; letter-spacing: .6px; text-transform: uppercase;
+      color: var(--suave);
+      margin-bottom: 3px;
     }
-
-    .links-box .item-link .url-wrap {
-      padding-left: 16px;
-    }
-
+    .links-box .item-link .url-wrap { font-size: 9.2pt; }
+    .links-box .item-link.pendiente { border-left-color: var(--oro); background: #fffaf0; }
     .pendiente-link {
-      color: #9a3412;
-      background: #ffedd5;
-      padding: 2px 6px;
-      border-radius: 3px;
-      font-size: 9.5pt;
+      color: #8a5a00;
       font-style: italic;
+      font-size: 9pt;
     }
 
-    /* Tablas estilo Parte 2 */
+    /* ---------- TABLAS ---------- */
     table {
       width: 100%;
-      border-collapse: collapse;
-      margin: 12px 0 18px 0;
-      font-size: 9.6pt;
-      border: 1px solid #d1d5db;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 12px 0 18px;
+      font-size: 8.9pt;
+      border: 1px solid var(--borde);
+      border-radius: 10px;
+      overflow: hidden;
     }
-
-    thead {
-      display: table-header-group;
-    }
-
-    tr {
-      page-break-inside: avoid;
-      break-inside: avoid;
-    }
-
+    thead { display: table-header-group; }
+    tr { page-break-inside: avoid; break-inside: avoid; }
     th {
-      background-color: #163a5f;
+      background: var(--violeta-osc);
       color: #ffffff;
-      font-weight: 700;
+      font-weight: 600;
+      font-size: 8.6pt;
+      letter-spacing: .2px;
       text-align: left;
       padding: 8px 10px;
-      border-bottom: 2px solid #0f2942;
     }
-
     td {
       padding: 8px 10px;
-      border-bottom: 1px solid #d1d5db;
+      border-top: 1px solid var(--borde);
       vertical-align: top;
-      color: #1f2937;
       text-align: left;
     }
-
-    tbody tr:nth-child(even) {
-      background-color: #f8fafc;
+    tbody tr:nth-child(even) td { background: #faf9ff; }
+    td:first-child strong { color: var(--violeta-osc); }
+    td.centrado, th.centrado { text-align: center; vertical-align: middle; }
+    .si {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 18px; height: 18px; border-radius: 50%;
+      background: var(--degrade); color: #fff; font-size: 9pt; font-weight: 700;
     }
+    .no { color: #c4bedb; }
 
-    td.centrado, th.centrado {
-      text-align: center;
-    }
-
-    /* Lista con tilde ✔ */
-    .lista-checks {
-      list-style: none;
-      padding-left: 10px;
-      margin: 8px 0 14px 0;
-    }
-
+    /* ---------- LISTAS ---------- */
+    .lista-checks { list-style: none; padding: 0; margin: 8px 0 14px; }
     .lista-checks li {
       position: relative;
-      padding-left: 22px;
+      padding: 9px 12px 9px 38px;
       margin-bottom: 8px;
       text-align: justify;
-    }
-
-    .lista-checks li::before {
-      content: "✔";
-      position: absolute;
-      left: 0;
-      top: 0;
-      color: #163a5f;
-      font-weight: bold;
-    }
-
-    /* Cajas técnicas y diagramas */
-    .diagrama-box {
-      border: 1px solid #cbd5e1;
-      border-radius: 6px;
-      padding: 12px;
-      margin: 12px 0 16px 0;
-      background: #f8fafc;
+      background: var(--fondo-suave);
+      border-radius: 10px;
       page-break-inside: avoid;
-      break-inside: avoid;
+    }
+    .lista-checks li::before {
+      content: "✓";
+      position: absolute; left: 11px; top: 9px;
+      width: 18px; height: 18px; border-radius: 50%;
+      background: var(--degrade); color: #fff;
+      font-size: 9pt; font-weight: 700; line-height: 18px; text-align: center;
+    }
+
+    /* ---------- DIAGRAMAS ---------- */
+    .diagrama-box {
+      border: 1px solid var(--borde);
+      border-radius: 12px;
+      padding: 14px;
+      margin: 14px 0 18px;
+      background: var(--fondo-suave);
+      page-break-inside: avoid; break-inside: avoid;
       text-align: center;
     }
-
     .diagrama-titulo {
-      font-size: 9.5pt;
-      font-weight: 700;
-      color: #163a5f;
-      margin-bottom: 8px;
+      font-family: 'Sora', 'Segoe UI', sans-serif;
+      font-size: 8.8pt; font-weight: 600;
+      color: var(--violeta);
+      margin-bottom: 10px;
       text-transform: uppercase;
-      letter-spacing: 0.4px;
+      letter-spacing: .8px;
     }
-
     .arbol-mvc {
-      background: #f8fafc;
-      border-left: 3px solid #163a5f;
-      padding: 10px 14px;
-      font-family: Consolas, 'Courier New', monospace;
-      font-size: 8.6pt;
-      line-height: 1.42;
-      margin: 10px 0 14px 0;
+      background: #17122b;
+      color: #e6e0ff;
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-family: Consolas, 'Cascadia Mono', 'Courier New', monospace;
+      font-size: 8.2pt;
+      line-height: 1.6;
+      margin: 10px 0 14px;
       white-space: pre-wrap;
-      page-break-inside: avoid;
-      break-inside: avoid;
+      page-break-inside: avoid; break-inside: avoid;
     }
 
-    .salto-pagina {
-      page-break-before: always;
-      break-before: page;
-    }
+    .salto-pagina { page-break-before: always; break-before: page; }
   </style>
 </head>
 <body>
 
-  <!-- ENCABEZADO PRINCIPAL -->
-  <div class="header-principal">
-    <h1>DOCUMENTACIÓN - Parte 3 (Entrega Final)</h1>
-    <div class="subtitulo">Caso #: 3 Urbana Cult</div>
-    <div class="subtitulo">Empresa de Desarrollo: Sintaxia - Grupo 19</div>
-    <div class="integrantes"><strong>Integrantes:</strong> Diego Rodríguez, Brian Lavandera, Sergio Vargas, Cristian Villagra</div>
-  </div>
+  <!-- PORTADA -->
+  <section class="portada">
+    <div class="marca">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="46" height="46" aria-hidden="true">
+        <defs>
+          <linearGradient id="pf" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6d4dff"/><stop offset=".55" stop-color="#b23cf0"/><stop offset="1" stop-color="#ff4d7d"/></linearGradient>
+          <linearGradient id="pb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".35"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/></linearGradient>
+          <linearGradient id="po" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff3c4"/><stop offset=".5" stop-color="#f2c94c"/><stop offset="1" stop-color="#d4af37"/></linearGradient>
+        </defs>
+        <path d="M10 8H38A7 7 0 0 1 45 15V20A4 4 0 0 0 45 28V33A7 7 0 0 1 38 40H10A7 7 0 0 1 3 33V28A4 4 0 0 0 3 20V15A7 7 0 0 1 10 8Z" fill="url(#pf)"/>
+        <path d="M10 8H38A7 7 0 0 1 45 15V20A4 4 0 0 0 45 28V33A7 7 0 0 1 38 40H10A7 7 0 0 1 3 33V28A4 4 0 0 0 3 20V15A7 7 0 0 1 10 8Z" fill="url(#pb)"/>
+        <path d="M14.5 15.5V24.5A7.5 7.5 0 0 0 29.5 24.5V15.5" fill="none" stroke="#fff" stroke-width="4.6" stroke-linecap="round"/>
+        <path d="M37 11.5L38.3 14.7L41.5 16L38.3 17.3L37 20.5L35.7 17.3L32.5 16L35.7 14.7Z" fill="url(#po)"/>
+        <path d="M37.5 26L38.2 27.8L40 28.5L38.2 29.2L37.5 31L36.8 29.2L35 28.5L36.8 27.8Z" fill="#fff" fill-opacity=".7"/>
+      </svg>
+      <span>Urbana <span class="cult">Cult</span></span>
+    </div>
+
+    <div class="etiqueta">Desarrollo Web Backend · Entrega Final</div>
+    <h1>Documentación<br><span>Parte 3</span></h1>
+    <div class="bajada">Sistema de gestión de salas culturales, venta de entradas, membresías y control de acceso con QR.</div>
+    <div class="barra"></div>
+
+    <div class="datos">
+      <div>
+        <div class="rotulo">Caso</div>
+        <div class="valor">#3 · Urbana Cult</div>
+      </div>
+      <div>
+        <div class="rotulo">Empresa de desarrollo</div>
+        <div class="valor">Sintaxia · Grupo 19</div>
+      </div>
+      <div class="ancho">
+        <div class="rotulo">Integrantes</div>
+        <div class="valor">Diego Rodríguez · Brian Lavandera · Sergio Vargas · Cristian Villagra</div>
+      </div>
+    </div>
+  </section>
 
   <!-- ÍNDICE -->
-  <div class="indice-titulo">ÍNDICE</div>
+  <div class="indice">
+  <div class="indice-titulo">Índice</div>
   <ul class="indice-lista">
-    <li>1. Enlaces de Entrega (Despliegue, Repositorio, Drive y Video)</li>
-    <li>2. Fuentes y Bibliografía Utilizadas</li>
-    <li>3. Introducción y Alcance de la Entrega Final</li>
-    <li>4. Matriz de Tecnologías (Evolución Entregas 1, 2 y 3)</li>
-    <li>5. Integrantes, Roles y Responsabilidades</li>
-    <li>6. Descripción Funcional y Matriz de Permisos por Rol</li>
-    <li>7. Módulos del Proyecto y Justificación de Decisiones Técnicas</li>
-    <li>8. Persistencia de Datos en MongoDB Atlas y Diagramas (DER y Secuencia)</li>
-    <li>9. Arquitectura MVC, Middlewares y Procesamiento de Peticiones</li>
-    <li>10. Trazabilidad de Requerimientos (RF / RNF) y Documentación de Pruebas</li>
-    <li>11. Mantenimiento, Evolución y Uso Consciente de Inteligencia Artificial</li>
-    <li>12. Conclusión Final del Cuatrimestre</li>
+    <li><b>1</b>Enlaces de Entrega (Despliegue, Repositorio, Drive y Video)</li>
+    <li><b>2</b>Fuentes y Bibliografía Utilizadas</li>
+    <li><b>3</b>Introducción y Alcance de la Entrega Final</li>
+    <li><b>4</b>Matriz de Tecnologías (Evolución Entregas 1, 2 y 3)</li>
+    <li><b>5</b>Integrantes, Roles y Responsabilidades</li>
+    <li><b>6</b>Descripción Funcional y Matriz de Permisos por Rol</li>
+    <li><b>7</b>Módulos del Proyecto y Justificación de Decisiones Técnicas</li>
+    <li><b>8</b>Persistencia de Datos en MongoDB Atlas y Diagramas (DER y Secuencia)</li>
+    <li><b>9</b>Arquitectura MVC, Middlewares y Procesamiento de Peticiones</li>
+    <li><b>10</b>Trazabilidad de Requerimientos (RF / RNF) y Documentación de Pruebas</li>
+    <li><b>11</b>Mantenimiento, Evolución y Uso Consciente de Inteligencia Artificial</li>
+    <li><b>12</b>Conclusión Final del Cuatrimestre</li>
   </ul>
+  </div>
 
   <!-- 1. LINKS -->
-  <h2>1. Enlaces de Entrega</h2>
+  <h2><span class="num">1</span>Enlaces de Entrega</h2>
   <div class="links-box">
     <div class="item-link">
-      <strong>- Aplicación Desplegada en Línea (Render - Producción):</strong>
+      <strong>Aplicación Desplegada en Línea (Render - Producción):</strong>
       <div class="url-wrap">
         <a href="https://urbana-cult.onrender.com">https://urbana-cult.onrender.com</a>
       </div>
     </div>
     <div class="item-link">
-      <strong>- Repositorio GitHub (3° Entrega Final):</strong>
+      <strong>Repositorio GitHub (3° Entrega Final):</strong>
       <div class="url-wrap">
         <a href="https://github.com/brianlavandera1/tp2">https://github.com/brianlavandera1/tp2</a>
       </div>
     </div>
-    <div class="item-link">
-      <strong>- Carpeta de Google Drive (Documentación y entregas previas/actual):</strong>
+    <div class="item-link ancho">
+      <strong>Carpeta de Google Drive (Documentación y entregas previas/actual):</strong>
       <div class="url-wrap">
         <a href="https://drive.google.com/drive/folders/1FJnjrQ9gMjxc1aAcUBWMUMIkWc-9bSrL?usp=drive_link">https://drive.google.com/drive/folders/1FJnjrQ9gMjxc1aAcUBWMUMIkWc-9bSrL?usp=drive_link</a>
       </div>
     </div>
-    <div class="item-link">
-      <strong>- Trazabilidad Histórica (Entregas 1 y 2):</strong>
+    <div class="item-link ancho">
+      <strong>Trazabilidad Histórica (Entregas 1 y 2):</strong>
       <div class="url-wrap">
         Repositorio inicial: <a href="https://github.com/Crrisst/TP1-BackEnd/">https://github.com/Crrisst/TP1-BackEnd/</a> ·
         <a href="https://drive.google.com/file/d/1pVXIH0YB127ux-aA2R0E5vwEx6PznWE7/view?usp=sharing">Video Parte 1</a> ·
         <a href="https://drive.google.com/file/d/1wM1dEgJuGxmv2TmaGzZOSzdpVU1MTw5h/view?usp=drive_link">Video Parte 2</a>
       </div>
     </div>
-    <div class="item-link">
-      <strong>- Link al Video de Defensa (Coloquio grupal - Entrega Final):</strong>
+    <div class="item-link ancho pendiente">
+      <strong>Link al Video de Defensa (Coloquio grupal - Entrega Final):</strong>
       <div class="url-wrap">
         <span class="pendiente-link">[Insertar enlace de Google Drive / YouTube del video final antes de subir al Campus]</span>
       </div>
@@ -324,7 +434,7 @@
   </div>
 
   <!-- 2. FUENTES -->
-  <h2>2. Fuentes y Bibliografía Utilizadas</h2>
+  <h2><span class="num">2</span>Fuentes y Bibliografía Utilizadas</h2>
   <p class="indent">
     <strong>Material oficial de la cátedra y entregas previas:</strong> Mapa de Contenidos de <em>Desarrollo Web Backend</em> (<strong>Bloques 1 al 11.2</strong>) y cuadernillos teóricos <strong>Módulos M1 a M13</strong> del Aula Virtual (<code>aulasvirtuales.bue.edu.ar</code>): <em>Introducción a Node.js y Express</em> (Bloques 1–2), <em>Patrón MVC, POO y Persistencia con FS</em> (Bloques 3–4), <em>Middlewares y Motor de Plantillas Pug</em> (Bloques 5.1–5.2), <em>Asincronía (Callbacks, Promises, async/await), HTTP y Estados</em> (Bloques 6.1–6.3), <em>MongoDB, Mongoose y Operadores de Consulta</em> (Bloques 7.1–7.3), <em>Seguridad, Modelo RBAC y Hashing</em> (Bloque 8.0), <em>APIs RESTful, MongoDB Atlas y Despliegue en Render</em> (Bloque 9.0), y <em>Autenticación con Sesiones, Cookies y JSON Web Tokens — RFC 7519</em> (Bloques 10.0–10.2). Asimismo, se tomaron como base los artefactos de <em>Ingeniería de Software</em> para el Caso #3 (Urbana Cult) y las entregas previas <em>DOCUMENTACIÓN - Parte 1</em> y <em>DOCUMENTACIÓN - Parte 2</em> del equipo Sintaxia.
   </p>
@@ -342,7 +452,7 @@
   </p>
 
   <!-- 3. INTRODUCCIÓN -->
-  <h2>3. Introducción y Alcance de la Entrega Final</h2>
+  <h2><span class="num">3</span>Introducción y Alcance de la Entrega Final</h2>
   <p class="indent">
     En esta tercera instancia final de la materia <em>Desarrollo Web Backend</em>, la consultora estudiantil <strong>Sintaxia (Grupo 19)</strong> consolidó la versión productiva de <strong>Urbana Cult</strong>, un sistema integral para la gestión de salas culturales, programación de espectáculos, membresías de beneficios, boletería presencial, venta online de entradas y validación de accesos mediante códigos QR.
   </p>
@@ -354,7 +464,7 @@
   </p>
 
   <!-- 4. MATRIZ DE TECNOLOGÍAS -->
-  <h2>4. Matriz de Tecnologías (Evolución Entregas 1, 2 y 3)</h2>
+  <h2><span class="num">4</span>Matriz de Tecnologías (Evolución Entregas 1, 2 y 3)</h2>
   <p>
     La siguiente matriz resume la progresión tecnológica real del proyecto a lo largo de las tres instancias evaluativas de la cursada:
   </p>
@@ -408,7 +518,7 @@
   </table>
 
   <!-- 5. INTEGRANTES Y RESPONSABILIDADES -->
-  <h2>5. Integrantes, Roles y Responsabilidades</h2>
+  <h2><span class="num">5</span>Integrantes, Roles y Responsabilidades</h2>
   <table>
     <thead>
       <tr>
@@ -442,7 +552,7 @@
   </table>
 
   <!-- 6. DESCRIPCIÓN FUNCIONAL Y ROLES -->
-  <h2>6. Descripción Funcional y Matriz de Permisos por Rol</h2>
+  <h2><span class="num">6</span>Descripción Funcional y Matriz de Permisos por Rol</h2>
   <p class="indent">
     <strong>Portal Público y Experiencia del Cliente (B2C):</strong> Cualquier visitante puede explorar la portada, la cartelera cultural con precios por sector (General, Platea y VIP), la calculadora de ahorro de membresías y el centro de ayuda sin necesidad de iniciar sesión. Al autenticarse, el cliente accede a su carrito persistente, aplica automáticamente el descuento de su membresía en el checkout, descarga e imprime sus entradas con código QR único, gestiona sus datos personales y puede cancelar tickets vigentes devolviendo el cupo al espectáculo.
   </p>
@@ -463,58 +573,58 @@
     <tbody>
       <tr>
         <td>Explorar cartelera, comprar online, gestionar membresía, perfil y cancelar entradas propias</td>
-        <td class="centrado">✅</td>
-        <td class="centrado">—</td>
-        <td class="centrado">—</td>
-        <td class="centrado">—</td>
+        <td class="centrado"><span class="si">✓</span></td>
+        <td class="centrado"><span class="no">—</span></td>
+        <td class="centrado"><span class="no">—</span></td>
+        <td class="centrado"><span class="no">—</span></td>
       </tr>
       <tr>
         <td>Consultar dashboard, listado de salas/eventos/artistas, pagos, cancelaciones e informes (y Excel)</td>
-        <td class="centrado">—</td>
-        <td class="centrado">✅</td>
-        <td class="centrado">✅</td>
-        <td class="centrado">✅</td>
+        <td class="centrado"><span class="no">—</span></td>
+        <td class="centrado"><span class="si">✓</span></td>
+        <td class="centrado"><span class="si">✓</span></td>
+        <td class="centrado"><span class="si">✓</span></td>
       </tr>
       <tr>
         <td>Crear, editar y dar de baja lógica salas, eventos y artistas/entidades (con fotografía)</td>
-        <td class="centrado">—</td>
-        <td class="centrado">—</td>
-        <td class="centrado">✅</td>
-        <td class="centrado">✅</td>
+        <td class="centrado"><span class="no">—</span></td>
+        <td class="centrado"><span class="no">—</span></td>
+        <td class="centrado"><span class="si">✓</span></td>
+        <td class="centrado"><span class="si">✓</span></td>
       </tr>
       <tr>
         <td>Operar Boletería Física en sucursal y validar entradas con código QR en puerta</td>
-        <td class="centrado">—</td>
-        <td class="centrado">—</td>
-        <td class="centrado">✅</td>
-        <td class="centrado">✅</td>
+        <td class="centrado"><span class="no">—</span></td>
+        <td class="centrado"><span class="no">—</span></td>
+        <td class="centrado"><span class="si">✓</span></td>
+        <td class="centrado"><span class="si">✓</span></td>
       </tr>
       <tr>
         <td>Auditar el registro detallado de actividad por sesión, clics e histórico de eliminados</td>
-        <td class="centrado">—</td>
-        <td class="centrado">—</td>
-        <td class="centrado">✅</td>
-        <td class="centrado">✅</td>
+        <td class="centrado"><span class="no">—</span></td>
+        <td class="centrado"><span class="no">—</span></td>
+        <td class="centrado"><span class="si">✓</span></td>
+        <td class="centrado"><span class="si">✓</span></td>
       </tr>
       <tr>
         <td>Gestionar cuentas de usuarios y personal interno (solo el Superadmin <code>admin</code> gestiona a otros Admins)</td>
-        <td class="centrado">—</td>
-        <td class="centrado">—</td>
-        <td class="centrado">—</td>
-        <td class="centrado">✅</td>
+        <td class="centrado"><span class="no">—</span></td>
+        <td class="centrado"><span class="no">—</span></td>
+        <td class="centrado"><span class="no">—</span></td>
+        <td class="centrado"><span class="si">✓</span></td>
       </tr>
       <tr>
         <td>Operaciones de escritura en la API JSON (<code>POST</code>, <code>PUT</code>, <code>DELETE /entradas</code>) con JWT</td>
-        <td class="centrado">—</td>
-        <td class="centrado">—</td>
-        <td class="centrado">—</td>
-        <td class="centrado">✅</td>
+        <td class="centrado"><span class="no">—</span></td>
+        <td class="centrado"><span class="no">—</span></td>
+        <td class="centrado"><span class="no">—</span></td>
+        <td class="centrado"><span class="si">✓</span></td>
       </tr>
     </tbody>
   </table>
 
   <!-- 7. MÓDULOS Y JUSTIFICACIÓN TÉCNICA -->
-  <h2>7. Módulos del Proyecto y Justificación de Decisiones Técnicas</h2>
+  <h2><span class="num">7</span>Módulos del Proyecto y Justificación de Decisiones Técnicas</h2>
   <ul class="lista-checks">
     <li><strong>Autenticación Dual (Sesiones + JWT) y Seguridad:</strong> Login web con regeneración de ID de sesión (anti <em>session fixation</em>), cookie <code>httpOnly</code> / <code>sameSite=lax</code> / <code>secure</code>, y endpoint <code>POST /auth/token</code> para clientes API mediante tokens firmados con <code>HS256</code>. Incluye bloqueo temporal ante 5 intentos fallidos en 15 minutos (<code>limiteLogin</code>).</li>
     <li><strong>Gestión de Salas, Artistas y Eventos:</strong> Verificación matemática de aforos por sector (<code>General + Platea + VIP = Capacidad</code>), bloqueo de modificación estructural si existen funciones asociadas (HTTP 409) y carga validada por <em>magic bytes</em> de imágenes JPG/PNG/WEBP de hasta 2 MB en MongoDB.</li>
@@ -535,7 +645,7 @@
   </p>
 
   <!-- 8. PERSISTENCIA Y DIAGRAMAS -->
-  <h2>8. Persistencia de Datos en MongoDB Atlas y Diagramas</h2>
+  <h2><span class="num">8</span>Persistencia de Datos en MongoDB Atlas y Diagramas</h2>
   <p>
     La capa de datos se aloja en un clúster cloud de <strong>MongoDB Atlas</strong> e implementa ocho modelos Mongoose (más la colección automática <code>sesiones</code> administrada por <code>connect-mongo</code>):
   </p>
@@ -598,90 +708,90 @@
     <svg viewBox="0 0 780 300" width="100%" height="auto" xmlns="http://www.w3.org/2000/svg" style="font-family: 'Segoe UI', Arial, sans-serif;">
       <defs>
         <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-          <path d="M 0 1 L 10 5 L 0 9 z" fill="#163a5f"/>
+          <path d="M 0 1 L 10 5 L 0 9 z" fill="#2d1f63"/>
         </marker>
       </defs>
       <!-- Líneas de relación -->
-      <line x1="175" y1="55" x2="295" y2="55" stroke="#163a5f" stroke-width="1.6" marker-end="url(#arrow)"/>
+      <line x1="175" y1="55" x2="295" y2="55" stroke="#2d1f63" stroke-width="1.6" marker-end="url(#arrow)"/>
       <text x="235" y="48" font-size="9" fill="#334155" text-anchor="middle">1 : N (realiza)</text>
 
-      <line x1="95" y1="95" x2="95" y2="195" stroke="#163a5f" stroke-width="1.6" marker-end="url(#arrow)"/>
+      <line x1="95" y1="95" x2="95" y2="195" stroke="#2d1f63" stroke-width="1.6" marker-end="url(#arrow)"/>
       <text x="132" y="148" font-size="9" fill="#334155" text-anchor="middle">1 : N (audita)</text>
 
-      <line x1="175" y1="75" x2="295" y2="155" stroke="#163a5f" stroke-width="1.6" marker-end="url(#arrow)"/>
+      <line x1="175" y1="75" x2="295" y2="155" stroke="#2d1f63" stroke-width="1.6" marker-end="url(#arrow)"/>
       <text x="232" y="106" font-size="9" fill="#334155" text-anchor="middle">titular</text>
 
-      <line x1="385" y1="95" x2="385" y2="135" stroke="#163a5f" stroke-width="1.6" marker-end="url(#arrow)"/>
+      <line x1="385" y1="95" x2="385" y2="135" stroke="#2d1f63" stroke-width="1.6" marker-end="url(#arrow)"/>
       <text x="422" y="120" font-size="9" fill="#334155" text-anchor="middle">1 : N (emite)</text>
 
-      <line x1="385" y1="205" x2="385" y2="235" stroke="#163a5f" stroke-width="1.6" marker-end="url(#arrow)"/>
+      <line x1="385" y1="205" x2="385" y2="235" stroke="#2d1f63" stroke-width="1.6" marker-end="url(#arrow)"/>
 
-      <line x1="600" y1="55" x2="555" y2="135" stroke="#163a5f" stroke-width="1.6" marker-end="url(#arrow)"/>
+      <line x1="600" y1="55" x2="555" y2="135" stroke="#2d1f63" stroke-width="1.6" marker-end="url(#arrow)"/>
       <text x="598" y="96" font-size="9" fill="#334155" text-anchor="middle">1:N aloja</text>
 
-      <line x1="700" y1="95" x2="625" y2="135" stroke="#163a5f" stroke-width="1.6" marker-end="url(#arrow)"/>
+      <line x1="700" y1="95" x2="625" y2="135" stroke="#2d1f63" stroke-width="1.6" marker-end="url(#arrow)"/>
       <text x="688" y="122" font-size="9" fill="#334155" text-anchor="middle">1:N presenta</text>
 
-      <line x1="520" y1="170" x2="475" y2="170" stroke="#163a5f" stroke-width="1.6" marker-end="url(#arrow)"/>
+      <line x1="520" y1="170" x2="475" y2="170" stroke="#2d1f63" stroke-width="1.6" marker-end="url(#arrow)"/>
       <text x="498" y="163" font-size="8.5" fill="#334155" text-anchor="middle">función</text>
 
       <!-- Cajas de Entidades -->
       <!-- USUARIO -->
-      <rect x="15" y="20" width="160" height="75" rx="4" fill="#ffffff" stroke="#163a5f" stroke-width="1.8"/>
-      <rect x="15" y="20" width="160" height="22" rx="3" fill="#163a5f"/>
+      <rect x="15" y="20" width="160" height="75" rx="4" fill="#ffffff" stroke="#2d1f63" stroke-width="1.8"/>
+      <rect x="15" y="20" width="160" height="22" rx="3" fill="#2d1f63"/>
       <text x="95" y="35" font-size="10.5" font-weight="bold" fill="#ffffff" text-anchor="middle">USUARIO</text>
       <text x="23" y="55" font-size="9" fill="#1f2937">_id, nombreUsuario (UK)</text>
       <text x="23" y="68" font-size="9" fill="#1f2937">email (UK), password (bcrypt)</text>
       <text x="23" y="81" font-size="9" fill="#1f2937">rol, tipoCliente, %Descuento</text>
 
       <!-- TRANSACCION -->
-      <rect x="295" y="20" width="180" height="75" rx="4" fill="#ffffff" stroke="#163a5f" stroke-width="1.8"/>
-      <rect x="295" y="20" width="180" height="22" rx="3" fill="#163a5f"/>
+      <rect x="295" y="20" width="180" height="75" rx="4" fill="#ffffff" stroke="#2d1f63" stroke-width="1.8"/>
+      <rect x="295" y="20" width="180" height="22" rx="3" fill="#2d1f63"/>
       <text x="385" y="35" font-size="10.5" font-weight="bold" fill="#ffffff" text-anchor="middle">TRANSACCION</text>
       <text x="303" y="55" font-size="9" fill="#1f2937">comprobanteId (UK), cliente (FK)</text>
       <text x="303" y="68" font-size="9" fill="#1f2937">items[] (embebidos), canal</text>
       <text x="303" y="81" font-size="9" fill="#1f2937">subtotal, descuento, total</text>
 
       <!-- SALA -->
-      <rect x="520" y="20" width="120" height="65" rx="4" fill="#ffffff" stroke="#163a5f" stroke-width="1.8"/>
-      <rect x="520" y="20" width="120" height="22" rx="3" fill="#163a5f"/>
+      <rect x="520" y="20" width="120" height="65" rx="4" fill="#ffffff" stroke="#2d1f63" stroke-width="1.8"/>
+      <rect x="520" y="20" width="120" height="22" rx="3" fill="#2d1f63"/>
       <text x="580" y="35" font-size="10.5" font-weight="bold" fill="#ffffff" text-anchor="middle">SALA</text>
       <text x="528" y="55" font-size="9" fill="#1f2937">nombre (UK), capacidad</text>
       <text x="528" y="69" font-size="9" fill="#1f2937">zonas {Gen, Pla, VIP}</text>
 
       <!-- ENTIDAD -->
-      <rect x="650" y="20" width="118" height="65" rx="4" fill="#ffffff" stroke="#163a5f" stroke-width="1.8"/>
-      <rect x="650" y="20" width="118" height="22" rx="3" fill="#163a5f"/>
+      <rect x="650" y="20" width="118" height="65" rx="4" fill="#ffffff" stroke="#2d1f63" stroke-width="1.8"/>
+      <rect x="650" y="20" width="118" height="22" rx="3" fill="#2d1f63"/>
       <text x="709" y="35" font-size="10.5" font-weight="bold" fill="#ffffff" text-anchor="middle">ENTIDAD</text>
       <text x="658" y="55" font-size="9" fill="#1f2937">nombre (UK)</text>
       <text x="658" y="69" font-size="9" fill="#1f2937">foto (Buffer), credito</text>
 
       <!-- ENTRADA -->
-      <rect x="295" y="135" width="180" height="70" rx="4" fill="#ffffff" stroke="#163a5f" stroke-width="1.8"/>
-      <rect x="295" y="135" width="180" height="22" rx="3" fill="#163a5f"/>
+      <rect x="295" y="135" width="180" height="70" rx="4" fill="#ffffff" stroke="#2d1f63" stroke-width="1.8"/>
+      <rect x="295" y="135" width="180" height="22" rx="3" fill="#2d1f63"/>
       <text x="385" y="150" font-size="10.5" font-weight="bold" fill="#ffffff" text-anchor="middle">ENTRADA</text>
       <text x="303" y="170" font-size="9" fill="#1f2937">codigoBoleto (UK / QR), sector</text>
       <text x="303" y="183" font-size="9" fill="#1f2937">cliente (FK), evento (FK)</text>
       <text x="303" y="196" font-size="9" fill="#1f2937">estado (Completado|Usado|Canc.)</text>
 
       <!-- EVENTO -->
-      <rect x="520" y="135" width="248" height="75" rx="4" fill="#ffffff" stroke="#163a5f" stroke-width="1.8"/>
-      <rect x="520" y="135" width="248" height="22" rx="3" fill="#163a5f"/>
+      <rect x="520" y="135" width="248" height="75" rx="4" fill="#ffffff" stroke="#2d1f63" stroke-width="1.8"/>
+      <rect x="520" y="135" width="248" height="22" rx="3" fill="#2d1f63"/>
       <text x="644" y="150" font-size="10.5" font-weight="bold" fill="#ffffff" text-anchor="middle">EVENTO</text>
       <text x="528" y="170" font-size="9" fill="#1f2937">nombre, categoria, fecha, hora</text>
       <text x="528" y="183" font-size="9" fill="#1f2937">precio, precioPlatea, precioVIP</text>
       <text x="528" y="196" font-size="9" fill="#1f2937">sala (FK), entidad (FK), vendidosPorZona</text>
 
       <!-- ACTIVIDAD -->
-      <rect x="15" y="195" width="165" height="68" rx="4" fill="#ffffff" stroke="#163a5f" stroke-width="1.8"/>
-      <rect x="15" y="195" width="165" height="22" rx="3" fill="#163a5f"/>
+      <rect x="15" y="195" width="165" height="68" rx="4" fill="#ffffff" stroke="#2d1f63" stroke-width="1.8"/>
+      <rect x="15" y="195" width="165" height="22" rx="3" fill="#2d1f63"/>
       <text x="97" y="210" font-size="10.5" font-weight="bold" fill="#ffffff" text-anchor="middle">ACTIVIDAD</text>
       <text x="23" y="230" font-size="9" fill="#1f2937">usuario (FK), sesionId, rol</text>
       <text x="23" y="244" font-size="9" fill="#1f2937">tipo, accion, pagina, fecha</text>
 
       <!-- CANCELACIONLOG -->
-      <rect x="295" y="235" width="180" height="55" rx="4" fill="#ffffff" stroke="#163a5f" stroke-width="1.8"/>
-      <rect x="295" y="235" width="180" height="20" rx="3" fill="#163a5f"/>
+      <rect x="295" y="235" width="180" height="55" rx="4" fill="#ffffff" stroke="#2d1f63" stroke-width="1.8"/>
+      <rect x="295" y="235" width="180" height="20" rx="3" fill="#2d1f63"/>
       <text x="385" y="249" font-size="10" font-weight="bold" fill="#ffffff" text-anchor="middle">CANCELACIONLOG</text>
       <text x="303" y="267" font-size="9" fill="#1f2937">cliente (FK), evento (FK)</text>
       <text x="303" y="280" font-size="9" fill="#1f2937">codigoBoleto, cantidad, fecha</text>
@@ -694,14 +804,14 @@
     <svg viewBox="0 0 760 195" width="100%" height="auto" xmlns="http://www.w3.org/2000/svg" style="font-family: 'Segoe UI', Arial, sans-serif;">
       <defs>
         <marker id="arr2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
-          <path d="M 0 1 L 10 5 L 0 9 z" fill="#0f2942"/>
+          <path d="M 0 1 L 10 5 L 0 9 z" fill="#4b2fbf"/>
         </marker>
       </defs>
       <!-- Participantes -->
-      <rect x="20" y="10" width="120" height="28" rx="4" fill="#163a5f"/><text x="80" y="28" font-size="10" font-weight="bold" fill="#fff" text-anchor="middle">Cliente / API Consumer</text>
-      <rect x="215" y="10" width="130" height="28" rx="4" fill="#163a5f"/><text x="280" y="28" font-size="10" font-weight="bold" fill="#fff" text-anchor="middle">authController / JWT</text>
-      <rect x="415" y="10" width="140" height="28" rx="4" fill="#163a5f"/><text x="485" y="28" font-size="10" font-weight="bold" fill="#fff" text-anchor="middle">Middlewares Auth/Rol</text>
-      <rect x="615" y="10" width="125" height="28" rx="4" fill="#163a5f"/><text x="677" y="28" font-size="10" font-weight="bold" fill="#fff" text-anchor="middle">MongoDB Atlas</text>
+      <rect x="20" y="10" width="120" height="28" rx="4" fill="#2d1f63"/><text x="80" y="28" font-size="10" font-weight="bold" fill="#fff" text-anchor="middle">Cliente / API Consumer</text>
+      <rect x="215" y="10" width="130" height="28" rx="4" fill="#2d1f63"/><text x="280" y="28" font-size="10" font-weight="bold" fill="#fff" text-anchor="middle">authController / JWT</text>
+      <rect x="415" y="10" width="140" height="28" rx="4" fill="#2d1f63"/><text x="485" y="28" font-size="10" font-weight="bold" fill="#fff" text-anchor="middle">Middlewares Auth/Rol</text>
+      <rect x="615" y="10" width="125" height="28" rx="4" fill="#2d1f63"/><text x="677" y="28" font-size="10" font-weight="bold" fill="#fff" text-anchor="middle">MongoDB Atlas</text>
 
       <!-- Líneas de vida -->
       <line x1="80" y1="38" x2="80" y2="185" stroke="#94a3b8" stroke-dasharray="4,3"/>
@@ -710,19 +820,19 @@
       <line x1="677" y1="38" x2="677" y2="185" stroke="#94a3b8" stroke-dasharray="4,3"/>
 
       <!-- Mensajes -->
-      <line x1="80" y1="60" x2="275" y2="60" stroke="#0f2942" stroke-width="1.4" marker-end="url(#arr2)"/>
+      <line x1="80" y1="60" x2="275" y2="60" stroke="#4b2fbf" stroke-width="1.4" marker-end="url(#arr2)"/>
       <text x="178" y="55" font-size="8.8" fill="#1e293b" text-anchor="middle">1. POST /auth/token {identificador, password}</text>
 
-      <line x1="280" y1="78" x2="672" y2="78" stroke="#0f2942" stroke-width="1.4" marker-end="url(#arr2)"/>
+      <line x1="280" y1="78" x2="672" y2="78" stroke="#4b2fbf" stroke-width="1.4" marker-end="url(#arr2)"/>
       <text x="476" y="73" font-size="8.8" fill="#1e293b" text-anchor="middle">2. Usuario.findOne() + bcrypt.compare()</text>
 
-      <line x1="280" y1="98" x2="85" y2="98" stroke="#0b57d0" stroke-width="1.4" stroke-dasharray="4,2" marker-end="url(#arr2)"/>
-      <text x="180" y="93" font-size="8.8" fill="#0b57d0" text-anchor="middle">3. 200 OK { token: jwt.sign(HS256, exp:1h) }</text>
+      <line x1="280" y1="98" x2="85" y2="98" stroke="#a03cf0" stroke-width="1.4" stroke-dasharray="4,2" marker-end="url(#arr2)"/>
+      <text x="180" y="93" font-size="8.8" fill="#a03cf0" text-anchor="middle">3. 200 OK { token: jwt.sign(HS256, exp:1h) }</text>
 
-      <line x1="80" y1="125" x2="480" y2="125" stroke="#0f2942" stroke-width="1.4" marker-end="url(#arr2)"/>
+      <line x1="80" y1="125" x2="480" y2="125" stroke="#4b2fbf" stroke-width="1.4" marker-end="url(#arr2)"/>
       <text x="280" y="120" font-size="8.8" fill="#1e293b" text-anchor="middle">4. GET/POST /entradas (Authorization: Bearer &lt;token&gt;)</text>
 
-      <line x1="485" y1="148" x2="672" y2="148" stroke="#0f2942" stroke-width="1.4" marker-end="url(#arr2)"/>
+      <line x1="485" y1="148" x2="672" y2="148" stroke="#4b2fbf" stroke-width="1.4" marker-end="url(#arr2)"/>
       <text x="580" y="143" font-size="8.8" fill="#1e293b" text-anchor="middle">5. jwt.verify() + verificarRol → Query</text>
 
       <line x1="677" y1="170" x2="85" y2="170" stroke="#15803d" stroke-width="1.4" stroke-dasharray="4,2" marker-end="url(#arr2)"/>
@@ -731,7 +841,7 @@
   </div>
 
   <!-- 9. ARQUITECTURA Y RUTAS -->
-  <h2>9. Arquitectura MVC, Middlewares y Procesamiento de Peticiones</h2>
+  <h2><span class="num">9</span>Arquitectura MVC, Middlewares y Procesamiento de Peticiones</h2>
   <p>
     La aplicación organiza responsabilidades bajo el patrón <strong>Modelo–Vista–Controlador (MVC)</strong>, aislando la configuración de base de datos, las reglas reutilizables de negocio (<code>utils/</code>) y once middlewares transversales:
   </p>
@@ -784,7 +894,7 @@
   </table>
 
   <!-- 10. REQUERIMIENTOS Y PRUEBAS -->
-  <h2>10. Trazabilidad de Requerimientos (RF / RNF) y Documentación de Pruebas</h2>
+  <h2><span class="num">10</span>Trazabilidad de Requerimientos (RF / RNF) y Documentación de Pruebas</h2>
   <p>
     Integrando los artefactos de <em>Ingeniería de Software</em>, se detalla la trazabilidad de requerimientos clave y la matriz de pruebas funcionales y de seguridad ejecutadas sobre el sistema desplegado:
   </p>
@@ -893,7 +1003,7 @@
   </table>
 
   <!-- 11. MANTENIMIENTO, EVOLUCIÓN E IA -->
-  <h2>11. Mantenimiento, Evolución y Uso Consciente de Inteligencia Artificial</h2>
+  <h2><span class="num">11</span>Mantenimiento, Evolución y Uso Consciente de Inteligencia Artificial</h2>
   <p class="indent">
     <strong>Mantenimiento correctivo y evolutivo:</strong> Respecto a la segunda entrega, se refactorizó por completo la capa de autenticación reemplazando el almacenamiento de sesiones en memoria (que perdía sesiones ante cada reinicio) por <code>connect-mongo</code> con expiración automática, y configurando <code>app.set('trust proxy', 1)</code> junto a una política de <code>Referrer-Policy</code> compatible para que las cookies seguras HTTPS y la verificación CSRF operen correctamente detrás del balanceador de Render. Para mejorar la <strong>escalabilidad y el rendimiento</strong>, se reemplazaron cálculos manuales en JavaScript por pipelines de agregación en MongoDB para los informes financieros, se ocultaron los buffers binarios de imágenes en listados generales mediante <code>select: false</code> y se incorporaron índices compuestos y paginación en la colección <code>Actividad</code>.
   </p>
@@ -902,7 +1012,7 @@
   </p>
 
   <!-- 12. CONCLUSIÓN FINAL -->
-  <h2>12. Conclusión Final del Cuatrimestre</h2>
+  <h2><span class="num">12</span>Conclusión Final del Cuatrimestre</h2>
   <ul class="lista-checks">
     <li><strong>¿Qué aprendimos este cuatrimestre?</strong> Comprendimos cómo estructurar profesionalmente un servidor web en Node.js y Express aplicando separación de responsabilidades MVC, manejo centralizado de errores, asincronía con <code>async/await</code>, modelado documental en MongoDB Atlas y esquemas reales de seguridad (diferenciando cuándo aplicar sesiones de servidor con cookies seguras y cuándo utilizar autenticación <em>stateless</em> mediante JSON Web Tokens), llevando finalmente el producto a un entorno real en la nube.</li>
     <li><strong>¿Qué dificultades tuvimos y cómo las resolvimos?</strong> Los principales desafíos fueron tres: (1) compatibilizar las transacciones ACID entre MongoDB Atlas (clúster con replica set) y entornos locales <em>standalone</em> de desarrollo, lo cual resolvimos diseñando el utilitario <code>utils/transaccion.js</code> que detecta la topología al iniciar y aplica compensaciones automáticas en local; (2) lograr que las cookies seguras <code>secure: true</code> y la protección CSRF funcionaran detrás del proxy HTTPS en la nube ajustando <code>trust proxy</code> y las cabeceras de <code>helmet</code>; y (3) evitar que el crecimiento de la bitácora de auditoría degradara los tiempos de carga, resuelto con índices compuestos y consultas acotadas con <code>lean()</code>.</li>
