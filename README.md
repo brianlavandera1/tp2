@@ -1,6 +1,8 @@
 # 🎭 Urbana Cult · Sistema de venta de entradas
 
 > Desarrollado por **Sintaxia**.
+>
+> 🌐 **Aplicación desplegada online (Render):** [https://urbana-cult.onrender.com](https://urbana-cult.onrender.com)
 
 **Urbana Cult** es una aplicación web para la gestión y venta de entradas de eventos culturales: salas con sectores (General, Platea y VIP), eventos, artistas, carrito de compras con pago simulado, boletería física, membresías con descuento, cancelaciones e informes de ventas, con control de acceso por roles.
 
@@ -78,7 +80,11 @@ Si la conexión a Atlas falla o no está configurada, la aplicación se conecta 
 
    Abrir [http://localhost:3000](http://localhost:3000).
 
-### Publicar en Vercel
+### Despliegue en Render (Producción)
+
+La aplicación se encuentra publicada en **Render** en [https://urbana-cult.onrender.com](https://urbana-cult.onrender.com) como servicio Node persistente (`npm install` / `npm start`), con `trust proxy` habilitado para cookies HTTPS seguras y conectada a **MongoDB Atlas** mediante las variables de entorno `NODE_ENV=production`, `MONGODB_URI`, `SESSION_SECRET` y `JWT_SECRET`.
+
+### Publicar en Vercel (Alternativa sin WebSockets)
 
 El proyecto ya está preparado para Vercel: `vercel.json` incluye las vistas Pug, e `index.js` exporta la app, así que en Vercel no se llama a `app.listen`. Además, la app confía en el proxy HTTPS (`trust proxy`) para que la cookie de sesión funcione. En el panel del proyecto en Vercel:
 
