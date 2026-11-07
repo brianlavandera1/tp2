@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>DOCUMENTACIÓN - Parte 3 (Entrega Final) · Urbana Cult</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 13.5mm 15mm 13.5mm 15mm;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    body {
+      font-family: 'Segoe UI', Calibri, 'Helvetica Neue', Arial, sans-serif;
+      color: #1f2937;
+      font-size: 9.6pt;
+      line-height: 1.41;
+      margin: 0;
+      padding: 0;
+      background: #ffffff;
+    }
+
+    /* Portada / Encabezado estilo Parte 2 */
+    .header-principal {
+      text-align: center;
+      margin-bottom: 22px;
+      padding-bottom: 6px;
+    }
+
+    .header-principal h1 {
+      font-size: 21pt;
+      font-weight: 800;
+      color: #0f172a;
+      margin: 0 0 8px 0;
+      letter-spacing: 0.3px;
+    }
+
+    .header-principal .subtitulo {
+      font-size: 11.5pt;
+      font-weight: 700;
+      color: #111827;
+      margin: 4px 0;
+    }
+
+    .header-principal .integrantes {
+      font-size: 11pt;
+      color: #1f2937;
+      margin-top: 5px;
+    }
+
+    .header-principal .integrantes strong {
+      font-weight: 700;
+    }
+
+    /* Índice */
+    .indice-titulo {
+      font-size: 13.5pt;
+      font-weight: 800;
+      color: #111827;
+      margin: 16px 0 10px 0;
+    }
+
+    .indice-lista {
+      list-style: none;
+      padding-left: 22px;
+      margin: 0 0 22px 0;
+    }
+
+    .indice-lista li {
+      margin: 6px 0;
+      font-size: 10.2pt;
+      color: #374151;
+    }
+
+    /* Títulos de sección con línea azul marino inferior */
+    h2 {
+      font-size: 13pt;
+      font-weight: 700;
+      color: #0f172a;
+      border-bottom: 2px solid #163a5f;
+      padding-bottom: 5px;
+      margin-top: 24px;
+      margin-bottom: 12px;
+      page-break-after: avoid;
+      break-after: avoid;
+    }
+
+    h3 {
+      font-size: 11pt;
+      font-weight: 700;
+      color: #163a5f;
+      margin-top: 14px;
+      margin-bottom: 6px;
+      page-break-after: avoid;
+      break-after: avoid;
+    }
+
+    p {
+      margin: 0 0 10px 0;
+      text-align: justify;
+    }
+
+    p.indent {
+      text-indent: 26px;
+    }
+
+    a {
+      color: #0b57d0;
+      text-decoration: underline;
+      word-break: break-all;
+    }
+
+    code {
+      font-family: Consolas, 'Courier New', monospace;
+      font-size: 9.2pt;
+      background: #f1f5f9;
+      padding: 1px 4px;
+      border-radius: 3px;
+      color: #0f2942;
+    }
+
+    /* Bloque de Links */
+    .links-box {
+      padding-left: 16px;
+      margin-bottom: 14px;
+    }
+
+    .links-box .item-link {
+      margin-bottom: 9px;
+    }
+
+    .links-box .item-link strong {
+      display: block;
+      color: #111827;
+      margin-bottom: 2px;
+    }
+
+    .links-box .item-link .url-wrap {
+      padding-left: 16px;
+    }
+
+    .pendiente-link {
+      color: #9a3412;
+      background: #ffedd5;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-size: 9.5pt;
+      font-style: italic;
+    }
+
+    /* Tablas estilo Parte 2 */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0 18px 0;
+      font-size: 9.6pt;
+      border: 1px solid #d1d5db;
+    }
+
+    thead {
+      display: table-header-group;
+    }
+
+    tr {
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+
+    th {
+      background-color: #163a5f;
+      color: #ffffff;
+      font-weight: 700;
+      text-align: left;
+      padding: 8px 10px;
+      border-bottom: 2px solid #0f2942;
+    }
+
+    td {
+      padding: 8px 10px;
+      border-bottom: 1px solid #d1d5db;
+      vertical-align: top;
+      color: #1f2937;
+      text-align: left;
+    }
+
+    tbody tr:nth-child(even) {
+      background-color: #f8fafc;
+    }
+
+    td.centrado, th.centrado {
+      text-align: center;
+    }
+
+    /* Lista con tilde ✔ */
+    .lista-checks {
+      list-style: none;
+      padding-left: 10px;
+      margin: 8px 0 14px 0;
+    }
+
+    .lista-checks li {
+      position: relative;
+      padding-left: 22px;
+      margin-bottom: 8px;
+      text-align: justify;
+    }
+
+    .lista-checks li::before {
+      content: "✔";
+      position: absolute;
+      left: 0;
+      top: 0;
+      color: #163a5f;
+      font-weight: bold;
+    }
+
+    /* Cajas técnicas y diagramas */
+    .diagrama-box {
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      padding: 12px;
+      margin: 12px 0 16px 0;
+      background: #f8fafc;
+      page-break-inside: avoid;
+      break-inside: avoid;
+      text-align: center;
+    }
+
+    .diagrama-titulo {
+      font-size: 9.5pt;
+      font-weight: 700;
+      color: #163a5f;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    .arbol-mvc {
+      background: #f8fafc;
+      border-left: 3px solid #163a5f;
+      padding: 10px 14px;
+      font-family: Consolas, 'Courier New', monospace;
+      font-size: 8.6pt;
+      line-height: 1.42;
+      margin: 10px 0 14px 0;
+      white-space: pre-wrap;
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+
+    .salto-pagina {
+      page-break-before: always;
+      break-before: page;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ENCABEZADO PRINCIPAL -->
+  <div class="header-principal">
+    <h1>DOCUMENTACIÓN - Parte 3 (Entrega Final)</h1>
+    <div class="subtitulo">Caso #: 3 Urbana Cult</div>
+    <div class="subtitulo">Empresa de Desarrollo: Sintaxia - Grupo 19</div>
+    <div class="integrantes"><strong>Integrantes:</strong> Diego Rodríguez, Brian Lavandera, Sergio Vargas, Cristian Villagra</div>
+  </div>
+
+  <!-- ÍNDICE -->
+  <div class="indice-titulo">ÍNDICE</div>
+  <ul class="indice-lista">
+    <li>1. Enlaces de Entrega (Despliegue, Repositorio, Drive y Video)</li>
+    <li>2. Fuentes y Bibliografía Utilizadas</li>
+    <li>3. Introducción y Alcance de la Entrega Final</li>
+    <li>4. Matriz de Tecnologías (Evolución Entregas 1, 2 y 3)</li>
+    <li>5. Integrantes, Roles y Responsabilidades</li>
+    <li>6. Descripción Funcional y Matriz de Permisos por Rol</li>
+    <li>7. Módulos del Proyecto y Justificación de Decisiones Técnicas</li>
+    <li>8. Persistencia de Datos en MongoDB Atlas y Diagramas (DER y Secuencia)</li>
+    <li>9. Arquitectura MVC, Middlewares y Procesamiento de Peticiones</li>
+    <li>10. Trazabilidad de Requerimientos (RF / RNF) y Documentación de Pruebas</li>
+    <li>11. Mantenimiento, Evolución y Uso Consciente de Inteligencia Artificial</li>
+    <li>12. Conclusión Final del Cuatrimestre</li>
+  </ul>
+
+  <!-- 1. LINKS -->
+  <h2>1. Enlaces de Entrega</h2>
+  <div class="links-box">
+    <div class="item-link">
+      <strong>- Aplicación Desplegada en Línea (Render - Producción):</strong>
+      <div class="url-wrap">
+        <a href="https://urbana-cult.onrender.com">https://urbana-cult.onrender.com</a>
+      </div>
+    </div>
+    <div class="item-link">
+      <strong>- Repositorio GitHub (3° Entrega Final):</strong>
+      <div class="url-wrap">
+        <a href="https://github.com/brianlavandera1/tp2">https://github.com/brianlavandera1/tp2</a>
+      </div>
+    </div>
+    <div class="item-link">
+      <strong>- Carpeta de Google Drive (Documentación y entregas previas/actual):</strong>
+      <div class="url-wrap">
+        <a href="https://drive.google.com/drive/folders/1FJnjrQ9gMjxc1aAcUBWMUMIkWc-9bSrL?usp=drive_link">https://drive.google.com/drive/folders/1FJnjrQ9gMjxc1aAcUBWMUMIkWc-9bSrL?usp=drive_link</a>
+      </div>
+    </div>
+    <div class="item-link">
+      <strong>- Trazabilidad Histórica (Entregas 1 y 2):</strong>
+      <div class="url-wrap">
+        Repositorio inicial: <a href="https://github.com/Crrisst/TP1-BackEnd/">https://github.com/Crrisst/TP1-BackEnd/</a> ·
+        <a href="https://drive.google.com/file/d/1pVXIH0YB127ux-aA2R0E5vwEx6PznWE7/view?usp=sharing">Video Parte 1</a> ·
+        <a href="https://drive.google.com/file/d/1wM1dEgJuGxmv2TmaGzZOSzdpVU1MTw5h/view?usp=drive_link">Video Parte 2</a>
+      </div>
+    </div>
+    <div class="item-link">
+      <strong>- Link al Video de Defensa (Coloquio grupal - Entrega Final):</strong>
+      <div class="url-wrap">
+        <span class="pendiente-link">[Insertar enlace de Google Drive / YouTube del video final antes de subir al Campus]</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. FUENTES -->
+  <h2>2. Fuentes y Bibliografía Utilizadas</h2>
+  <p class="indent">
+    <strong>Material oficial de la cátedra y entregas previas:</strong> Mapa de Contenidos de <em>Desarrollo Web Backend</em> (<strong>Bloques 1 al 11.2</strong>) y cuadernillos teóricos <strong>Módulos M1 a M13</strong> del Aula Virtual (<code>aulasvirtuales.bue.edu.ar</code>): <em>Introducción a Node.js y Express</em> (Bloques 1–2), <em>Patrón MVC, POO y Persistencia con FS</em> (Bloques 3–4), <em>Middlewares y Motor de Plantillas Pug</em> (Bloques 5.1–5.2), <em>Asincronía (Callbacks, Promises, async/await), HTTP y Estados</em> (Bloques 6.1–6.3), <em>MongoDB, Mongoose y Operadores de Consulta</em> (Bloques 7.1–7.3), <em>Seguridad, Modelo RBAC y Hashing</em> (Bloque 8.0), <em>APIs RESTful, MongoDB Atlas y Despliegue en Render</em> (Bloque 9.0), y <em>Autenticación con Sesiones, Cookies y JSON Web Tokens — RFC 7519</em> (Bloques 10.0–10.2). Asimismo, se tomaron como base los artefactos de <em>Ingeniería de Software</em> para el Caso #3 (Urbana Cult) y las entregas previas <em>DOCUMENTACIÓN - Parte 1</em> y <em>DOCUMENTACIÓN - Parte 2</em> del equipo Sintaxia.
+  </p>
+  <p class="indent">
+    <strong>Documentación técnica oficial consultada:</strong>
+    Node.js v20+ Documentation (<a href="https://nodejs.org/docs">nodejs.org/docs</a>);
+    Express 5 API Reference (<a href="https://expressjs.com">expressjs.com</a>);
+    Mongoose ODM v9 Docs — Schemas, Populate, Plugins &amp; Transactions (<a href="https://mongoosejs.com/docs">mongoosejs.com/docs</a>);
+    MongoDB Manual — Query &amp; Projection Operators y Atlas Cloud (<a href="https://www.mongodb.com/docs">mongodb.com/docs</a>);
+    RFC 7519 JSON Web Token &amp; librería <code>jsonwebtoken</code> (<a href="https://jwt.io/introduction">jwt.io</a>);
+    OWASP Session Management &amp; CSRF Prevention Cheat Sheets (<a href="https://cheatsheetseries.owasp.org">cheatsheetseries.owasp.org</a>);
+    Helmet.js Security Headers (<a href="https://helmetjs.github.io">helmetjs.github.io</a>);
+    Pug Template Engine (<a href="https://pugjs.org">pugjs.org</a>);
+    Render Web Services Deployment Guide (<a href="https://render.com/docs">render.com/docs</a>).
+  </p>
+
+  <!-- 3. INTRODUCCIÓN -->
+  <h2>3. Introducción y Alcance de la Entrega Final</h2>
+  <p class="indent">
+    En esta tercera instancia final de la materia <em>Desarrollo Web Backend</em>, la consultora estudiantil <strong>Sintaxia (Grupo 19)</strong> consolidó la versión productiva de <strong>Urbana Cult</strong>, un sistema integral para la gestión de salas culturales, programación de espectáculos, membresías de beneficios, boletería presencial, venta online de entradas y validación de accesos mediante códigos QR.
+  </p>
+  <p class="indent">
+    Cumpliendo íntegramente la hoja de ruta planteada al cierre de la segunda entrega, el proyecto evolucionó desde un Producto Mínimo Viable local con sesiones en memoria hacia una arquitectura robusta desplegada en la nube (<strong>Render + MongoDB Atlas</strong>). En esta etapa se incorporó encriptación irreversible de contraseñas con <code>bcrypt</code>, persistencia de sesiones en base de datos con <code>connect-mongo</code>, una API JSON protegida mediante <strong>JSON Web Tokens (JWT)</strong> firmados digitalmente, control de acceso granular de cuatro roles operativos más protección de Superadministrador, transacciones atómicas para evitar sobreventa de localidades, borrado lógico auditable en todas las colecciones maestras, bitácora de actividad de usuarios y exportación administrativa a planillas Excel.
+  </p>
+  <p class="indent">
+    <strong>Alcance definido:</strong> El sistema cubre el ciclo comercial completo de un centro cultural: descubrimiento público de la cartelera con filtros sin recarga, registro validado en tres capas, contratación de planes de membresía (Estándar, Premium y VIP), carrito y cobro online simulado, venta física en ventanilla con ticket imprimible, acreditación en puerta por lectura de QR, cancelación con restitución automática de cupos y tableros gerenciales de recaudación neta. Quedan fuera del alcance la integración con pasarelas bancarias reales y la numeración individual de butacas por plano gráfico.
+  </p>
+
+  <!-- 4. MATRIZ DE TECNOLOGÍAS -->
+  <h2>4. Matriz de Tecnologías (Evolución Entregas 1, 2 y 3)</h2>
+  <p>
+    La siguiente matriz resume la progresión tecnológica real del proyecto a lo largo de las tres instancias evaluativas de la cursada:
+  </p>
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 21%;">Eje / Capa Técnica</th>
+        <th style="width: 25%;">1° Entrega (MVC + POO + FS)</th>
+        <th style="width: 26%;">2° Entrega (PMV + MongoDB)</th>
+        <th style="width: 28%;">3° Entrega (Cloud, RBAC &amp; JWT)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Servidor y Arquitectura</strong></td>
+        <td>Node.js + Express, patrón <strong>MVC</strong> inicial, <strong>POO</strong> en dominio (herencia <code>Cliente</code>/<code>Administrador</code>), logger HTTP y middleware global de errores.</td>
+        <td>MVC consolidado (<code>routes</code>, <code>controllers</code>, <code>models</code>, <code>views</code>) y programación asincrónica con <code>async/await</code>.</td>
+        <td>Express 5 modularizado con <code>config/</code>, <code>middlewares/</code> (11 módulos especializados) y <code>utils/</code> reutilizables.</td>
+      </tr>
+      <tr>
+        <td><strong>Persistencia de Datos</strong></td>
+        <td>Archivos planos JSON en <code>/data/</code> (<code>usuarios.json</code>, <code>eventos.json</code>, <code>salas.json</code>) mediante módulo nativo <code>fs</code>.</td>
+        <td>MongoDB local + ODM Mongoose (4 esquemas base: <code>Usuario</code>, <code>Sala</code>, <code>Evento</code>, <code>Entrada</code>).</td>
+        <td><strong>MongoDB Atlas</strong> (Cloud) + respaldo local, <strong>8 esquemas</strong>, transacciones, operadores (<code>$gte</code>, <code>$inc</code>, <code>$or</code>, <code>$elemMatch</code>), agregaciones y <strong>borrado lógico</strong>.</td>
+      </tr>
+      <tr>
+        <td><strong>Autenticación y Sesiones</strong></td>
+        <td>Sin sesiones persistentes; distinción conceptual de cuentas mediante clases POO y parámetros.</td>
+        <td><code>express-session</code> en memoria RAM del proceso; contraseñas en texto plano con fines académicos.</td>
+        <td>Híbrida: <strong>Sesiones en MongoDB</strong> (<code>connect-mongo</code>, cookies <code>HttpOnly</code>/<code>Secure</code>) + <strong>JWT (<code>jsonwebtoken</code> HS256)</strong> en API REST. Hash con <strong><code>bcrypt</code></strong>.</td>
+      </tr>
+      <tr>
+        <td><strong>Autorización y Seguridad</strong></td>
+        <td>Validaciones de datos obligatorios, formato y tipos en controladores antes de persistir en JSON.</td>
+        <td>2 roles básicos (<code>Cliente</code> y <code>Admin</code>) con middlewares por ruta y expresiones regulares en formularios.</td>
+        <td>Modelo <strong>RBAC de 4 roles + Superadmin</strong>, <code>helmet</code> (CSP), anti-CSRF (<code>verificarOrigen</code>), anti-fuerza bruta (<code>limiteLogin</code> HTTP 429) y triple validación.</td>
+      </tr>
+      <tr>
+        <td><strong>Vistas y Experiencia (Front)</strong></td>
+        <td>Motor de plantillas <strong>Pug</strong> inicial (layouts e iteraciones dinámicas) + respuestas JSON para API CRUD.</td>
+        <td>Catálogo público en Pug, carrito de compras en sesión, pasarela simulada y ticket con QR en cliente.</td>
+        <td>Diseño integral <em>Urbana Cult</em> responsive mobile, filtros dinámicos, fotos binarias de artistas (<code>multer</code>), membresías, boletería física y lector QR en puerta.</td>
+      </tr>
+      <tr>
+        <td><strong>Pruebas, Módulos y Despliegue</strong></td>
+        <td>Ejecución local (<code>localhost</code>) y pruebas de endpoints CRUD verificadas con <strong>Thunder Client</strong>.</td>
+        <td>Variables de entorno con <code>dotenv</code> y pruebas funcionales integrales de flujo web.</td>
+        <td>Despliegue productivo en <strong>Render</strong> (HTTPS + <code>trust proxy</code>), reportes <code>exceljs</code>, <code>qrcode</code> SVG y bitácora de auditoría de actividad.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- 5. INTEGRANTES Y RESPONSABILIDADES -->
+  <h2>5. Integrantes, Roles y Responsabilidades</h2>
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 21%;">Integrante</th>
+        <th style="width: 23%;">Rol en el Equipo</th>
+        <th style="width: 56%;">Evolución y Responsabilidades en la Entrega Final</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Brian Lavandera</strong></td>
+        <td>Líder Técnico / Seguridad &amp; Cloud</td>
+        <td><em>(E1: POO en Usuarios · E2: Auth y Sesiones).</em> En esta entrega final lideró la configuración de entorno (<code>config.js</code>), la conexión resiliente a MongoDB Atlas (<code>db.js</code>), la autenticación dual con sesiones persistentes (<code>connect-mongo</code>) y emisión/verificación de <strong>JWT</strong> (<code>jwt.middleware.js</code>, <code>POST /auth/token</code>), el hash con <code>bcrypt</code>, las defensas <code>helmet</code> / CSRF / rate-limit y el despliegue productivo en <strong>Render</strong>.</td>
+      </tr>
+      <tr>
+        <td><strong>Diego Rodríguez</strong></td>
+        <td>Backend Developer / Post-Venta &amp; Auditoría</td>
+        <td><em>(E1: Update Salas/Eventos · E2: Modelo Entrada y QR).</em> Evolucionó <code>Entrada.js</code> incorporando cancelación transaccional con restitución de stock y registro en <code>CancelacionLog.js</code>, desarrolló la validación atómica de QR en puerta (<code>/admin/validar/:codigo</code>), el plugin transversal de borrado lógico (<code>borradoLogico.js</code>), la bitácora de actividad por sesión (<code>Actividad.js</code>) y la documentación técnica.</td>
+      </tr>
+      <tr>
+        <td><strong>Sergio Vargas</strong></td>
+        <td>Full-Stack Developer / UX Cliente &amp; Carrito</td>
+        <td><em>(E1: Validaciones y Thunder Client · E2: Carrito y Checkout).</em> Desarrolló la interfaz responsive en Pug (<code>estilosUrbana.pug</code>), la cartelera con filtros combinados sin recarga, la carga validada de fotografías de artistas con <code>multer</code> (<code>Entidad.js</code>), el sistema de membresías con descuentos automáticos (Estándar, Premium 15 %, VIP 30 %) y el checkout atómico por sector.</td>
+      </tr>
+      <tr>
+        <td><strong>Cristian Villagra</strong></td>
+        <td>Backend Developer / Back-Office, API &amp; Reportes</td>
+        <td><em>(E1: Arquitectura MVC y Pug base · E2: Panel Admin y Salas).</em> Consolidó el Back-Office (<code>/admin</code>) bajo modelo RBAC para Administrador, Supervisor y Lector, implementó el módulo de boletería presencial en sucursal (<code>boleteria.pug</code>), los pipelines de agregación financiera en MongoDB, la exportación de reportes a <code>.xlsx</code> (<code>excelController.js</code>) y los endpoints de la API RESTful <code>/entradas</code>.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- 6. DESCRIPCIÓN FUNCIONAL Y ROLES -->
+  <h2>6. Descripción Funcional y Matriz de Permisos por Rol</h2>
+  <p class="indent">
+    <strong>Portal Público y Experiencia del Cliente (B2C):</strong> Cualquier visitante puede explorar la portada, la cartelera cultural con precios por sector (General, Platea y VIP), la calculadora de ahorro de membresías y el centro de ayuda sin necesidad de iniciar sesión. Al autenticarse, el cliente accede a su carrito persistente, aplica automáticamente el descuento de su membresía en el checkout, descarga e imprime sus entradas con código QR único, gestiona sus datos personales y puede cancelar tickets vigentes devolviendo el cupo al espectáculo.
+  </p>
+  <p class="indent">
+    <strong>Panel de Gestión Operativa y Auditoría (Back-Office):</strong> El personal interno ingresa a un panel lateral adaptado estrictamente a su jerarquía organizacional. De este modo —tal como se analizó en clase respecto a la seguridad interna en empresas—, un empleado con rol de lectura o supervisión operativa no puede alterar usuarios privilegiados ni acceder a funciones fuera de su competencia, validándose cada permiso en el servidor mediante middlewares antes de ejecutar cualquier controlador.
+  </p>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 48%;">Funcionalidad del Sistema</th>
+        <th class="centrado" style="width: 13%;">Cliente</th>
+        <th class="centrado" style="width: 13%;">Lector</th>
+        <th class="centrado" style="width: 13%;">Supervisor</th>
+        <th class="centrado" style="width: 13%;">Admin</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Explorar cartelera, comprar online, gestionar membresía, perfil y cancelar entradas propias</td>
+        <td class="centrado">✅</td>
+        <td class="centrado">—</td>
+        <td class="centrado">—</td>
+        <td class="centrado">—</td>
+      </tr>
+      <tr>
+        <td>Consultar dashboard, listado de salas/eventos/artistas, pagos, cancelaciones e informes (y Excel)</td>
+        <td class="centrado">—</td>
+        <td class="centrado">✅</td>
+        <td class="centrado">✅</td>
+        <td class="centrado">✅</td>
+      </tr>
+      <tr>
+        <td>Crear, editar y dar de baja lógica salas, eventos y artistas/entidades (con fotografía)</td>
+        <td class="centrado">—</td>
+        <td class="centrado">—</td>
+        <td class="centrado">✅</td>
+        <td class="centrado">✅</td>
+      </tr>
+      <tr>
+        <td>Operar Boletería Física en sucursal y validar entradas con código QR en puerta</td>
+        <td class="centrado">—</td>
+        <td class="centrado">—</td>
+        <td class="centrado">✅</td>
+        <td class="centrado">✅</td>
+      </tr>
+      <tr>
+        <td>Auditar el registro detallado de actividad por sesión, clics e histórico de eliminados</td>
+        <td class="centrado">—</td>
+        <td class="centrado">—</td>
+        <td class="centrado">✅</td>
+        <td class="centrado">✅</td>
+      </tr>
+      <tr>
+        <td>Gestionar cuentas de usuarios y personal interno (solo el Superadmin <code>admin</code> gestiona a otros Admins)</td>
+        <td class="centrado">—</td>
+        <td class="centrado">—</td>
+        <td class="centrado">—</td>
+        <td class="centrado">✅</td>
+      </tr>
+      <tr>
+        <td>Operaciones de escritura en la API JSON (<code>POST</code>, <code>PUT</code>, <code>DELETE /entradas</code>) con JWT</td>
+        <td class="centrado">—</td>
+        <td class="centrado">—</td>
+        <td class="centrado">—</td>
+        <td class="centrado">✅</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- 7. MÓDULOS Y JUSTIFICACIÓN TÉCNICA -->
+  <h2>7. Módulos del Proyecto y Justificación de Decisiones Técnicas</h2>
+  <ul class="lista-checks">
+    <li><strong>Autenticación Dual (Sesiones + JWT) y Seguridad:</strong> Login web con regeneración de ID de sesión (anti <em>session fixation</em>), cookie <code>httpOnly</code> / <code>sameSite=lax</code> / <code>secure</code>, y endpoint <code>POST /auth/token</code> para clientes API mediante tokens firmados con <code>HS256</code>. Incluye bloqueo temporal ante 5 intentos fallidos en 15 minutos (<code>limiteLogin</code>).</li>
+    <li><strong>Gestión de Salas, Artistas y Eventos:</strong> Verificación matemática de aforos por sector (<code>General + Platea + VIP = Capacidad</code>), bloqueo de modificación estructural si existen funciones asociadas (HTTP 409) y carga validada por <em>magic bytes</em> de imágenes JPG/PNG/WEBP de hasta 2 MB en MongoDB.</li>
+    <li><strong>Carrito, Membresías y Transacciones Atómicas:</strong> Aplicación automática de descuentos (0 %, 15 %, 30 %), validación de medios de pago y ejecución envuelta en <code>conTransaccion()</code> (<code>utils/transaccion.js</code>): usa sesiones ACID nativas en MongoDB Atlas y compensación automática si se ejecuta sobre un MongoDB local <em>standalone</em>.</li>
+    <li><strong>Boletería Presencial y Control de Acceso QR:</strong> Venta en ventanilla con descuento en efectivo, generación de QR en formato SVG vectorial (<code>qrcode</code>) apuntando a <code>/admin/validar/:codigo</code> y marcado atómico <code>Completado → Usado</code> que impide el reingreso con el mismo ticket.</li>
+    <li><strong>Auditoría Contable, Borrado Lógico y Exportación Excel:</strong> Ninguna entidad maestra se destruye físicamente (plugin <code>borradoLogico.js</code>). Los informes financieros descuentan automáticamente las entradas canceladas y permiten descargar libros <code>.xlsx</code> formateados mediante <code>exceljs</code>.</li>
+  </ul>
+
+  <h3>Justificación de decisiones arquitectónicas, herramientas omitidas y módulos adicionales</h3>
+  <p class="indent">
+    <strong> Decisiones alineadas a los bloques teóricos de la cátedra:</strong> Para el control de permisos se adoptó el modelo <strong>RBAC</strong> (<em>Role-Based Access Control</em>, Bloques 8.0 y 10.0) restringiendo roles con <code>enum</code> en Mongoose y validándolos en servidor mediante <code>verificarRol</code>. Para el resguardo de credenciales, se evolucionó del concepto de hash con <em>salt</em> visto con <code>PBKDF2</code> (Bloque 8.0) hacia <strong><code>bcrypt</code></strong> con factor de costo 10 (Bloque 10.2), que gestiona el <em>salt</em> criptográfico por usuario de forma nativa y resistente a fuerza bruta. En materia de comunicación HTTP y consultas (Bloques 6.2, 6.3, 7.2 y 7.3), las operaciones críticas emplean operadores atómicos y lógicos de MongoDB (<code>$gte</code>, <code>$lte</code>, <code>$or</code>, <code>$ne</code>, <code>$inc</code>, <code>$elemMatch</code>, <code>$expr</code>) devolviendo códigos HTTP semánticos estrictos (<code>200</code>, <code>201</code>, <code>302</code>, <code>400</code>, <code>401</code>, <code>403</code>, <code>404</code>, <code>409</code>, <code>429</code>, <code>500</code>).
+  </p>
+  <p class="indent">
+    <strong>Herramientas no utilizadas:</strong> No se incorporó <strong>Passport.js</strong> dado que el sistema emplea credenciales locales sin proveedores OAuth externos, permitiendo control directo sobre la regeneración de sesión, el bloqueo por intentos y la firma de JWT. Tampoco se habilitó el middleware <strong><code>cors</code></strong> abierto (Bloque 6.2) porque las vistas Pug se sirven desde el mismo origen del backend, reforzándose en cambio con validación estricta de cabecera <code>Origin</code>/<code>Referer</code> (<code>verificarOrigen</code>) contra ataques CSRF; ni se utilizó <strong><code>mongoose-unique-validator</code></strong> por encontrarse deprecado en Mongoose 8/9, resolviendo la unicidad mediante índices nativos <code>unique: true</code> y captura del código <code>11000</code>. Asimismo, se eligió <strong>coexistencia de Sesiones y JWT</strong>: cookies de sesión en MongoDB para la navegación SSR en Pug y tokens <em>stateless</em> <code>Bearer</code> (RFC 7519) para la API RESTful <code>/entradas</code>.
+  </p>
+  <p class="indent">
+    <strong>Módulos adicionales incorporados:</strong> Se sumaron cinco paquetes justificados por requerimientos concretos del dominio: <strong><code>helmet</code></strong> (cabeceras HTTP seguras y Content Security Policy contra XSS y clickjacking), <strong><code>connect-mongo</code></strong> (persistencia de sesiones en MongoDB Atlas para sobrevivir reinicios en Render con expiración TTL), <strong><code>multer</code></strong> (carga en memoria y validación binaria de fotografías de artistas), <strong><code>qrcode</code></strong> (generación en servidor de códigos QR vectoriales en SVG para cada ticket) y <strong><code>exceljs</code></strong> (exportación administrativa descargable de pagos y recaudación en formato <code>.xlsx</code>).
+  </p>
+
+  <!-- 8. PERSISTENCIA Y DIAGRAMAS -->
+  <h2>8. Persistencia de Datos en MongoDB Atlas y Diagramas</h2>
+  <p>
+    La capa de datos se aloja en un clúster cloud de <strong>MongoDB Atlas</strong> e implementa ocho modelos Mongoose (más la colección automática <code>sesiones</code> administrada por <code>connect-mongo</code>):
+  </p>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 20%;">Modelo Mongoose</th>
+        <th style="width: 46%;">Atributos Principales y Validaciones de Esquema</th>
+        <th style="width: 34%;">Relaciones NoSQL y Reglas</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Usuario</strong><br><code>Usuario.js</code></td>
+        <td><code>nombreUsuario</code> (unique), <code>email</code> (unique, regex), <code>password</code> (hash bcrypt), <code>nombre</code> y <code>apellido</code> (solo letras), <code>dni</code> (7–8 dígitos), <code>telefono</code> (10–15 dígitos), <code>fechaNacimiento</code> (+18 años), <code>rol</code> (enum 4 roles), <code>tipoCliente</code>, <code>porcentajeDescuento</code>.</td>
+        <td>Referenciado por <code>Transaccion</code>, <code>Entrada</code>, <code>CancelacionLog</code> y <code>Actividad</code>. Incluye plugin <code>borradoLogico</code>.</td>
+      </tr>
+      <tr>
+        <td><strong>Sala</strong><br><code>Sala.js</code></td>
+        <td><code>nombre</code> (unique), <code>capacidad</code> (entero ≥ 1), subdocumento <code>zonas</code> (<code>General</code>, <code>Platea</code>, <code>VIP</code> enteros ≥ 0), <code>ubicacion</code>, <code>disponible</code>. Hook <code>pre('validate')</code> recalcula el total.</td>
+        <td>Relación 1:N con <code>Evento</code>. Impide editar zonas o eliminar si posee eventos asociados (HTTP 409).</td>
+      </tr>
+      <tr>
+        <td><strong>Entidad</strong><br><code>Entidad.js</code></td>
+        <td><code>nombre</code> (unique), <code>foto</code> binaria (<code>Buffer</code> + <code>contentType</code> JPG/PNG/WEBP con <code>select: false</code>), <code>fotoActualizada</code>, <code>fotoCredito</code> (autor y licencia CC).</td>
+        <td>Relación 1:N con <code>Evento</code>. Servida bajo demanda por <code>GET /media/artistas/:id</code>.</td>
+      </tr>
+      <tr>
+        <td><strong>Evento</strong><br><code>Evento.js</code></td>
+        <td><code>nombre</code>, <code>descripcion</code>, <code>categoria</code> (enum 7 rubros), <code>fecha</code>, <code>hora</code>, <code>precio</code> (General), <code>precioPlatea</code>, <code>precioVIP</code>, <code>entradasDisponibles</code> (min: 0), <code>vendidosPorZona</code>.</td>
+        <td>Referencias <code>ObjectId</code> hacia <code>Sala</code> y <code>Entidad</code>. Métodos atómicos <code>reservarZona</code> y <code>liberarZona</code>.</td>
+      </tr>
+      <tr>
+        <td><strong>Transaccion</strong><br><code>Transaccion.js</code></td>
+        <td><code>comprobanteId</code> (unique), <code>items[]</code> embebidos (<code>eventoId</code>, <code>tipoEntrada</code>, <code>cantidad</code>, <code>cantidadCancelada</code>, <code>precio</code>), <code>subtotal</code>, <code>descuentoAplicado</code>, <code>total</code>, <code>medioPago</code>, <code>canal</code> (<code>Online</code> | <code>Sucursal</code>).</td>
+        <td>Referencia a <code>Usuario</code> (<code>cliente</code>) y a <code>Evento</code> en cada ítem. Base de las agregaciones contables.</td>
+      </tr>
+      <tr>
+        <td><strong>Entrada</strong><br><code>Entrada.js</code></td>
+        <td><code>codigoBoleto</code> (unique <code>TICK-XXXXXXXXXX</code>), <code>sector</code>, <code>cantidad</code>, <code>precio</code>, <code>fila</code>, <code>asiento</code>, <code>estado</code> (<code>Completado</code> | <code>Usado</code> | <code>Cancelada</code>), <code>usadaEn</code>, <code>validadaPor</code>.</td>
+        <td>Referencias triples hacia <code>Usuario</code>, <code>Evento</code> y <code>Transaccion</code>.</td>
+      </tr>
+      <tr>
+        <td><strong>CancelacionLog</strong><br><code>CancelacionLog.js</code></td>
+        <td><code>nombreCliente</code>, <code>eventoNombre</code>, <code>codigoBoleto</code>, <code>cantidad</code>, <code>fechaCancelacion</code>.</td>
+        <td>Referencias a <code>Usuario</code> y <code>Evento</code> para trazabilidad de devoluciones.</td>
+      </tr>
+      <tr>
+        <td><strong>Actividad</strong><br><code>Actividad.js</code></td>
+        <td><code>nombreUsuario</code>, <code>rol</code>, <code>sesionId</code>, <code>tipo</code> (<code>sesion</code> | <code>navegacion</code> | <code>accion</code> | <code>click</code>), <code>accion</code>, <code>pagina</code>, <code>metodo</code>, <code>estado</code>, <code>ip</code>, <code>fecha</code>.</td>
+        <td>Referencia opcional a <code>Usuario</code>. Posee 3 índices compuestos por fecha descendente.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- DIAGRAMA DER EN SVG -->
+  <div class="diagrama-box">
+    <div class="diagrama-titulo">Diagrama Entidad-Relación (Modelo de Datos NoSQL en MongoDB)</div>
+    <svg viewBox="0 0 780 300" width="100%" height="auto" xmlns="http://www.w3.org/2000/svg" style="font-family: 'Segoe UI', Arial, sans-serif;">
+      <defs>
+        <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 10 5 L 0 9 z" fill="#163a5f"/>
+        </marker>
+      </defs>
+      <!-- Líneas de relación -->
+      <line x1="175" y1="55" x2="295" y2="55" stroke="#163a5f" stroke-width="1.6" marker-end="url(#arrow)"/>
+      <text x="235" y="48" font-size="9" fill="#334155" text-anchor="middle">1 : N (realiza)</text>
+
+      <line x1="95" y1="95" x2="95" y2="195" stroke="#163a5f" stroke-width="1.6" marker-end="url(#arrow)"/>
+      <text x="132" y="148" font-size="9" fill="#334155" text-anchor="middle">1 : N (audita)</text>
+
+      <line x1="175" y1="75" x2="295" y2="155" stroke="#163a5f" stroke-width="1.6" marker-end="url(#arrow)"/>
+      <text x="232" y="106" font-size="9" fill="#334155" text-anchor="middle">titular</text>
+
+      <line x1="385" y1="95" x2="385" y2="135" stroke="#163a5f" stroke-width="1.6" marker-end="url(#arrow)"/>
+      <text x="422" y="120" font-size="9" fill="#334155" text-anchor="middle">1 : N (emite)</text>
+
+      <line x1="385" y1="205" x2="385" y2="235" stroke="#163a5f" stroke-width="1.6" marker-end="url(#arrow)"/>
+
+      <line x1="600" y1="55" x2="555" y2="135" stroke="#163a5f" stroke-width="1.6" marker-end="url(#arrow)"/>
+      <text x="598" y="96" font-size="9" fill="#334155" text-anchor="middle">1:N aloja</text>
+
+      <line x1="700" y1="95" x2="625" y2="135" stroke="#163a5f" stroke-width="1.6" marker-end="url(#arrow)"/>
+      <text x="688" y="122" font-size="9" fill="#334155" text-anchor="middle">1:N presenta</text>
+
+      <line x1="520" y1="170" x2="475" y2="170" stroke="#163a5f" stroke-width="1.6" marker-end="url(#arrow)"/>
+      <text x="498" y="163" font-size="8.5" fill="#334155" text-anchor="middle">función</text>
+
+      <!-- Cajas de Entidades -->
+      <!-- USUARIO -->
+      <rect x="15" y="20" width="160" height="75" rx="4" fill="#ffffff" stroke="#163a5f" stroke-width="1.8"/>
+      <rect x="15" y="20" width="160" height="22" rx="3" fill="#163a5f"/>
+      <text x="95" y="35" font-size="10.5" font-weight="bold" fill="#ffffff" text-anchor="middle">USUARIO</text>
+      <text x="23" y="55" font-size="9" fill="#1f2937">_id, nombreUsuario (UK)</text>
+      <text x="23" y="68" font-size="9" fill="#1f2937">email (UK), password (bcrypt)</text>
+      <text x="23" y="81" font-size="9" fill="#1f2937">rol, tipoCliente, %Descuento</text>
+
+      <!-- TRANSACCION -->
+      <rect x="295" y="20" width="180" height="75" rx="4" fill="#ffffff" stroke="#163a5f" stroke-width="1.8"/>
+      <rect x="295" y="20" width="180" height="22" rx="3" fill="#163a5f"/>
+      <text x="385" y="35" font-size="10.5" font-weight="bold" fill="#ffffff" text-anchor="middle">TRANSACCION</text>
+      <text x="303" y="55" font-size="9" fill="#1f2937">comprobanteId (UK), cliente (FK)</text>
+      <text x="303" y="68" font-size="9" fill="#1f2937">items[] (embebidos), canal</text>
+      <text x="303" y="81" font-size="9" fill="#1f2937">subtotal, descuento, total</text>
+
+      <!-- SALA -->
+      <rect x="520" y="20" width="120" height="65" rx="4" fill="#ffffff" stroke="#163a5f" stroke-width="1.8"/>
+      <rect x="520" y="20" width="120" height="22" rx="3" fill="#163a5f"/>
+      <text x="580" y="35" font-size="10.5" font-weight="bold" fill="#ffffff" text-anchor="middle">SALA</text>
+      <text x="528" y="55" font-size="9" fill="#1f2937">nombre (UK), capacidad</text>
+      <text x="528" y="69" font-size="9" fill="#1f2937">zonas {Gen, Pla, VIP}</text>
+
+      <!-- ENTIDAD -->
+      <rect x="650" y="20" width="118" height="65" rx="4" fill="#ffffff" stroke="#163a5f" stroke-width="1.8"/>
+      <rect x="650" y="20" width="118" height="22" rx="3" fill="#163a5f"/>
+      <text x="709" y="35" font-size="10.5" font-weight="bold" fill="#ffffff" text-anchor="middle">ENTIDAD</text>
+      <text x="658" y="55" font-size="9" fill="#1f2937">nombre (UK)</text>
+      <text x="658" y="69" font-size="9" fill="#1f2937">foto (Buffer), credito</text>
+
+      <!-- ENTRADA -->
+      <rect x="295" y="135" width="180" height="70" rx="4" fill="#ffffff" stroke="#163a5f" stroke-width="1.8"/>
+      <rect x="295" y="135" width="180" height="22" rx="3" fill="#163a5f"/>
+      <text x="385" y="150" font-size="10.5" font-weight="bold" fill="#ffffff" text-anchor="middle">ENTRADA</text>
+      <text x="303" y="170" font-size="9" fill="#1f2937">codigoBoleto (UK / QR), sector</text>
+      <text x="303" y="183" font-size="9" fill="#1f2937">cliente (FK), evento (FK)</text>
+      <text x="303" y="196" font-size="9" fill="#1f2937">estado (Completado|Usado|Canc.)</text>
+
+      <!-- EVENTO -->
+      <rect x="520" y="135" width="248" height="75" rx="4" fill="#ffffff" stroke="#163a5f" stroke-width="1.8"/>
+      <rect x="520" y="135" width="248" height="22" rx="3" fill="#163a5f"/>
+      <text x="644" y="150" font-size="10.5" font-weight="bold" fill="#ffffff" text-anchor="middle">EVENTO</text>
+      <text x="528" y="170" font-size="9" fill="#1f2937">nombre, categoria, fecha, hora</text>
+      <text x="528" y="183" font-size="9" fill="#1f2937">precio, precioPlatea, precioVIP</text>
+      <text x="528" y="196" font-size="9" fill="#1f2937">sala (FK), entidad (FK), vendidosPorZona</text>
+
+      <!-- ACTIVIDAD -->
+      <rect x="15" y="195" width="165" height="68" rx="4" fill="#ffffff" stroke="#163a5f" stroke-width="1.8"/>
+      <rect x="15" y="195" width="165" height="22" rx="3" fill="#163a5f"/>
+      <text x="97" y="210" font-size="10.5" font-weight="bold" fill="#ffffff" text-anchor="middle">ACTIVIDAD</text>
+      <text x="23" y="230" font-size="9" fill="#1f2937">usuario (FK), sesionId, rol</text>
+      <text x="23" y="244" font-size="9" fill="#1f2937">tipo, accion, pagina, fecha</text>
+
+      <!-- CANCELACIONLOG -->
+      <rect x="295" y="235" width="180" height="55" rx="4" fill="#ffffff" stroke="#163a5f" stroke-width="1.8"/>
+      <rect x="295" y="235" width="180" height="20" rx="3" fill="#163a5f"/>
+      <text x="385" y="249" font-size="10" font-weight="bold" fill="#ffffff" text-anchor="middle">CANCELACIONLOG</text>
+      <text x="303" y="267" font-size="9" fill="#1f2937">cliente (FK), evento (FK)</text>
+      <text x="303" y="280" font-size="9" fill="#1f2937">codigoBoleto, cantidad, fecha</text>
+    </svg>
+  </div>
+
+  <!-- DIAGRAMA DE SECUENCIA EN SVG -->
+  <div class="diagrama-box">
+    <div class="diagrama-titulo">Diagrama de Secuencia · Autenticación y Autorización JWT en API REST (/entradas)</div>
+    <svg viewBox="0 0 760 195" width="100%" height="auto" xmlns="http://www.w3.org/2000/svg" style="font-family: 'Segoe UI', Arial, sans-serif;">
+      <defs>
+        <marker id="arr2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M 0 1 L 10 5 L 0 9 z" fill="#0f2942"/>
+        </marker>
+      </defs>
+      <!-- Participantes -->
+      <rect x="20" y="10" width="120" height="28" rx="4" fill="#163a5f"/><text x="80" y="28" font-size="10" font-weight="bold" fill="#fff" text-anchor="middle">Cliente / API Consumer</text>
+      <rect x="215" y="10" width="130" height="28" rx="4" fill="#163a5f"/><text x="280" y="28" font-size="10" font-weight="bold" fill="#fff" text-anchor="middle">authController / JWT</text>
+      <rect x="415" y="10" width="140" height="28" rx="4" fill="#163a5f"/><text x="485" y="28" font-size="10" font-weight="bold" fill="#fff" text-anchor="middle">Middlewares Auth/Rol</text>
+      <rect x="615" y="10" width="125" height="28" rx="4" fill="#163a5f"/><text x="677" y="28" font-size="10" font-weight="bold" fill="#fff" text-anchor="middle">MongoDB Atlas</text>
+
+      <!-- Líneas de vida -->
+      <line x1="80" y1="38" x2="80" y2="185" stroke="#94a3b8" stroke-dasharray="4,3"/>
+      <line x1="280" y1="38" x2="280" y2="185" stroke="#94a3b8" stroke-dasharray="4,3"/>
+      <line x1="485" y1="38" x2="485" y2="185" stroke="#94a3b8" stroke-dasharray="4,3"/>
+      <line x1="677" y1="38" x2="677" y2="185" stroke="#94a3b8" stroke-dasharray="4,3"/>
+
+      <!-- Mensajes -->
+      <line x1="80" y1="60" x2="275" y2="60" stroke="#0f2942" stroke-width="1.4" marker-end="url(#arr2)"/>
+      <text x="178" y="55" font-size="8.8" fill="#1e293b" text-anchor="middle">1. POST /auth/token {identificador, password}</text>
+
+      <line x1="280" y1="78" x2="672" y2="78" stroke="#0f2942" stroke-width="1.4" marker-end="url(#arr2)"/>
+      <text x="476" y="73" font-size="8.8" fill="#1e293b" text-anchor="middle">2. Usuario.findOne() + bcrypt.compare()</text>
+
+      <line x1="280" y1="98" x2="85" y2="98" stroke="#0b57d0" stroke-width="1.4" stroke-dasharray="4,2" marker-end="url(#arr2)"/>
+      <text x="180" y="93" font-size="8.8" fill="#0b57d0" text-anchor="middle">3. 200 OK { token: jwt.sign(HS256, exp:1h) }</text>
+
+      <line x1="80" y1="125" x2="480" y2="125" stroke="#0f2942" stroke-width="1.4" marker-end="url(#arr2)"/>
+      <text x="280" y="120" font-size="8.8" fill="#1e293b" text-anchor="middle">4. GET/POST /entradas (Authorization: Bearer &lt;token&gt;)</text>
+
+      <line x1="485" y1="148" x2="672" y2="148" stroke="#0f2942" stroke-width="1.4" marker-end="url(#arr2)"/>
+      <text x="580" y="143" font-size="8.8" fill="#1e293b" text-anchor="middle">5. jwt.verify() + verificarRol → Query</text>
+
+      <line x1="677" y1="170" x2="85" y2="170" stroke="#15803d" stroke-width="1.4" stroke-dasharray="4,2" marker-end="url(#arr2)"/>
+      <text x="380" y="165" font-size="8.8" fill="#15803d" text-anchor="middle">6. Respuesta JSON (200/201) o rechazo seguro (401 Invalid Token / 403 Rol insuficiente)</text>
+    </svg>
+  </div>
+
+  <!-- 9. ARQUITECTURA Y RUTAS -->
+  <h2>9. Arquitectura MVC, Middlewares y Procesamiento de Peticiones</h2>
+  <p>
+    La aplicación organiza responsabilidades bajo el patrón <strong>Modelo–Vista–Controlador (MVC)</strong>, aislando la configuración de base de datos, las reglas reutilizables de negocio (<code>utils/</code>) y once middlewares transversales:
+  </p>
+
+  <div class="arbol-mvc">├── config/       → config.js (variables .env y secretos) · db.js (MongoDB Atlas + respaldo local)
+├── models/       → 8 esquemas Mongoose + plugins/borradoLogico.js
+├── controllers/  → 10 controladores (auth, cliente, carrito, admin, eventos, salas, entidades, entradas, actividad, excel)
+├── middlewares/  → authMiddleware, jwt, limiteLogin, origen (CSRF), validaciones, validateSala, subirFoto, actividad, logger, asyncHandler, errorHandler (+ index.js que los reúne)
+├── routes/       → 9 enrutadores Express modulares montados en index.js
+├── utils/        → transaccion.js (ACID/compensación), paginar.js, qr.js, excel.js, escapeRegex.js
+└── views/        → Plantillas Pug (layouts Admin/Cliente/Acceso, partials reutilizables y vistas por rol)</div>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 34%;">Ruta / Prefijo y Método</th>
+        <th style="width: 66%;"> Cadena de Middlewares y Comportamiento del Controlador</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>POST /auth/login</code><br><code>GET /auth/logout</code></td>
+        <td><code>limiteLogin</code> → <code>procesarLogin</code> verifica hash <code>bcrypt</code>, regenera sesión en MongoDB y redirige según rol. <code>/logout</code> destruye la sesión y limpia la cookie <code>connect.sid</code>.</td>
+      </tr>
+      <tr>
+        <td><code>POST /auth/token</code></td>
+        <td><code>limiteLogin</code> → <code>emitirToken</code> valida credenciales y firma un <strong>JWT</strong> (HS256, audiencia, emisor y expiración <code>1h</code>) sin exponer datos sensibles en el payload.</td>
+      </tr>
+      <tr>
+        <td><code>GET|POST|PUT|DELETE /entradas</code></td>
+        <td>API JSON: <code>autenticarToken</code> → <code>verificarAutenticacion</code> → <code>verificarRol(['Administrador'])</code> (en escritura). Lista tickets propios o emite/anula entradas ajustando stock.</td>
+      </tr>
+      <tr>
+        <td><code>GET /cliente/comprar</code><br><code>POST /cliente/carrito/procesar-pago</code></td>
+        <td>Cartelera pública con filtros combinados. El pago requiere sesión activa, aplica descuento de membresía y ejecuta <code>conTransaccion()</code> reservando zona y emitiendo tickets con QR.</td>
+      </tr>
+      <tr>
+        <td><code>POST /cliente/cancelar-entrada/:id</code></td>
+        <td><code>verificarRol(['Cliente'])</code> → <code>Entrada.cancelarEntradaZona</code> cambia estado a <code>Cancelada</code>, devuelve el cupo al sector, descuenta de <code>Transaccion</code> y graba <code>CancelacionLog</code>.</td>
+      </tr>
+      <tr>
+        <td><code>GET|POST /admin/boleteria</code><br><code>GET|POST /admin/validar/:codigo</code></td>
+        <td><code>verificarRol(['Administrador','Supervisor'])</code>. Venta presencial en sucursal con ticket imprimible, y escaneo de QR en puerta con marcado atómico <code>Usado</code>.</td>
+      </tr>
+      <tr>
+        <td><code>GET /admin/informe</code> · <code>/pagos</code><br><code>GET /admin/informe/excel</code></td>
+        <td><code>verificarRol(['Administrador','Supervisor','Lector'])</code>. Pipelines de agregación MongoDB sobre recaudación neta y descarga directa en formato <code>.xlsx</code>.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- 10. REQUERIMIENTOS Y PRUEBAS -->
+  <h2>10. Trazabilidad de Requerimientos (RF / RNF) y Documentación de Pruebas</h2>
+  <p>
+    Integrando los artefactos de <em>Ingeniería de Software</em>, se detalla la trazabilidad de requerimientos clave y la matriz de pruebas funcionales y de seguridad ejecutadas sobre el sistema desplegado:
+  </p>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 14%;">Código</th>
+        <th style="width: 34%;">Descripción del Requerimiento</th>
+        <th style="width: 52%;">Implementación Técnica Verificada</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>RF-01 / RF-09</strong></td>
+        <td>Gestión de salas por sectores, artistas con foto y eventos con cupo controlado</td>
+        <td>Modelos <code>Sala</code>, <code>Entidad</code> y <code>Evento</code> con validación de suma de zonas, carga binaria con <code>multer</code> y control de capacidad máxima.</td>
+      </tr>
+      <tr>
+        <td><strong>RF-06 / RF-12</strong></td>
+        <td>Venta online (con membresías) y venta presencial en boletería física</td>
+        <td>Controladores <code>carritoController</code> y <code>adminController.procesarVentaFisica</code> unificados bajo <code>Transaccion</code> (canal <code>Online</code> / <code>Sucursal</code>).</td>
+      </tr>
+      <tr>
+        <td><strong>RF-07 / RF-14</strong></td>
+        <td>Emisión de entradas con QR y validación única en puerta</td>
+        <td>Generación SVG con <code>utils/qr.js</code> y validación atómica en <code>POST /admin/validar/:codigo</code> que impide doble acreditación.</td>
+      </tr>
+      <tr>
+        <td><strong>RF-15 / RF-16</strong></td>
+        <td>Cancelación con devolución de stock y reportes gerenciales exportables</td>
+        <td>Método transaccional <code>cancelarEntradaZona</code>, agregaciones netas en <code>entradasController</code> y exportación con <code>excelController</code>.</td>
+      </tr>
+      <tr>
+        <td><strong>RNF-01</strong></td>
+        <td>Seguridad de acceso, sesiones, API stateless y protección de cabeceras</td>
+        <td>Hash <code>bcrypt</code>, cookies seguras, JWT HS256, <code>helmet</code> (CSP), anti-CSRF (<code>verificarOrigen</code>) y rate-limit (<code>limiteLogin</code>).</td>
+      </tr>
+      <tr>
+        <td><strong>RNF-02</strong></td>
+        <td>Integridad transaccional y consistencia ante compras concurrentes</td>
+        <td>Filtros condicionales atómicos (<code>$gte</code> / <code>$inc</code>) en MongoDB y wrapper <code>conTransaccion()</code> para todo el flujo de compra/cancelación.</td>
+      </tr>
+      <tr>
+        <td><strong>RNF-03</strong></td>
+        <td>Rendimiento y escalabilidad en auditoría de alto volumen</td>
+        <td>Consultas <code>lean()</code> paginadas, acotación temporal e índices compuestos en <code>Actividad</code> (respuesta reducida de ~1,4 s a ~0,4 s con 200k registros).</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Matriz de Pruebas Funcionales, de Seguridad y Casos Límite</h3>
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 10%;">ID</th>
+        <th style="width: 24%;">Objetivo de la Prueba</th>
+        <th style="width: 36%;">Procedimiento Ejecutado</th>
+        <th style="width: 30%;">Resultado Obtenido</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>CP-01</strong></td>
+        <td>Validación multicapa en registro (+18 años, DNI y email)</td>
+        <td>Envío de <code>POST /auth/registro</code> omitiendo validaciones HTML con DNI inválido o fecha de menor de 18 años.</td>
+        <td><strong>Exitoso:</strong> Middleware y esquema rechazan con HTTP 400 mostrando alerta precisa sin persistir en BD.</td>
+      </tr>
+      <tr>
+        <td><strong>CP-02</strong></td>
+        <td>Bloqueo por fuerza bruta en login web y API</td>
+        <td>Ejecución de 6 peticiones consecutivas con clave errónea hacia <code>POST /auth/login</code> y <code>POST /auth/token</code>.</td>
+        <td><strong>Exitoso:</strong> Al 6° intento responde <code>429 Too Many Requests</code> bloqueando temporalmente por 15 min.</td>
+      </tr>
+      <tr>
+        <td><strong>CP-03</strong></td>
+        <td>Autenticación JWT y rechazo de tokens inválidos/vencidos</td>
+        <td>Obtención de token en <code>/auth/token</code> y consumo de <code>GET /entradas</code> con token válido vs. token adulterado.</td>
+        <td><strong>Exitoso:</strong> Con token válido retorna <code>200 OK</code>; adulterado o vencido devuelve <code>401</code> + header <code>WWW-Authenticate</code>.</td>
+      </tr>
+      <tr>
+        <td><strong>CP-04</strong></td>
+        <td>Control estricto de roles y protección de Superadmin</td>
+        <td>Intento de acceso con usuario <code>Lector</code> o <code>Cliente</code> a rutas de edición <code>/admin/salas</code> o intento de borrar a <code>admin</code>.</td>
+        <td><strong>Exitoso:</strong> Responde página/JSON <code>403 Acceso Denegado</code>; el usuario <code>admin</code> permanece protegido en servidor.</td>
+      </tr>
+      <tr>
+        <td><strong>CP-05</strong></td>
+        <td>Compra online con descuento VIP y control de sobregiro</td>
+        <td>Compra con <code>cliente1</code> (VIP 30 %) superando y luego respetando el cupo disponible del sector VIP.</td>
+        <td><strong>Exitoso:</strong> Rechaza exceso de cupo; con stock válido aplica 30 % OFF, crea <code>Transaccion</code> y emite QR.</td>
+      </tr>
+      <tr>
+        <td><strong>CP-06</strong></td>
+        <td>Validación única de QR y bloqueo de cancelación post-uso</td>
+        <td>Acreditación de ticket en <code>POST /admin/validar/:codigo</code>, segundo escaneo e intento posterior de cancelación.</td>
+        <td><strong>Exitoso:</strong> Primer escaneo marca <code>Usado</code>; el reescaneo alerta ticket ya utilizado y cancelar devuelve HTTP 409.</td>
+      </tr>
+      <tr>
+        <td><strong>CP-07</strong></td>
+        <td>Integridad referencial y borrado lógico</td>
+        <td>Intento de eliminar una sala con eventos activos y posterior eliminación de un evento sin ventas conflictivas.</td>
+        <td><strong>Exitoso:</strong> Sala con eventos devuelve HTTP 409; la baja marca <code>eliminado: true</code> conservando el histórico.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- 11. MANTENIMIENTO, EVOLUCIÓN E IA -->
+  <h2>11. Mantenimiento, Evolución y Uso Consciente de Inteligencia Artificial</h2>
+  <p class="indent">
+    <strong>Mantenimiento correctivo y evolutivo:</strong> Respecto a la segunda entrega, se refactorizó por completo la capa de autenticación reemplazando el almacenamiento de sesiones en memoria (que perdía sesiones ante cada reinicio) por <code>connect-mongo</code> con expiración automática, y configurando <code>app.set('trust proxy', 1)</code> junto a una política de <code>Referrer-Policy</code> compatible para que las cookies seguras HTTPS y la verificación CSRF operen correctamente detrás del balanceador de Render. Para mejorar la <strong>escalabilidad y el rendimiento</strong>, se reemplazaron cálculos manuales en JavaScript por pipelines de agregación en MongoDB para los informes financieros, se ocultaron los buffers binarios de imágenes en listados generales mediante <code>select: false</code> y se incorporaron índices compuestos y paginación en la colección <code>Actividad</code>.
+  </p>
+  <p class="indent">
+    <strong>Declaración sobre el uso de Inteligencia Artificial:</strong> Siguiendo los lineamientos institucionales de la cátedra, el equipo utilizó herramientas de IA generativa como asistente de consulta y apoyo productivo en tres tareas acotadas: (1) normalización de hojas de estilo CSS e indentación de mixins reutilizables en plantillas Pug complejas, (2) revisión preventiva de casos borde de seguridad web (directivas de <code>helmet</code> y expresiones regulares de validación) y (3) revisión ortotipográfica de la documentación técnica y de la API (<code>docs/API.md</code>). Todo fragmento sugerido fue analizado críticamente, adaptado a las convenciones del proyecto, probado sobre MongoDB Atlas y validado por los integrantes responsables de cada módulo para garantizar su total comprensión y dominio técnico.
+  </p>
+
+  <!-- 12. CONCLUSIÓN FINAL -->
+  <h2>12. Conclusión Final del Cuatrimestre</h2>
+  <ul class="lista-checks">
+    <li><strong>¿Qué aprendimos este cuatrimestre?</strong> Comprendimos cómo estructurar profesionalmente un servidor web en Node.js y Express aplicando separación de responsabilidades MVC, manejo centralizado de errores, asincronía con <code>async/await</code>, modelado documental en MongoDB Atlas y esquemas reales de seguridad (diferenciando cuándo aplicar sesiones de servidor con cookies seguras y cuándo utilizar autenticación <em>stateless</em> mediante JSON Web Tokens), llevando finalmente el producto a un entorno real en la nube.</li>
+    <li><strong>¿Qué dificultades tuvimos y cómo las resolvimos?</strong> Los principales desafíos fueron tres: (1) compatibilizar las transacciones ACID entre MongoDB Atlas (clúster con replica set) y entornos locales <em>standalone</em> de desarrollo, lo cual resolvimos diseñando el utilitario <code>utils/transaccion.js</code> que detecta la topología al iniciar y aplica compensaciones automáticas en local; (2) lograr que las cookies seguras <code>secure: true</code> y la protección CSRF funcionaran detrás del proxy HTTPS en la nube ajustando <code>trust proxy</code> y las cabeceras de <code>helmet</code>; y (3) evitar que el crecimiento de la bitácora de auditoría degradara los tiempos de carga, resuelto con índices compuestos y consultas acotadas con <code>lean()</code>.</li>
+    <li><strong>¿Qué parte del desarrollo Back End nos interesó más?</strong> Nos resultó especialmente atractiva la arquitectura de seguridad y control de accesos por middlewares (combinar autenticación, roles jerárquicos, firma de tokens JWT y validaciones atómicas en la base de datos), así como ver reflejadas las reglas de negocio del mundo real —como evitar que dos compras simultáneas sobrevendan una sala o que un QR se utilice dos veces en la puerta— directamente en operaciones seguras del servidor.</li>
+    <li><strong>¿Qué deberíamos reforzar a futuro?</strong> De cara al Proyecto Final de la carrera, buscamos profundizar en la escritura de suites de pruebas automatizadas de integración extremo a extremo (E2E), la integración con pasarelas de pago y APIs externas en tiempo real mediante WebSockets, y la automatización de pipelines CI/CD para despliegues continuos.</li>
+  </ul>
+
+</body>
+</html>

@@ -34,7 +34,6 @@ const salaSchema = new mongoose.Schema({
   },
   zonas: { type: zonaSchema, required: true },
   ubicacion: { type: String, trim: true, default: '' },
-  tipo: { type: String, enum: ['conferencia', 'reunión', 'laboratorio', 'auditorio'], default: 'reunión' },
   disponible: { type: Boolean, default: true }
 }, { timestamps: true, versionKey: false });
 
@@ -52,7 +51,7 @@ salaSchema.pre('validate', function() {
 
 salaSchema.methods.obtenerInformacion = function() {
   return { id: this._id, nombre: this.nombre, descripcion: this.descripcion,
-    capacidad: this.capacidad, ubicacion: this.ubicacion, zonas: this.zonas, tipo: this.tipo, disponible: this.disponible };
+    capacidad: this.capacidad, ubicacion: this.ubicacion, zonas: this.zonas, disponible: this.disponible };
 };
 
 // Protege la distribución y las referencias de eventos existentes.
