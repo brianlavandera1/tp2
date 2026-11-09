@@ -82,6 +82,17 @@ function resumir(salida, codigo) {
   return { bien: codigo === 0 && fallas.length === 0, detalle: comprobaciones ? `${comprobaciones} comprobaciones` : 'correcto', fallas };
 }
 
+// Dos ejecuciones a la vez se pisarían la base de pruebas. Este puerto hace de candado: el sistema
+// lo libera solo cuando termina el proceso, incluso si se corta con Ctrl + C.
+const candado = net.createServer();
+await new Promise((resolver) => {
+  candado.once('error', () => {
+    console.error('❌ Ya hay otro npm test corriendo. Esperá a que termine, o cerralo, y volvé a intentar.');
+    process.exit(1);
+  });
+  candado.listen(3997, '127.0.0.1', resolver);
+});
+
 if (!(await hayMongoLocal())) {
   console.error('❌ Las pruebas necesitan un MongoDB local en 127.0.0.1:27017 y no se encontró ninguno.');
   console.error('   Inicialo (por ejemplo, el servicio "MongoDB" de Windows) y volvé a correr npm test.');
