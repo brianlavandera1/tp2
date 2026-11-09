@@ -13,9 +13,6 @@ export async function detectarTransacciones() {
   return soportaTransacciones;
 }
 
-export const modoTransacciones = () =>
-  soportaTransacciones ? 'nativas (replica set)' : 'compensación manual (servidor standalone)';
-
 /**
  * Ejecuta `trabajo(ctx)` de forma atómica.
  * - ctx.session: sesión de MongoDB para pasar a cada operación (null si no hay transacciones).

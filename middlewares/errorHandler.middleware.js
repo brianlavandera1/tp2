@@ -6,6 +6,9 @@ const notFoundHandler = (req, res, next) => {
 
 const errorHandler = (err, req, res, next) => {
   console.error('❌ Error interno:', err);
+  // Si la respuesta ya salió (por ejemplo, la sesión se cerró mientras terminaba otra petición) no se puede enviar otra
+  if (res.headersSent) return next(err);
+
   const status = err.status || 500;
   const message = err.message || 'Error interno del servidor.';
   

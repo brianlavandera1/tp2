@@ -3,17 +3,12 @@
 //- Va en el <head>: abre la conexión y actualiza cada contador de la página.
 mixin scriptConectados()
   style.
-    .conectados { display: inline-flex; align-items: center; gap: 7px; font-size: 12.5px; color: var(--color-texto-suave); white-space: nowrap; }
+    .panel-barra { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+    .panel-barra .ruta-seccion { margin: 0; }
+    .conectados { display: inline-flex; align-items: center; gap: 8px; margin-left: auto; padding: 7px 14px; border: 1px solid var(--color-borde); border-radius: 999px; background: var(--color-superficie); color: #fff; font-size: 13.5px; font-weight: 600; white-space: nowrap; }
     .conectados[hidden] { display: none; }
+    @media print { .conectados { display: none !important; } }
     .conectados-punto { width: 8px; height: 8px; border-radius: 50%; background: var(--color-exito); box-shadow: 0 0 0 3px var(--color-exito-suave); }
-    .encabezado .conectados { margin-right: 6px; }
-    .lateral .conectados { padding: 4px 14px 0; }
-    @media (max-width: 1050px) { .encabezado .conectados { display: none; } }
-    /* Panel en celular: la barra superior no tiene lugar, se ve al abrir el menú */
-    @media (max-width: 960px) {
-      .lateral .conectados { display: none; }
-      .lateral.menu-abierto .conectados:not([hidden]) { display: inline-flex; order: 3; flex-basis: 100%; padding: 4px 8px; }
-    }
   script(src="/socket.io/socket.io.min.js" defer)
   script.
     document.addEventListener('DOMContentLoaded', () => {
@@ -30,6 +25,7 @@ mixin scriptConectados()
 
       const contadores = document.querySelectorAll('[data-conectados]');
       const socket = io({ auth: { visitante } });
+      window.socketUrbana = socket; // la misma conexión la usa el chat (partials/chat.pug)
       socket.on('usuarios-conectados', (total) => {
         contadores.forEach((contador) => {
           contador.lastElementChild.textContent = total === 1 ? '1 usuario conectado' : `${total} usuarios conectados`;
@@ -39,7 +35,7 @@ mixin scriptConectados()
       socket.on('disconnect', () => contadores.forEach((contador) => { contador.hidden = true; }));
     });
 
-//- El contador visible: empieza oculto y aparece cuando llega el primer dato.
+//- El contador visible (solo en el panel de la empresa): empieza oculto y aparece cuando llega el primer dato.
 mixin contadorConectados()
   span.conectados(data-conectados hidden)
     span.conectados-punto(aria-hidden="true")

@@ -50,6 +50,8 @@ Si la conexión a Atlas falla o no está configurada, la aplicación se conecta 
    | `MONGODB_URI` | No | Cadena de conexión de MongoDB Atlas. |
    | `MONGODB_URI_LOCAL` | No | Base local usada si Atlas no está disponible (por defecto `mongodb://127.0.0.1:27017/TP2`). |
    | `SESSION_SECRET` | **Sí** | Clave para firmar la cookie de sesión. Debe ser larga y aleatoria. |
+   | `GEMINI_API_KEY` | No | Clave de Gemini para el asistente del chat. Sin ella, el chat funciona sin asistente. |
+   | `GEMINI_MODEL` | No | Modelo de Gemini (por defecto `gemini-flash-lite-latest`). |
    | `SESSION_MAX_AGE_HORAS` | No | Duración de la sesión en horas (por defecto `8`). |
    | `NODE_ENV` | No | `development` o `production`. En `production` la cookie de sesión solo viaja por HTTPS. |
 
@@ -168,6 +170,8 @@ La **autorización** es la misma para los dos mecanismos: los middlewares `verif
 - **Eventos:** CRUD asociado a una sala y a un artista o compañía, con precio por sector y control de cupo según la capacidad de la sala.
 - **Artistas / entidades:** alta rápida desde el formulario de eventos o desde su propia sección, con **foto opcional** (JPG, PNG o WEBP de hasta 2 MB) que se puede cambiar o quitar.
 - **Sitio público:** el inicio, la cartelera, los planes y la ayuda se ven sin iniciar sesión. Comprar, contratar un plan y ver las entradas piden iniciar sesión, y al entrar se vuelve a la página en la que estabas.
+- **Chat con Gemini (Socket.IO):** los clientes comparten un chat en tiempo real con asistente. Las visitas sin cuenta le consultan en privado, con límite de 10 consultas por hora por visitante y 100 por hora en total.
+- **Usuarios conectados:** el panel de la empresa muestra la cantidad de conectados en tiempo real.
 - **Cartelera:** búsqueda por texto (nombre, descripción o artista) y filtro por fecha. Filtros por categoría y por mes sin recargar la página. Cada afiche muestra la foto del artista con el título encima, la fecha, la sala y el precio por sector, con la elección de sector y cantidad, y la portada muestra al artista destacado.
 - **Diseño del sitio:** tema oscuro violeta con el degradé del ícono en las acciones principales (`views/partials/estilosUrbana.pug`). El panel de gestión comparte esa identidad (`views/partials/estilosPanel.pug`) y su inicio muestra las ventas de los últimos 7 días y la ocupación de las próximas funciones. En el celular, la navegación del cliente pasa a una barra inferior.
 - **Carrito y pago simulado:** validación de stock por sector, descuento según la membresía, validación de tarjeta en el servidor y comprobante de compra.
@@ -193,7 +197,8 @@ La **autorización** es la misma para los dos mecanismos: los middlewares `verif
 ```
 ├── config/
 │   ├── config.js          # Lectura centralizada de variables de entorno
-│   └── db.js              # Conexión a MongoDB (Atlas con respaldo local)
+│   ├── db.js              # Conexión a MongoDB (Atlas con respaldo local)
+│   └── asistente.txt      # Instrucciones del asistente de Gemini
 ├── controllers/           # Lógica de cada módulo (C de MVC)
 ├── middlewares/
 │   ├── authMiddleware.js          # verificarAutenticacion / verificarRol
@@ -220,7 +225,9 @@ La **autorización** es la misma para los dos mecanismos: los middlewares `verif
 │   ├── seed.js                # Carga de datos de prueba
 │   ├── ventasDemo.js          # Historial de ventas de demostración (para el informe)
 │   └── seed-fotos/            # Fotos de artistas (Creative Commons) y sus créditos (CREDITOS.md)
+├── sockets/               # Socket.IO: index.js, conectados.js (conteo) y chat.js
 ├── utils/                 # Transacciones, paginación, QR y escape de búsquedas
+├── tests/                 # Pruebas automáticas (npm test)
 ├── docs/API.md            # Documentación de la API JSON
 ├── index.js               # Punto de entrada de la aplicación
 └── .env.example           # Plantilla de variables de entorno
@@ -368,7 +375,10 @@ Las validaciones se aplican en los esquemas (campos obligatorios, formatos de em
 | `dotenv` | Carga de variables de entorno desde `.env` |
 | `multer` | Recepción de archivos (fotos de artistas) en formularios `multipart/form-data` |
 | `exceljs` | Genera los archivos Excel (`.xlsx`) de Informes y Pagos |
+| `socket.io` | Comunicación en tiempo real: conteo de conectados y chat |
+| `@google/generative-ai` | Conexión con Gemini para el asistente del chat |
 | `nodemon` *(desarrollo)* | Reinicio automático del servidor |
+| `socket.io-client` *(desarrollo)* | Conexiones simuladas en las pruebas automáticas |
 
 ---
 
@@ -380,6 +390,7 @@ Las validaciones se aplican en los esquemas (campos obligatorios, formatos de em
 | `npm run dev` | Inicia el servidor con nodemon. |
 | `npm run seed` | Borra y carga datos de prueba en la base configurada. |
 | `npm run categorias` | Completa la categoría de los eventos de demostración que no tienen una, sin borrar ni pisar nada. |
+| `npm test` | Corre las pruebas automáticas. Necesita un MongoDB local encendido y usa solo la base `TP2_pruebas`: nunca toca Atlas. |
 
 ---
 

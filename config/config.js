@@ -16,7 +16,11 @@ const config = {
   jwtSecret: process.env.JWT_SECRET || (sessionSecret && crypto.createHmac('sha256', sessionSecret).update('jwt-urbana-cult').digest('hex')),
   jwtExpira: process.env.JWT_EXPIRA || '1h',
   jwtAudiencia: 'urbana-cult-api',
-  jwtEmisor: 'urbana-cult'
+  jwtEmisor: 'urbana-cult',
+
+  // Asistente del chat: sin clave el chat funciona igual, sin Gemini
+  geminiApiKey: process.env.GEMINI_API_KEY || '',
+  geminiModelo: process.env.GEMINI_MODEL || 'gemini-flash-lite-latest'
 };
 
 export default config;

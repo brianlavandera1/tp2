@@ -12,11 +12,12 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "test": "node --test",
+    "test": "node tests/correr.mjs",
     "seed": "node scripts/seed.js",
     "categorias": "node scripts/asignarCategorias.js"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "bcrypt": "^6.0.0",
     "connect-mongo": "6.0.0",
     "dotenv": "^18.0.7",
@@ -26,12 +27,13 @@
     "helmet": "8.3.0",
     "jsonwebtoken": "9.0.3",
     "mongoose": "^9.11.1",
-    "multer": "2.4.0",
+    "multer": "2.5.0",
     "pug": "^3.0.4",
     "qrcode": "1.5.4",
     "socket.io": "^4.8.4"
   },
   "devDependencies": {
-    "nodemon": "^3.1.14"
+    "nodemon": "^3.1.14",
+    "socket.io-client": "^4.8.4"
   }
 }

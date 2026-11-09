@@ -25,6 +25,18 @@ style.
   .lateral .usuario-panel { background: var(--color-superficie); border-radius: 14px; }
   .usuario-panel .rol { color: var(--color-texto-suave); }
   .lateral .credito-panel, .lateral .credito-panel strong { color: var(--color-texto-tenue); }
+  /* Computadora: Salir es un botón redondo con ícono, al lado del usuario */
+  @media (min-width: 961px) {
+    .lateral .usuario-panel { gap: 8px; padding: 10px; }
+    .usuario-panel .avatar { flex: none; width: 28px; height: 28px; font-size: 13px; }
+    .usuario-panel > div { flex: 1; min-width: 0; }
+    .usuario-panel .nombre, .usuario-panel .rol { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+    .usuario-panel .rol { font-size: 10.5px; }
+    .usuario-panel .salir { flex: none; display: grid; place-items: center; width: 30px; height: 30px; padding: 0; border: 1px solid var(--color-borde); border-radius: 50%; color: var(--color-texto-suave); transition: background .15s, color .15s, border-color .15s; }
+    .usuario-panel .salir svg { display: block; width: 16px; height: 16px; }
+    .usuario-panel .salir span { display: none; }
+    .usuario-panel .salir:hover { background: var(--color-error-suave); border-color: var(--color-error); color: var(--color-error); }
+  }
 
   .boton-menu { display: none; }
 

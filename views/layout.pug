@@ -46,19 +46,20 @@ html(lang="es")
             div
               .nombre= usuarioLogueado.nombreUsuario
               .rol= esSuperAdmin(usuarioLogueado) ? 'Superadministrador' : usuarioLogueado.rol
-            a.salir(href="/auth/logout" title="Cerrar sesión")
+            a.salir(href="/auth/logout" title="Cerrar sesión" aria-label="Cerrar sesión")
               +icono('salir')
               span Salir
-        +contadorConectados()
         p.credito-panel Desarrollado por #[strong Sintaxia]
 
       //- ÁREA DINÁMICA (acá se carga cada página)
       main.panel-contenido(class=grupoActivo ? `area-${grupoActivo[1]}` : '')
-        if seccion
-          p.ruta-seccion
-            span.ruta-icono
-              +icono(seccion[1])
-            | #{grupoActivo[0]} · #{seccion[2]}
+        .panel-barra
+          if seccion
+            p.ruta-seccion
+              span.ruta-icono
+                +icono(seccion[1])
+              | #{grupoActivo[0]} · #{seccion[2]}
+          +contadorConectados()
         block content
 
     script.

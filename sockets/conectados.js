@@ -1,20 +1,21 @@
-import { Server } from 'socket.io';
-
 // El sitio tiene varias páginas: al navegar, el navegador corta el socket y abre otro.
 // Se espera un momento antes de dar de baja al usuario para que el número no salte en cada clic.
 const ESPERA_AL_DESCONECTAR_MS = 4000;
+const SALA_PERSONAL = 'personal';
 const ID_VALIDO = /^[\w-]{8,64}$/;
 
-// Conteo en tiempo real de usuarios conectados.
+// Conteo en tiempo real de usuarios conectados. Se cuenta a todos, pero el número solo lo recibe el personal.
 // Se cuenta por navegador (no por pestaña): alguien con tres pestañas abiertas es un solo usuario.
-export function iniciarConectados(servidorHttp) {
-  // El cliente solo escucha: no hace falta aceptar mensajes grandes
-  const io = new Server(servidorHttp, { maxHttpBufferSize: 4096 });
+export function registrarConectados(io) {
   const usuarios = new Map(); // id del navegador → { sockets, espera }
 
-  const avisarATodos = () => io.emit('usuarios-conectados', usuarios.size);
+  const avisarAlPersonal = () => io.to(SALA_PERSONAL).emit('usuarios-conectados', usuarios.size);
 
   io.on('connection', (socket) => {
+    const usuarioSesion = socket.request.session?.usuario;
+    const esPersonal = Boolean(usuarioSesion) && usuarioSesion.rol !== 'Cliente';
+    if (esPersonal) socket.join(SALA_PERSONAL);
+
     const enviado = socket.handshake.auth?.visitante;
     const id = typeof enviado === 'string' && ID_VALIDO.test(enviado) ? enviado : socket.id;
 
@@ -22,10 +23,10 @@ export function iniciarConectados(servidorHttp) {
     if (existente) {
       clearTimeout(existente.espera);
       existente.sockets += 1;
-      socket.emit('usuarios-conectados', usuarios.size); // solo cambió de página: el total es el mismo
+      if (esPersonal) socket.emit('usuarios-conectados', usuarios.size); // solo cambió de página: el total es el mismo
     } else {
       usuarios.set(id, { sockets: 1, espera: null });
-      avisarATodos();
+      avisarAlPersonal();
     }
 
     socket.on('disconnect', () => {
@@ -34,10 +35,8 @@ export function iniciarConectados(servidorHttp) {
       if (usuario.sockets > 0) return;
       usuario.espera = setTimeout(() => {
         usuarios.delete(id);
-        avisarATodos();
+        avisarAlPersonal();
       }, ESPERA_AL_DESCONECTAR_MS);
     });
   });
-
-  return io;
 }

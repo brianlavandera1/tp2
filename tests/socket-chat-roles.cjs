@@ -1,0 +1,28 @@
+const { io } = require('socket.io-client');
+const URL = 'http://127.0.0.1:3998';
+const pausa = ms => new Promise(r => setTimeout(r, ms));
+let fallas = 0;
+const ver = (n, ok, x = '') => { if (!ok) fallas++; console.log(`${ok ? 'OK   ' : 'FALLA'} ${n}${ok ? '' : ' -> ' + JSON.stringify(x)}`); };
+const cookie = async (u) => { const r = await fetch(URL + '/auth/login', { method: 'POST', redirect: 'manual', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams({ identificador: u, password: '123' }) }); if (r.status !== 302) throw new Error('login ' + u); return r.headers.get('set-cookie').split(';')[0]; };
+const abrir = (c) => { const s = io(URL, { forceNew: true, transports: ['websocket'], extraHeaders: c ? { Cookie: c } : {} }); s.m = []; s.h = null; s.a = []; s.on('mensaje', x => s.m.push(x)); s.on('historial', h => s.h = h); s.on('aviso', x => s.a.push(x)); return s; };
+const tieneBurbuja = async (r, c) => (await (await fetch(URL + r, { headers: c ? { Cookie: c } : {} })).text()).includes('class="chat-flotante');
+(async () => {
+  const c1 = await cookie('cliente1'), c2 = await cookie('cliente2'), adm = await cookie('admin');
+  const a = abrir(c1), b = abrir(c2), p = abrir(adm), v = abrir(null);
+  await pausa(600);
+  ver('los clientes reciben historial', Array.isArray(a.h) && Array.isArray(b.h));
+  ver('la empresa no recibe historial', p.h === null, p.h);
+  a.emit('mensaje', { mensaje: 'hola soy cliente' }); await pausa(300);
+  ver('entre clientes llega en vivo', b.m.at(-1)?.mensaje === 'hola soy cliente', b.m);
+  ver('la empresa no lee el chat', p.m.length === 0, p.m);
+  ver('la visita no lee el chat', v.m.length === 0, v.m);
+  const n = b.m.length;
+  p.emit('mensaje', { mensaje: 'soy del personal' }); await pausa(300);
+  ver('la empresa no puede escribir', b.m.length === n, b.m);
+  ver('sigue conectada (contador)', p.connected);
+  ver('el cliente ve la burbuja', await tieneBurbuja('/cliente/menu', c1));
+  ver('sin burbuja en el panel', !(await tieneBurbuja('/admin/dashboard', adm)));
+  ver('sin burbuja si la empresa mira el sitio', !(await tieneBurbuja('/cliente/menu', adm)));
+  ver('burbuja para visitas', await tieneBurbuja('/cliente/menu'));
+  console.log(fallas ? `FALLAS: ${fallas}` : 'TODO OK'); process.exit(fallas ? 1 : 0);
+})().catch(e => { console.log('ERROR', e.message); process.exit(2); });

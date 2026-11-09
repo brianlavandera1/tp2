@@ -384,15 +384,18 @@
     <li><b>1</b>Enlaces de Entrega (Despliegue, Repositorio, Drive y Video)</li>
     <li><b>2</b>Fuentes y Bibliografía Utilizadas</li>
     <li><b>3</b>Introducción y Alcance de la Entrega Final</li>
-    <li><b>4</b>Matriz de Tecnologías (Evolución Entregas 1, 2 y 3)</li>
-    <li><b>5</b>Integrantes, Roles y Responsabilidades</li>
-    <li><b>6</b>Descripción Funcional y Matriz de Permisos por Rol</li>
-    <li><b>7</b>Módulos del Proyecto y Justificación de Decisiones Técnicas</li>
-    <li><b>8</b>Persistencia de Datos en MongoDB Atlas y Diagramas (DER y Secuencia)</li>
-    <li><b>9</b>Arquitectura MVC, Middlewares y Procesamiento de Peticiones</li>
-    <li><b>10</b>Trazabilidad de Requerimientos (RF / RNF) y Documentación de Pruebas</li>
-    <li><b>11</b>Mantenimiento, Evolución y Uso Consciente de Inteligencia Artificial</li>
-    <li><b>12</b>Conclusión Final del Cuatrimestre</li>
+    <li><b>4</b>Objetivos del Proyecto</li>
+    <li><b>5</b>Matriz de Tecnologías (Evolución Entregas 1, 2 y 3)</li>
+    <li><b>6</b>Integrantes, Roles y Responsabilidades</li>
+    <li><b>7</b>Descripción Funcional y Matriz de Permisos por Rol</li>
+    <li><b>8</b>Módulos del Proyecto y Justificación de Decisiones Técnicas</li>
+    <li><b>9</b>Comunicación en Tiempo Real e Inteligencia Artificial</li>
+    <li><b>10</b>Persistencia de Datos en MongoDB Atlas y Diagramas (Casos de Uso, Clases, DER y Secuencia)</li>
+    <li><b>11</b>Arquitectura MVC, Middlewares y Procesamiento de Peticiones</li>
+    <li><b>12</b>Trazabilidad de Requerimientos (RF / RNF) y Documentación de Pruebas</li>
+    <li><b>13</b>Historias de Usuario y Planificación</li>
+    <li><b>14</b>Mantenimiento, Evolución y Uso Consciente de Inteligencia Artificial</li>
+    <li><b>15</b>Conclusión Final del Cuatrimestre</li>
   </ul>
   </div>
 
@@ -436,7 +439,7 @@
   <!-- 2. FUENTES -->
   <h2><span class="num">2</span>Fuentes y Bibliografía Utilizadas</h2>
   <p class="indent">
-    <strong>Material oficial de la cátedra y entregas previas:</strong> Mapa de Contenidos de <em>Desarrollo Web Backend</em> (<strong>Bloques 1 al 11.2</strong>) y cuadernillos teóricos <strong>Módulos M1 a M13</strong> del Aula Virtual (<code>aulasvirtuales.bue.edu.ar</code>): <em>Introducción a Node.js y Express</em> (Bloques 1–2), <em>Patrón MVC, POO y Persistencia con FS</em> (Bloques 3–4), <em>Middlewares y Motor de Plantillas Pug</em> (Bloques 5.1–5.2), <em>Asincronía (Callbacks, Promises, async/await), HTTP y Estados</em> (Bloques 6.1–6.3), <em>MongoDB, Mongoose y Operadores de Consulta</em> (Bloques 7.1–7.3), <em>Seguridad, Modelo RBAC y Hashing</em> (Bloque 8.0), <em>APIs RESTful, MongoDB Atlas y Despliegue en Render</em> (Bloque 9.0), y <em>Autenticación con Sesiones, Cookies y JSON Web Tokens — RFC 7519</em> (Bloques 10.0–10.2). Asimismo, se tomaron como base los artefactos de <em>Ingeniería de Software</em> para el Caso #3 (Urbana Cult) y las entregas previas <em>DOCUMENTACIÓN - Parte 1</em> y <em>DOCUMENTACIÓN - Parte 2</em> del equipo Sintaxia.
+    <strong>Material oficial de la cátedra y entregas previas:</strong> Mapa de Contenidos de <em>Desarrollo Web Backend</em> (<strong>Bloques 1 al 11.2</strong>) y cuadernillos teóricos <strong>Módulos M1 a M13</strong> del Aula Virtual (<code>aulasvirtuales.bue.edu.ar</code>): <em>Introducción a Node.js y Express</em> (Bloques 1–2), <em>Patrón MVC, POO y Persistencia con FS</em> (Bloques 3–4), <em>Middlewares y Motor de Plantillas Pug</em> (Bloques 5.1–5.2), <em>Asincronía (Callbacks, Promises, async/await), HTTP y Estados</em> (Bloques 6.1–6.3), <em>MongoDB, Mongoose y Operadores de Consulta</em> (Bloques 7.1–7.3), <em>Seguridad, Modelo RBAC y Hashing</em> (Bloque 8.0), <em>APIs RESTful, MongoDB Atlas y Despliegue en Render</em> (Bloque 9.0), y <em>Autenticación con Sesiones, Cookies y JSON Web Tokens — RFC 7519</em> (Bloques 10.0–10.2), y <em>WebSockets con Socket.IO e integración de Gemini</em> (material D12 y Bloque 11). Asimismo, se tomaron como base los artefactos de <em>Ingeniería de Software</em> para el Caso #3 (Urbana Cult) y las entregas previas <em>DOCUMENTACIÓN - Parte 1</em> y <em>DOCUMENTACIÓN - Parte 2</em> del equipo Sintaxia.
   </p>
   <p class="indent">
     <strong>Documentación técnica oficial consultada:</strong>
@@ -448,7 +451,9 @@
     OWASP Session Management &amp; CSRF Prevention Cheat Sheets (<a href="https://cheatsheetseries.owasp.org">cheatsheetseries.owasp.org</a>);
     Helmet.js Security Headers (<a href="https://helmetjs.github.io">helmetjs.github.io</a>);
     Pug Template Engine (<a href="https://pugjs.org">pugjs.org</a>);
-    Render Web Services Deployment Guide (<a href="https://render.com/docs">render.com/docs</a>).
+    Render Web Services Deployment Guide (<a href="https://render.com/docs">render.com/docs</a>);
+    Socket.IO v4 Documentation (<a href="https://socket.io/docs/v4">socket.io/docs/v4</a>);
+    Gemini API Documentation (<a href="https://ai.google.dev/gemini-api/docs">ai.google.dev/gemini-api/docs</a>).
   </p>
 
   <!-- 3. INTRODUCCIÓN -->
@@ -457,14 +462,32 @@
     En esta tercera instancia final de la materia <em>Desarrollo Web Backend</em>, la consultora estudiantil <strong>Sintaxia (Grupo 19)</strong> consolidó la versión productiva de <strong>Urbana Cult</strong>, un sistema integral para la gestión de salas culturales, programación de espectáculos, membresías de beneficios, boletería presencial, venta online de entradas y validación de accesos mediante códigos QR.
   </p>
   <p class="indent">
-    Cumpliendo íntegramente la hoja de ruta planteada al cierre de la segunda entrega, el proyecto evolucionó desde un Producto Mínimo Viable local con sesiones en memoria hacia una arquitectura robusta desplegada en la nube (<strong>Render + MongoDB Atlas</strong>). En esta etapa se incorporó encriptación irreversible de contraseñas con <code>bcrypt</code>, persistencia de sesiones en base de datos con <code>connect-mongo</code>, una API JSON protegida mediante <strong>JSON Web Tokens (JWT)</strong> firmados digitalmente, control de acceso granular de cuatro roles operativos más protección de Superadministrador, transacciones atómicas para evitar sobreventa de localidades, borrado lógico auditable en todas las colecciones maestras, bitácora de actividad de usuarios y exportación administrativa a planillas Excel.
+    Cumpliendo íntegramente la hoja de ruta planteada al cierre de la segunda entrega, el proyecto evolucionó desde un Producto Mínimo Viable local con sesiones en memoria hacia una arquitectura robusta desplegada en la nube (<strong>Render + MongoDB Atlas</strong>). En esta etapa se incorporó encriptación irreversible de contraseñas con <code>bcrypt</code>, persistencia de sesiones en base de datos con <code>connect-mongo</code>, una API JSON protegida mediante <strong>JSON Web Tokens (JWT)</strong> firmados digitalmente, control de acceso granular de cuatro roles operativos más protección de Superadministrador, transacciones atómicas para evitar sobreventa de localidades, borrado lógico auditable en todas las colecciones maestras, bitácora de actividad de usuarios, exportación administrativa a planillas Excel, comunicación en tiempo real con <strong>Socket.IO</strong> y un asistente virtual con <strong>Gemini</strong>.
   </p>
   <p class="indent">
-    <strong>Alcance definido:</strong> El sistema cubre el ciclo comercial completo de un centro cultural: descubrimiento público de la cartelera con filtros sin recarga, registro validado en tres capas, contratación de planes de membresía (Estándar, Premium y VIP), carrito y cobro online simulado, venta física en ventanilla con ticket imprimible, acreditación en puerta por lectura de QR, cancelación con restitución automática de cupos y tableros gerenciales de recaudación neta. Quedan fuera del alcance la integración con pasarelas bancarias reales y la numeración individual de butacas por plano gráfico.
+    <strong>Alcance definido:</strong> El sistema cubre el ciclo comercial completo de un centro cultural: descubrimiento público de la cartelera con filtros sin recarga, registro validado en tres capas, contratación de planes de membresía (Estándar, Premium y VIP), carrito y cobro online simulado, venta física en ventanilla con ticket imprimible, acreditación en puerta por lectura de QR, cancelación con restitución automática de cupos y tableros gerenciales de recaudación neta, además de asistencia en tiempo real para clientes y visitantes. Quedan fuera del alcance la integración con pasarelas bancarias reales y la numeración individual de butacas por plano gráfico.
   </p>
 
+  <!-- OBJETIVOS -->
+  <h2><span class="num">4</span>Objetivos del Proyecto</h2>
+  <h3>Objetivos generales</h3>
+  <ul class="lista-checks">
+    <li>Mejorar el software desarrollado en las entregas anteriores a partir de una consigna real, aplicando lo trabajado en <em>Ingeniería de Software</em>.</li>
+    <li>Integrar un equipo de proyecto con roles especializados y documentar qué hizo cada integrante.</li>
+    <li>Llevar la aplicación a un entorno real, con despliegue en la nube y base de datos en MongoDB Atlas.</li>
+  </ul>
+  <h3>Objetivos específicos</h3>
+  <ul class="lista-checks">
+    <li>Implementar una arquitectura modular MVC con rutas, controladores, middlewares propios y manejo centralizado de errores.</li>
+    <li>Modelar los datos en MongoDB con Mongoose: entidades, relaciones y validaciones, usando programación asincrónica con <code>async/await</code>.</li>
+    <li>Incorporar autenticación con sesiones y JWT, y autorización por roles.</li>
+    <li>Sumar comunicación en tiempo real con Socket.IO y un asistente basado en Gemini.</li>
+    <li>Corregir errores y mejorar seguridad, rendimiento y escalabilidad respecto de la entrega anterior.</li>
+    <li>Documentar requerimientos, diagramas y pruebas, y automatizar las pruebas críticas del sistema.</li>
+  </ul>
+
   <!-- 4. MATRIZ DE TECNOLOGÍAS -->
-  <h2><span class="num">4</span>Matriz de Tecnologías (Evolución Entregas 1, 2 y 3)</h2>
+  <h2><span class="num">5</span>Matriz de Tecnologías (Evolución Entregas 1, 2 y 3)</h2>
   <p>
     La siguiente matriz resume la progresión tecnológica real del proyecto a lo largo de las tres instancias evaluativas de la cursada:
   </p>
@@ -509,6 +532,12 @@
         <td>Diseño integral <em>Urbana Cult</em> responsive mobile, filtros dinámicos, fotos binarias de artistas (<code>multer</code>), membresías, boletería física y lector QR en puerta.</td>
       </tr>
       <tr>
+        <td><strong>Tiempo Real e IA</strong></td>
+        <td>No aplica en esta etapa.</td>
+        <td>No aplica en esta etapa.</td>
+        <td><strong>Socket.IO</strong> (conteo de conectados y chat) y asistente con <strong>Gemini</strong> (<code>@google/generative-ai</code>).</td>
+      </tr>
+      <tr>
         <td><strong>Pruebas, Módulos y Despliegue</strong></td>
         <td>Ejecución local (<code>localhost</code>) y pruebas de endpoints CRUD verificadas con <strong>Thunder Client</strong>.</td>
         <td>Variables de entorno con <code>dotenv</code> y pruebas funcionales integrales de flujo web.</td>
@@ -518,7 +547,7 @@
   </table>
 
   <!-- 5. INTEGRANTES Y RESPONSABILIDADES -->
-  <h2><span class="num">5</span>Integrantes, Roles y Responsabilidades</h2>
+  <h2><span class="num">6</span>Integrantes, Roles y Responsabilidades</h2>
   <table>
     <thead>
       <tr>
@@ -552,9 +581,9 @@
   </table>
 
   <!-- 6. DESCRIPCIÓN FUNCIONAL Y ROLES -->
-  <h2><span class="num">6</span>Descripción Funcional y Matriz de Permisos por Rol</h2>
+  <h2><span class="num">7</span>Descripción Funcional y Matriz de Permisos por Rol</h2>
   <p class="indent">
-    <strong>Portal Público y Experiencia del Cliente (B2C):</strong> Cualquier visitante puede explorar la portada, la cartelera cultural con precios por sector (General, Platea y VIP), la calculadora de ahorro de membresías y el centro de ayuda sin necesidad de iniciar sesión. Al autenticarse, el cliente accede a su carrito persistente, aplica automáticamente el descuento de su membresía en el checkout, descarga e imprime sus entradas con código QR único, gestiona sus datos personales y puede cancelar tickets vigentes devolviendo el cupo al espectáculo.
+    <strong>Portal Público y Experiencia del Cliente (B2C):</strong> Cualquier visitante puede explorar la portada, la cartelera cultural con precios por sector (General, Platea y VIP), la calculadora de ahorro de membresías y el centro de ayuda sin necesidad de iniciar sesión, y consultar en privado a un asistente con Gemini. Al autenticarse, el cliente accede a su carrito persistente, aplica automáticamente el descuento de su membresía en el checkout, descarga e imprime sus entradas con código QR único, gestiona sus datos personales y puede cancelar tickets vigentes devolviendo el cupo al espectáculo.
   </p>
   <p class="indent">
     <strong>Panel de Gestión Operativa y Auditoría (Back-Office):</strong> El personal interno ingresa a un panel lateral adaptado estrictamente a su jerarquía organizacional. De este modo —tal como se analizó en clase respecto a la seguridad interna en empresas—, un empleado con rol de lectura o supervisión operativa no puede alterar usuarios privilegiados ni acceder a funciones fuera de su competencia, validándose cada permiso en el servidor mediante middlewares antes de ejecutar cualquier controlador.
@@ -607,6 +636,20 @@
         <td class="centrado"><span class="si">✓</span></td>
       </tr>
       <tr>
+        <td>Chat en vivo con Gemini (las visitas sin cuenta lo usan en privado y con límite de consultas)</td>
+        <td class="centrado"><span class="si">✓</span></td>
+        <td class="centrado"><span class="no">—</span></td>
+        <td class="centrado"><span class="no">—</span></td>
+        <td class="centrado"><span class="no">—</span></td>
+      </tr>
+      <tr>
+        <td>Ver en tiempo real la cantidad de usuarios conectados</td>
+        <td class="centrado"><span class="no">—</span></td>
+        <td class="centrado"><span class="si">✓</span></td>
+        <td class="centrado"><span class="si">✓</span></td>
+        <td class="centrado"><span class="si">✓</span></td>
+      </tr>
+      <tr>
         <td>Gestionar cuentas de usuarios y personal interno (solo el Superadmin <code>admin</code> gestiona a otros Admins)</td>
         <td class="centrado"><span class="no">—</span></td>
         <td class="centrado"><span class="no">—</span></td>
@@ -624,13 +667,14 @@
   </table>
 
   <!-- 7. MÓDULOS Y JUSTIFICACIÓN TÉCNICA -->
-  <h2><span class="num">7</span>Módulos del Proyecto y Justificación de Decisiones Técnicas</h2>
+  <h2><span class="num">8</span>Módulos del Proyecto y Justificación de Decisiones Técnicas</h2>
   <ul class="lista-checks">
     <li><strong>Autenticación Dual (Sesiones + JWT) y Seguridad:</strong> Login web con regeneración de ID de sesión (anti <em>session fixation</em>), cookie <code>httpOnly</code> / <code>sameSite=lax</code> / <code>secure</code>, y endpoint <code>POST /auth/token</code> para clientes API mediante tokens firmados con <code>HS256</code>. Incluye bloqueo temporal ante 5 intentos fallidos en 15 minutos (<code>limiteLogin</code>).</li>
     <li><strong>Gestión de Salas, Artistas y Eventos:</strong> Verificación matemática de aforos por sector (<code>General + Platea + VIP = Capacidad</code>), bloqueo de modificación estructural si existen funciones asociadas (HTTP 409) y carga validada por <em>magic bytes</em> de imágenes JPG/PNG/WEBP de hasta 2 MB en MongoDB.</li>
     <li><strong>Carrito, Membresías y Transacciones Atómicas:</strong> Aplicación automática de descuentos (0 %, 15 %, 30 %), validación de medios de pago y ejecución envuelta en <code>conTransaccion()</code> (<code>utils/transaccion.js</code>): usa sesiones ACID nativas en MongoDB Atlas y compensación automática si se ejecuta sobre un MongoDB local <em>standalone</em>.</li>
     <li><strong>Boletería Presencial y Control de Acceso QR:</strong> Venta en ventanilla con descuento en efectivo, generación de QR en formato SVG vectorial (<code>qrcode</code>) apuntando a <code>/admin/validar/:codigo</code> y marcado atómico <code>Completado → Usado</code> que impide el reingreso con el mismo ticket.</li>
     <li><strong>Auditoría Contable, Borrado Lógico y Exportación Excel:</strong> Ninguna entidad maestra se destruye físicamente (plugin <code>borradoLogico.js</code>). Los informes financieros descuentan automáticamente las entradas canceladas y permiten descargar libros <code>.xlsx</code> formateados mediante <code>exceljs</code>.</li>
+    <li><strong>Tiempo Real y Asistente con IA:</strong> Conteo de usuarios conectados para la empresa con Socket.IO, chat en vivo entre clientes y asistente con Gemini por medio del prefijo <code>@gemini</code>, con conversación privada y límites de consultas para las visitas.</li>
   </ul>
 
   <h3>Justificación de decisiones arquitectónicas, herramientas omitidas y módulos adicionales</h3>
@@ -641,11 +685,50 @@
     <strong>Herramientas no utilizadas:</strong> No se incorporó <strong>Passport.js</strong> dado que el sistema emplea credenciales locales sin proveedores OAuth externos, permitiendo control directo sobre la regeneración de sesión, el bloqueo por intentos y la firma de JWT. Tampoco se habilitó el middleware <strong><code>cors</code></strong> abierto (Bloque 6.2) porque las vistas Pug se sirven desde el mismo origen del backend, reforzándose en cambio con validación estricta de cabecera <code>Origin</code>/<code>Referer</code> (<code>verificarOrigen</code>) contra ataques CSRF; ni se utilizó <strong><code>mongoose-unique-validator</code></strong> por encontrarse deprecado en Mongoose 8/9, resolviendo la unicidad mediante índices nativos <code>unique: true</code> y captura del código <code>11000</code>. Asimismo, se eligió <strong>coexistencia de Sesiones y JWT</strong>: cookies de sesión en MongoDB para la navegación SSR en Pug y tokens <em>stateless</em> <code>Bearer</code> (RFC 7519) para la API RESTful <code>/entradas</code>.
   </p>
   <p class="indent">
-    <strong>Módulos adicionales incorporados:</strong> Se sumaron cinco paquetes justificados por requerimientos concretos del dominio: <strong><code>helmet</code></strong> (cabeceras HTTP seguras y Content Security Policy contra XSS y clickjacking), <strong><code>connect-mongo</code></strong> (persistencia de sesiones en MongoDB Atlas para sobrevivir reinicios en Render con expiración TTL), <strong><code>multer</code></strong> (carga en memoria y validación binaria de fotografías de artistas), <strong><code>qrcode</code></strong> (generación en servidor de códigos QR vectoriales en SVG para cada ticket) y <strong><code>exceljs</code></strong> (exportación administrativa descargable de pagos y recaudación en formato <code>.xlsx</code>).
+    <strong>Módulos adicionales incorporados:</strong> Se sumaron cinco paquetes justificados por requerimientos concretos del dominio: <strong><code>helmet</code></strong> (cabeceras HTTP seguras y Content Security Policy contra XSS y clickjacking), <strong><code>connect-mongo</code></strong> (persistencia de sesiones en MongoDB Atlas para sobrevivir reinicios en Render con expiración TTL), <strong><code>multer</code></strong> (carga en memoria y validación binaria de fotografías de artistas), <strong><code>qrcode</code></strong> (generación en servidor de códigos QR vectoriales en SVG para cada ticket) y <strong><code>exceljs</code></strong> (exportación administrativa descargable de pagos y recaudación en formato <code>.xlsx</code>). También se incorporaron <strong><code>socket.io</code></strong> y <strong><code>@google/generative-ai</code></strong>, trabajados en clase, para la comunicación en tiempo real y el asistente virtual, y <code>socket.io-client</code> solo para las pruebas automáticas.
   </p>
 
+  <!-- TIEMPO REAL E IA -->
+  <h2><span class="num">9</span>Comunicación en Tiempo Real e Inteligencia Artificial</h2>
+  <p class="indent">
+    La comunicación en tiempo real se implementó con <strong>Socket.IO</strong> sobre el servidor HTTP de Node (<code>http.createServer(app)</code>), siguiendo el módulo <em>D12. Websockets</em>. El código está en <code>sockets/</code>, separado de las rutas: <code>index.js</code> crea el servidor de sockets y comparte la sesión de Express, <code>conectados.js</code> mantiene el conteo y <code>chat.js</code> resuelve el chat.
+  </p>
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 24%;">Funcionalidad</th>
+        <th style="width: 18%;">Quién la usa</th>
+        <th style="width: 58%;">Funcionamiento</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Conteo de usuarios conectados</strong></td>
+        <td>Lector, Supervisor y Administrador</td>
+        <td>Se cuenta a todos los navegadores conectados, incluidas las visitas, y el total se emite solo a la sala <code>personal</code>. Varias pestañas cuentan como un usuario, y una espera de 4 segundos evita que el número cambie al navegar entre páginas.</td>
+      </tr>
+      <tr>
+        <td><strong>Chat en vivo con Gemini</strong></td>
+        <td>Clientes con sesión</td>
+        <td>Sala compartida: los mensajes llegan a todos al instante. El autor se obtiene de la sesión del servidor, por lo que nadie puede escribir con el nombre de otro. El mensaje con prefijo <code>@gemini</code> se envía a la IA y la respuesta se publica para todos.</td>
+      </tr>
+      <tr>
+        <td><strong>Asistente para visitas</strong></td>
+        <td>Visitantes sin cuenta</td>
+        <td>Conversación privada: preguntas y respuestas se envían solo a ese socket. Límite de 10 consultas por hora por visitante y 100 por hora entre todas las visitas, para cuidar el cupo de la clave. Al llegar al límite se invita a crear una cuenta.</td>
+      </tr>
+    </tbody>
+  </table>
+  <p class="indent">
+    <strong>Integración con Gemini:</strong> <code>utils/gemini.js</code> inicializa el modelo una sola vez con <code>@google/generative-ai</code> y la clave <code>GEMINI_API_KEY</code>. El comportamiento del asistente se define en el archivo de texto <code>config/asistente.txt</code>, con la información del centro de ayuda, y se le indica que no invente datos. El material de clase usa <code>gemini-2.5-flash</code>, pero Google ya no lo ofrece a claves nuevas, por lo que se configuró <code>gemini-flash-lite-latest</code>, modificable con la variable <code>GEMINI_MODEL</code>. Si la IA falla, el usuario recibe un aviso y el servidor sigue funcionando.
+  </p>
+  <div class="diagrama-box">
+    <div class="diagrama-titulo">Diagrama de Secuencia · Consulta a Gemini desde el chat</div>
+    <svg viewBox="0 0 760 232" width="100%" height="auto" xmlns="http://www.w3.org/2000/svg" style="font-family: 'Segoe UI', Arial, sans-serif;"><defs><marker id="chat-fl" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M 0 1 L 10 5 L 0 9 z" fill="#2d1f63"/></marker></defs><rect x="14" y="8" width="132" height="26" rx="4" fill="#2d1f63"/><text x="80" y="25" font-size="10" fill="#fff" text-anchor="middle" font-weight="bold">Cliente que pregunta</text><line x1="80" y1="34" x2="80" y2="208" stroke="#94a3b8" stroke-dasharray="4,3"/><rect x="234" y="8" width="132" height="26" rx="4" fill="#2d1f63"/><text x="300" y="25" font-size="10" fill="#fff" text-anchor="middle" font-weight="bold">Servidor (Socket.IO)</text><line x1="300" y1="34" x2="300" y2="208" stroke="#94a3b8" stroke-dasharray="4,3"/><rect x="444" y="8" width="132" height="26" rx="4" fill="#2d1f63"/><text x="510" y="25" font-size="10" fill="#fff" text-anchor="middle" font-weight="bold">Gemini</text><line x1="510" y1="34" x2="510" y2="208" stroke="#94a3b8" stroke-dasharray="4,3"/><rect x="624" y="8" width="132" height="26" rx="4" fill="#2d1f63"/><text x="690" y="25" font-size="10" fill="#fff" text-anchor="middle" font-weight="bold">Clientes conectados</text><line x1="690" y1="34" x2="690" y2="208" stroke="#94a3b8" stroke-dasharray="4,3"/><line x1="80" y1="58" x2="296" y2="58" stroke="#2d1f63" stroke-width="1.3" marker-end="url(#chat-fl)"/><text x="188" y="54" font-size="8.6" fill="#1f2937" text-anchor="middle" font-weight="normal">1. emit("mensaje", "@gemini ¿qué planes hay?")</text><text x="405" y="76" font-size="8.6" fill="#46309e" text-anchor="middle" font-weight="normal">2. Toma el autor de la sesión y detecta @gemini</text><line x1="300" y1="96" x2="686" y2="96" stroke="#2d1f63" stroke-width="1.3" marker-end="url(#chat-fl)"/><text x="493" y="92" font-size="8.6" fill="#1f2937" text-anchor="middle" font-weight="normal">3. io.to("chat").emit("mensaje"): publica la pregunta</text><line x1="300" y1="122" x2="506" y2="122" stroke="#2d1f63" stroke-width="1.3" marker-end="url(#chat-fl)"/><text x="403" y="118" font-size="8.6" fill="#1f2937" text-anchor="middle" font-weight="normal">4. generateContent + asistente.txt</text><line x1="510" y1="146" x2="304" y2="146" stroke="#2d1f63" stroke-width="1.3" marker-end="url(#chat-fl)" stroke-dasharray="4,2"/><text x="407" y="142" font-size="8.6" fill="#1f2937" text-anchor="middle" font-weight="normal">5. Respuesta generada</text><line x1="300" y1="172" x2="686" y2="172" stroke="#2d1f63" stroke-width="1.3" marker-end="url(#chat-fl)"/><text x="493" y="168" font-size="8.6" fill="#1f2937" text-anchor="middle" font-weight="normal">6. io.to("chat").emit("mensaje", { usuario: "Gemini" })</text><line x1="300" y1="196" x2="84" y2="196" stroke="#2d1f63" stroke-width="1.3" marker-end="url(#chat-fl)" stroke-dasharray="4,2"/><text x="192" y="192" font-size="8.6" fill="#1f2937" text-anchor="middle" font-weight="normal">6. Misma respuesta en tiempo real</text><text x="380" y="225" font-size="8.6" fill="#475569" text-anchor="middle" font-weight="normal">Visitas sin cuenta: los pasos 3 y 6 se reemplazan por socket.emit, solo a quien preguntó.</text></svg>
+  </div>
+
   <!-- 8. PERSISTENCIA Y DIAGRAMAS -->
-  <h2><span class="num">8</span>Persistencia de Datos en MongoDB Atlas y Diagramas</h2>
+  <h2><span class="num">10</span>Persistencia de Datos en MongoDB Atlas y Diagramas</h2>
   <p>
     La capa de datos se aloja en un clúster cloud de <strong>MongoDB Atlas</strong> e implementa ocho modelos Mongoose (más la colección automática <code>sesiones</code> administrada por <code>connect-mongo</code>):
   </p>
@@ -701,6 +784,17 @@
       </tr>
     </tbody>
   </table>
+
+  <!-- DIAGRAMAS DE CASOS DE USO Y CLASES -->
+  <div class="diagrama-box">
+    <div class="diagrama-titulo">Diagrama de Casos de Uso</div>
+    <svg viewBox="0 0 780 462" width="100%" height="auto" xmlns="http://www.w3.org/2000/svg" style="font-family: 'Segoe UI', Arial, sans-serif;"><defs><marker id="uc-gen" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="9" markerHeight="9" orient="auto"><path d="M1 1 L11 6 L1 11 z" fill="#fff" stroke="#2d1f63"/></marker></defs><rect x="128" y="10" width="524" height="442" rx="10" fill="#fff" stroke="#475569" stroke-width="1.2"/><text x="390" y="30" font-size="11" fill="#2d1f63" text-anchor="middle" font-weight="bold">Sistema Urbana Cult</text><line x1="80" y1="85" x2="154" y2="58" stroke="#2d1f63" stroke-width="1.2" /><line x1="80" y1="290" x2="154" y2="58" stroke="#2d1f63" stroke-width="1.2" /><line x1="80" y1="85" x2="154" y2="98" stroke="#2d1f63" stroke-width="1.2" /><line x1="80" y1="85" x2="154" y2="138" stroke="#2d1f63" stroke-width="1.2" /><line x1="80" y1="290" x2="154" y2="196" stroke="#2d1f63" stroke-width="1.2" /><line x1="80" y1="290" x2="154" y2="236" stroke="#2d1f63" stroke-width="1.2" /><line x1="80" y1="290" x2="154" y2="276" stroke="#2d1f63" stroke-width="1.2" /><line x1="80" y1="290" x2="154" y2="316" stroke="#2d1f63" stroke-width="1.2" /><line x1="80" y1="290" x2="154" y2="356" stroke="#2d1f63" stroke-width="1.2" /><line x1="80" y1="290" x2="154" y2="396" stroke="#2d1f63" stroke-width="1.2" /><line x1="700" y1="85" x2="626" y2="58" stroke="#2d1f63" stroke-width="1.2" /><line x1="700" y1="85" x2="626" y2="98" stroke="#2d1f63" stroke-width="1.2" /><line x1="700" y1="85" x2="626" y2="138" stroke="#2d1f63" stroke-width="1.2" /><line x1="700" y1="245" x2="626" y2="196" stroke="#2d1f63" stroke-width="1.2" /><line x1="700" y1="245" x2="626" y2="236" stroke="#2d1f63" stroke-width="1.2" /><line x1="700" y1="245" x2="626" y2="276" stroke="#2d1f63" stroke-width="1.2" /><line x1="700" y1="245" x2="626" y2="316" stroke="#2d1f63" stroke-width="1.2" /><line x1="700" y1="375" x2="626" y2="375" stroke="#2d1f63" stroke-width="1.2" /><ellipse cx="270" cy="58" rx="116" ry="17" fill="#fff" stroke="#2d1f63" stroke-width="1.2"/><text x="270" y="61" font-size="9.2" fill="#1f2937" text-anchor="middle" font-weight="normal">Ver cartelera, planes y ayuda</text><ellipse cx="270" cy="98" rx="116" ry="17" fill="#fff" stroke="#2d1f63" stroke-width="1.2"/><text x="270" y="101" font-size="9.2" fill="#1f2937" text-anchor="middle" font-weight="normal">Registrarse</text><ellipse cx="270" cy="138" rx="116" ry="17" fill="#fff" stroke="#2d1f63" stroke-width="1.2"/><text x="270" y="141" font-size="9.2" fill="#1f2937" text-anchor="middle" font-weight="normal">Consultar a Gemini en privado</text><ellipse cx="270" cy="196" rx="116" ry="17" fill="#fff" stroke="#2d1f63" stroke-width="1.2"/><text x="270" y="199" font-size="9.2" fill="#1f2937" text-anchor="middle" font-weight="normal">Comprar entradas</text><ellipse cx="270" cy="236" rx="116" ry="17" fill="#fff" stroke="#2d1f63" stroke-width="1.2"/><text x="270" y="239" font-size="9.2" fill="#1f2937" text-anchor="middle" font-weight="normal">Contratar o cambiar de plan</text><ellipse cx="270" cy="276" rx="116" ry="17" fill="#fff" stroke="#2d1f63" stroke-width="1.2"/><text x="270" y="279" font-size="9.2" fill="#1f2937" text-anchor="middle" font-weight="normal">Ver y descargar entradas con QR</text><ellipse cx="270" cy="316" rx="116" ry="17" fill="#fff" stroke="#2d1f63" stroke-width="1.2"/><text x="270" y="319" font-size="9.2" fill="#1f2937" text-anchor="middle" font-weight="normal">Cancelar entradas</text><ellipse cx="270" cy="356" rx="116" ry="17" fill="#fff" stroke="#2d1f63" stroke-width="1.2"/><text x="270" y="359" font-size="9.2" fill="#1f2937" text-anchor="middle" font-weight="normal">Chat en vivo con Gemini</text><ellipse cx="270" cy="396" rx="116" ry="17" fill="#fff" stroke="#2d1f63" stroke-width="1.2"/><text x="270" y="399" font-size="9.2" fill="#1f2937" text-anchor="middle" font-weight="normal">Gestionar su perfil</text><ellipse cx="510" cy="58" rx="116" ry="17" fill="#fff" stroke="#2d1f63" stroke-width="1.2"/><text x="510" y="61" font-size="9.2" fill="#1f2937" text-anchor="middle" font-weight="normal">Ver panel, informes y pagos</text><ellipse cx="510" cy="98" rx="116" ry="17" fill="#fff" stroke="#2d1f63" stroke-width="1.2"/><text x="510" y="101" font-size="9.2" fill="#1f2937" text-anchor="middle" font-weight="normal">Exportar informes a Excel</text><ellipse cx="510" cy="138" rx="116" ry="17" fill="#fff" stroke="#2d1f63" stroke-width="1.2"/><text x="510" y="141" font-size="9.2" fill="#1f2937" text-anchor="middle" font-weight="normal">Ver usuarios conectados</text><ellipse cx="510" cy="196" rx="116" ry="17" fill="#fff" stroke="#2d1f63" stroke-width="1.2"/><text x="510" y="199" font-size="9.2" fill="#1f2937" text-anchor="middle" font-weight="normal">Administrar salas, eventos y artistas</text><ellipse cx="510" cy="236" rx="116" ry="17" fill="#fff" stroke="#2d1f63" stroke-width="1.2"/><text x="510" y="239" font-size="9.2" fill="#1f2937" text-anchor="middle" font-weight="normal">Vender en boletería</text><ellipse cx="510" cy="276" rx="116" ry="17" fill="#fff" stroke="#2d1f63" stroke-width="1.2"/><text x="510" y="279" font-size="9.2" fill="#1f2937" text-anchor="middle" font-weight="normal">Validar QR en la puerta</text><ellipse cx="510" cy="316" rx="116" ry="17" fill="#fff" stroke="#2d1f63" stroke-width="1.2"/><text x="510" y="319" font-size="9.2" fill="#1f2937" text-anchor="middle" font-weight="normal">Auditar actividad e histórico</text><ellipse cx="510" cy="375" rx="116" ry="17" fill="#fff" stroke="#2d1f63" stroke-width="1.2"/><text x="510" y="378" font-size="9.2" fill="#1f2937" text-anchor="middle" font-weight="normal">Gestionar usuarios y personal</text><circle cx="62" cy="65" r="7" fill="#fff" stroke="#2d1f63" stroke-width="1.4"/><line x1="62" y1="72" x2="62" y2="91" stroke="#2d1f63" stroke-width="1.2" /><line x1="50" y1="79" x2="74" y2="79" stroke="#2d1f63" stroke-width="1.2" /><line x1="62" y1="91" x2="52" y2="105" stroke="#2d1f63" stroke-width="1.2" /><line x1="62" y1="91" x2="72" y2="105" stroke="#2d1f63" stroke-width="1.2" /><text x="62" y="118" font-size="10" fill="#2d1f63" text-anchor="middle" font-weight="bold">Visita</text><circle cx="62" cy="270" r="7" fill="#fff" stroke="#2d1f63" stroke-width="1.4"/><line x1="62" y1="277" x2="62" y2="296" stroke="#2d1f63" stroke-width="1.2" /><line x1="50" y1="284" x2="74" y2="284" stroke="#2d1f63" stroke-width="1.2" /><line x1="62" y1="296" x2="52" y2="310" stroke="#2d1f63" stroke-width="1.2" /><line x1="62" y1="296" x2="72" y2="310" stroke="#2d1f63" stroke-width="1.2" /><text x="62" y="323" font-size="10" fill="#2d1f63" text-anchor="middle" font-weight="bold">Cliente</text><circle cx="718" cy="65" r="7" fill="#fff" stroke="#2d1f63" stroke-width="1.4"/><line x1="718" y1="72" x2="718" y2="91" stroke="#2d1f63" stroke-width="1.2" /><line x1="706" y1="79" x2="730" y2="79" stroke="#2d1f63" stroke-width="1.2" /><line x1="718" y1="91" x2="708" y2="105" stroke="#2d1f63" stroke-width="1.2" /><line x1="718" y1="91" x2="728" y2="105" stroke="#2d1f63" stroke-width="1.2" /><text x="718" y="118" font-size="10" fill="#2d1f63" text-anchor="middle" font-weight="bold">Lector</text><circle cx="718" cy="225" r="7" fill="#fff" stroke="#2d1f63" stroke-width="1.4"/><line x1="718" y1="232" x2="718" y2="251" stroke="#2d1f63" stroke-width="1.2" /><line x1="706" y1="239" x2="730" y2="239" stroke="#2d1f63" stroke-width="1.2" /><line x1="718" y1="251" x2="708" y2="265" stroke="#2d1f63" stroke-width="1.2" /><line x1="718" y1="251" x2="728" y2="265" stroke="#2d1f63" stroke-width="1.2" /><text x="718" y="278" font-size="10" fill="#2d1f63" text-anchor="middle" font-weight="bold">Supervisor</text><circle cx="718" cy="355" r="7" fill="#fff" stroke="#2d1f63" stroke-width="1.4"/><line x1="718" y1="362" x2="718" y2="381" stroke="#2d1f63" stroke-width="1.2" /><line x1="706" y1="369" x2="730" y2="369" stroke="#2d1f63" stroke-width="1.2" /><line x1="718" y1="381" x2="708" y2="395" stroke="#2d1f63" stroke-width="1.2" /><line x1="718" y1="381" x2="728" y2="395" stroke="#2d1f63" stroke-width="1.2" /><text x="718" y="408" font-size="10" fill="#2d1f63" text-anchor="middle" font-weight="bold">Administrador</text><line x1="718" y1="216" x2="718" y2="123" stroke="#2d1f63" stroke-width="1.2" marker-end="url(#uc-gen)"/><line x1="718" y1="346" x2="718" y2="283" stroke="#2d1f63" stroke-width="1.2" marker-end="url(#uc-gen)"/><text x="390" y="436" font-size="8.4" fill="#475569" text-anchor="middle" font-weight="normal">Todos los actores salvo la Visita inician sesión. El Supervisor hereda los casos del Lector, y el Administrador los del Supervisor.</text></svg>
+  </div>
+
+  <div class="diagrama-box">
+    <div class="diagrama-titulo">Diagrama de Clases (Modelos Mongoose)</div>
+    <svg viewBox="0 0 780 434" width="100%" height="auto" xmlns="http://www.w3.org/2000/svg" style="font-family: 'Segoe UI', Arial, sans-serif;"><line x1="188" y1="48" x2="226" y2="48" stroke="#2d1f63" stroke-width="1.2" /><text x="195" y="44" font-size="9" fill="#2d1f63" text-anchor="middle" font-weight="bold">1</text><text x="219" y="44" font-size="9" fill="#2d1f63" text-anchor="middle" font-weight="bold">*</text><line x1="404" y1="48" x2="446" y2="48" stroke="#2d1f63" stroke-width="1.2" /><text x="411" y="44" font-size="9" fill="#2d1f63" text-anchor="middle" font-weight="bold">*</text><text x="439" y="44" font-size="9" fill="#2d1f63" text-anchor="middle" font-weight="bold">*</text><line x1="632" y1="48" x2="658" y2="48" stroke="#2d1f63" stroke-width="1.2" /><text x="638" y="44" font-size="9" fill="#2d1f63" text-anchor="middle" font-weight="bold">*</text><text x="652" y="44" font-size="9" fill="#2d1f63" text-anchor="middle" font-weight="bold">1</text><line x1="610" y1="183.5" x2="686" y2="258" stroke="#2d1f63" stroke-width="1.2" /><text x="604" y="196.5" font-size="9" fill="#2d1f63" text-anchor="middle" font-weight="bold">*</text><text x="676" y="252" font-size="9" fill="#2d1f63" text-anchor="middle" font-weight="bold">1</text><line x1="103" y1="152.5" x2="103" y2="258" stroke="#2d1f63" stroke-width="1.2" /><text x="112" y="165.5" font-size="9" fill="#2d1f63" text-anchor="middle" font-weight="bold">0..1</text><text x="111" y="253" font-size="9" fill="#2d1f63" text-anchor="middle" font-weight="bold">*</text><line x1="172" y1="152.5" x2="240" y2="258" stroke="#2d1f63" stroke-width="1.2" /><text x="166" y="165.5" font-size="9" fill="#2d1f63" text-anchor="middle" font-weight="bold">1</text><text x="228" y="252" font-size="9" fill="#2d1f63" text-anchor="middle" font-weight="bold">*</text><line x1="315" y1="127.5" x2="315" y2="258" stroke="#2d1f63" stroke-width="1.2" /><text x="323" y="140.5" font-size="9" fill="#2d1f63" text-anchor="middle" font-weight="bold">0..1</text><text x="322" y="253" font-size="9" fill="#2d1f63" text-anchor="middle" font-weight="bold">*</text><line x1="470" y1="183.5" x2="396" y2="258" stroke="#2d1f63" stroke-width="1.2" /><text x="475" y="196.5" font-size="9" fill="#2d1f63" text-anchor="middle" font-weight="bold">1</text><text x="405" y="252" font-size="9" fill="#2d1f63" text-anchor="middle" font-weight="bold">*</text><line x1="539" y1="183.5" x2="539" y2="258" stroke="#2d1f63" stroke-width="1.2" /><text x="548" y="196.5" font-size="9" fill="#2d1f63" text-anchor="middle" font-weight="bold">0..1</text><text x="546" y="253" font-size="9" fill="#2d1f63" text-anchor="middle" font-weight="bold">*</text><polyline points="18,110 8,110 8,406 539,406 539,348.5" fill="none" stroke="#2d1f63" stroke-width="1.2"/><text x="13" y="105" font-size="9" fill="#2d1f63" text-anchor="middle" font-weight="bold">1</text><text x="547" y="359.5" font-size="9" fill="#2d1f63" text-anchor="middle" font-weight="bold">*</text><rect x="18" y="12" width="170" height="140.5" rx="3" fill="#fff" stroke="#2d1f63" stroke-width="1.4"/><rect x="18" y="12" width="170" height="22" rx="3" fill="#2d1f63"/><text x="103" y="27" font-size="10.5" fill="#fff" text-anchor="middle" font-weight="bold">Usuario</text><text x="25" y="46.5" font-size="8.8" fill="#1f2937" text-anchor="start" font-weight="normal">nombreUsuario: String (único)</text><text x="25" y="59" font-size="8.8" fill="#1f2937" text-anchor="start" font-weight="normal">email: String (único)</text><text x="25" y="71.5" font-size="8.8" fill="#1f2937" text-anchor="start" font-weight="normal">password: String (hash)</text><text x="25" y="84" font-size="8.8" fill="#1f2937" text-anchor="start" font-weight="normal">nombre, apellido: String</text><text x="25" y="96.5" font-size="8.8" fill="#1f2937" text-anchor="start" font-weight="normal">dni, telefono: String</text><text x="25" y="109" font-size="8.8" fill="#1f2937" text-anchor="start" font-weight="normal">fechaNacimiento: Date</text><text x="25" y="121.5" font-size="8.8" fill="#1f2937" text-anchor="start" font-weight="normal">rol: enum (4 roles)</text><text x="25" y="134" font-size="8.8" fill="#1f2937" text-anchor="start" font-weight="normal">tipoCliente: String</text><text x="25" y="146.5" font-size="8.8" fill="#1f2937" text-anchor="start" font-weight="normal">porcentajeDescuento: Number</text><rect x="226" y="12" width="178" height="115.5" rx="3" fill="#fff" stroke="#2d1f63" stroke-width="1.4"/><rect x="226" y="12" width="178" height="22" rx="3" fill="#2d1f63"/><text x="315" y="27" font-size="10.5" fill="#fff" text-anchor="middle" font-weight="bold">Transaccion</text><text x="233" y="46.5" font-size="8.8" fill="#1f2937" text-anchor="start" font-weight="normal">comprobanteId: String (único)</text><text x="233" y="59" font-size="8.8" fill="#1f2937" text-anchor="start" font-weight="normal">items[]: eventoId, tipoEntrada,</text><text x="233" y="71.5" font-size="8.8" fill="#1f2937" text-anchor="start" font-weight="normal">   cantidad, cantidadCancelada, precio</text><text x="233" y="84" font-size="8.8" fill="#1f2937" text-anchor="start" font-weight="normal">subtotal, descuentoAplicado: Number</text><text x="233" y="96.5" font-size="8.8" fill="#1f2937" text-anchor="start" font-weight="normal">total: Number</text><text x="233" y="109" font-size="8.8" fill="#1f2937" text-anchor="start" font-weight="normal">medioPago: String</text><text x="233" y="121.5" font-size="8.8" fill="#1f2937" text-anchor="start" font-weight="normal">canal: Online | Sucursal</text><rect x="446" y="12" width="186" height="171.5" rx="3" fill="#fff" stroke="#2d1f63" stroke-width="1.4"/><rect x="446" y="12" width="186" height="22" rx="3" fill="#2d1f63"/><text x="539" y="27" font-size="10.5" fill="#fff" text-anchor="middle" font-weight="bold">Evento</text><text x="453" y="46.5" font-size="8.8" fill="#1f2937" text-anchor="start" font-weight="normal">nombre, descripcion: String</text><text x="453" y="59" font-size="8.8" fill="#1f2937" text-anchor="start" font-weight="normal">categoria: enum (7 rubros)</text><text x="453" y="71.5" font-size="8.8" fill="#1f2937" text-anchor="start" font-weight="normal">fecha, hora</text><text x="453" y="84" font-size="8.8" fill="#1f2937" text-anchor="start" font-weight="normal">precio, precioPlatea, precioVIP</text><text x="453" y="96.5" font-size="8.8" fill="#1f2937" text-anchor="start" font-weight="normal">entradasDisponibles: Number</text><text x="453" y="109" font-size="8.8" fill="#1f2937" text-anchor="start" font-weight="normal">vendidosPorZona</text><line x1="446" y1="115" x2="632" y2="115" stroke="#2d1f63" stroke-width="1.2" /><text x="453" y="126.5" font-size="8.8" fill="#46309e" text-anchor="start" font-weight="normal">venderEntradas()</text><text x="453" y="139" font-size="8.8" fill="#46309e" text-anchor="start" font-weight="normal">precioDeZona()</text><text x="453" y="151.5" font-size="8.8" fill="#46309e" text-anchor="start" font-weight="normal">reservarZona()</text><text x="453" y="164" font-size="8.8" fill="#46309e" text-anchor="start" font-weight="normal">liberarZona()</text><text x="453" y="176.5" font-size="8.8" fill="#46309e" text-anchor="start" font-weight="normal">validarCupoEvento()</text><rect x="658" y="12" width="112" height="159" rx="3" fill="#fff" stroke="#2d1f63" stroke-width="1.4"/><rect x="658" y="12" width="112" height="22" rx="3" fill="#2d1f63"/><text x="714" y="27" font-size="10.5" fill="#fff" text-anchor="middle" font-weight="bold">Sala</text><text x="665" y="46.5" font-size="8.8" fill="#1f2937" text-anchor="start" font-weight="normal">nombre: String (único)</text><text x="665" y="59" font-size="8.8" fill="#1f2937" text-anchor="start" font-weight="normal">capacidad: Number</text><text x="665" y="71.5" font-size="8.8" fill="#1f2937" text-anchor="start" font-weight="normal">zonas: Gen, Pla, VIP</text><text x="665" y="84" font-size="8.8" fill="#1f2937" text-anchor="start" font-weight="normal">ubicacion: String</text><text x="665" y="96.5" font-size="8.8" fill="#1f2937" text-anchor="start" font-weight="normal">disponible: Boolean</text><line x1="658" y1="102.5" x2="770" y2="102.5" stroke="#2d1f63" stroke-width="1.2" /><text x="665" y="114" font-size="8.8" fill="#46309e" text-anchor="start" font-weight="normal">obtenerZonas()</text><text x="665" y="126.5" font-size="8.8" fill="#46309e" text-anchor="start" font-weight="normal">validarZonas()</text><text x="665" y="139" font-size="8.8" fill="#46309e" text-anchor="start" font-weight="normal">actualizarConZonas()</text><text x="665" y="151.5" font-size="8.8" fill="#46309e" text-anchor="start" font-weight="normal">eliminarConEventos()</text><text x="665" y="164" font-size="8.8" fill="#46309e" text-anchor="start" font-weight="normal">obtenerInformacion()</text><rect x="18" y="258" width="170" height="103" rx="3" fill="#fff" stroke="#2d1f63" stroke-width="1.4"/><rect x="18" y="258" width="170" height="22" rx="3" fill="#2d1f63"/><text x="103" y="273" font-size="10.5" fill="#fff" text-anchor="middle" font-weight="bold">Actividad</text><text x="25" y="292.5" font-size="8.8" fill="#1f2937" text-anchor="start" font-weight="normal">nombreUsuario, rol: String</text><text x="25" y="305" font-size="8.8" fill="#1f2937" text-anchor="start" font-weight="normal">sesionId: String</text><text x="25" y="317.5" font-size="8.8" fill="#1f2937" text-anchor="start" font-weight="normal">tipo: enum</text><text x="25" y="330" font-size="8.8" fill="#1f2937" text-anchor="start" font-weight="normal">accion, pagina, metodo</text><text x="25" y="342.5" font-size="8.8" fill="#1f2937" text-anchor="start" font-weight="normal">estado, ip</text><text x="25" y="355" font-size="8.8" fill="#1f2937" text-anchor="start" font-weight="normal">fecha: Date</text><rect x="212" y="258" width="206" height="134" rx="3" fill="#fff" stroke="#2d1f63" stroke-width="1.4"/><rect x="212" y="258" width="206" height="22" rx="3" fill="#2d1f63"/><text x="315" y="273" font-size="10.5" fill="#fff" text-anchor="middle" font-weight="bold">Entrada</text><text x="219" y="292.5" font-size="8.8" fill="#1f2937" text-anchor="start" font-weight="normal">codigoBoleto: String (único)</text><text x="219" y="305" font-size="8.8" fill="#1f2937" text-anchor="start" font-weight="normal">sector: String</text><text x="219" y="317.5" font-size="8.8" fill="#1f2937" text-anchor="start" font-weight="normal">cantidad, precio: Number</text><text x="219" y="330" font-size="8.8" fill="#1f2937" text-anchor="start" font-weight="normal">fila, asiento</text><text x="219" y="342.5" font-size="8.8" fill="#1f2937" text-anchor="start" font-weight="normal">estado: Completado | Usado | Cancelada</text><text x="219" y="355" font-size="8.8" fill="#1f2937" text-anchor="start" font-weight="normal">usadaEn, validadaPor</text><line x1="212" y1="361" x2="418" y2="361" stroke="#2d1f63" stroke-width="1.2" /><text x="219" y="372.5" font-size="8.8" fill="#46309e" text-anchor="start" font-weight="normal">cancelarEntradaZona()</text><text x="219" y="385" font-size="8.8" fill="#46309e" text-anchor="start" font-weight="normal">registrarCancelacionEnTransaccion()</text><rect x="446" y="258" width="186" height="90.5" rx="3" fill="#fff" stroke="#2d1f63" stroke-width="1.4"/><rect x="446" y="258" width="186" height="22" rx="3" fill="#2d1f63"/><text x="539" y="273" font-size="10.5" fill="#fff" text-anchor="middle" font-weight="bold">CancelacionLog</text><text x="453" y="292.5" font-size="8.8" fill="#1f2937" text-anchor="start" font-weight="normal">nombreCliente: String</text><text x="453" y="305" font-size="8.8" fill="#1f2937" text-anchor="start" font-weight="normal">eventoNombre: String</text><text x="453" y="317.5" font-size="8.8" fill="#1f2937" text-anchor="start" font-weight="normal">codigoBoleto: String</text><text x="453" y="330" font-size="8.8" fill="#1f2937" text-anchor="start" font-weight="normal">cantidad: Number</text><text x="453" y="342.5" font-size="8.8" fill="#1f2937" text-anchor="start" font-weight="normal">fechaCancelacion: Date</text><rect x="658" y="258" width="112" height="78" rx="3" fill="#fff" stroke="#2d1f63" stroke-width="1.4"/><rect x="658" y="258" width="112" height="22" rx="3" fill="#2d1f63"/><text x="714" y="273" font-size="10.5" fill="#fff" text-anchor="middle" font-weight="bold">Entidad</text><text x="665" y="292.5" font-size="8.8" fill="#1f2937" text-anchor="start" font-weight="normal">nombre: String (único)</text><text x="665" y="305" font-size="8.8" fill="#1f2937" text-anchor="start" font-weight="normal">foto: Buffer</text><text x="665" y="317.5" font-size="8.8" fill="#1f2937" text-anchor="start" font-weight="normal">fotoActualizada</text><text x="665" y="330" font-size="8.8" fill="#1f2937" text-anchor="start" font-weight="normal">fotoCredito</text><text x="390" y="424" font-size="8.4" fill="#475569" text-anchor="middle" font-weight="normal">Las relaciones son referencias ObjectId de Mongoose. Usuario, Sala, Entidad y Evento incluyen el plugin borradoLogico: eliminarLogico().</text></svg>
+  </div>
 
   <!-- DIAGRAMA DER EN SVG -->
   <div class="diagrama-box">
@@ -841,17 +935,19 @@
   </div>
 
   <!-- 9. ARQUITECTURA Y RUTAS -->
-  <h2><span class="num">9</span>Arquitectura MVC, Middlewares y Procesamiento de Peticiones</h2>
+  <h2><span class="num">11</span>Arquitectura MVC, Middlewares y Procesamiento de Peticiones</h2>
   <p>
     La aplicación organiza responsabilidades bajo el patrón <strong>Modelo–Vista–Controlador (MVC)</strong>, aislando la configuración de base de datos, las reglas reutilizables de negocio (<code>utils/</code>) y once middlewares transversales:
   </p>
 
-  <div class="arbol-mvc">├── config/       → config.js (variables .env y secretos) · db.js (MongoDB Atlas + respaldo local)
+  <div class="arbol-mvc">├── config/       → config.js (variables .env y secretos) · db.js (MongoDB Atlas + respaldo local) · asistente.txt (contexto de Gemini)
 ├── models/       → 8 esquemas Mongoose + plugins/borradoLogico.js
 ├── controllers/  → 10 controladores (auth, cliente, carrito, admin, eventos, salas, entidades, entradas, actividad, excel)
 ├── middlewares/  → authMiddleware, jwt, limiteLogin, origen (CSRF), validaciones, validateSala, subirFoto, actividad, logger, asyncHandler, errorHandler (+ index.js que los reúne)
 ├── routes/       → 9 enrutadores Express modulares montados en index.js
-├── utils/        → transaccion.js (ACID/compensación), paginar.js, qr.js, excel.js, escapeRegex.js
+├── sockets/      → index.js (Socket.IO y sesión) · conectados.js (conteo) · chat.js (chat y visitas)
+├── utils/        → transaccion.js (ACID/compensación), paginar.js, qr.js, excel.js, escapeRegex.js, gemini.js
+├── tests/        → pruebas automáticas (npm test), siempre sobre una base local de pruebas
 └── views/        → Plantillas Pug (layouts Admin/Cliente/Acceso, partials reutilizables y vistas por rol)</div>
 
   <table>
@@ -862,6 +958,10 @@
       </tr>
     </thead>
     <tbody>
+      <tr>
+        <td><code>/socket.io</code> (WebSocket)</td>
+        <td>Verifica que la conexión venga del propio sitio y lee la sesión al conectarse. Según el rol, habilita el chat, la conversación privada o el conteo de conectados.</td>
+      </tr>
       <tr>
         <td><code>POST /auth/login</code><br><code>GET /auth/logout</code></td>
         <td><code>limiteLogin</code> → <code>procesarLogin</code> verifica hash <code>bcrypt</code>, regenera sesión en MongoDB y redirige según rol. <code>/logout</code> destruye la sesión y limpia la cookie <code>connect.sid</code>.</td>
@@ -894,7 +994,7 @@
   </table>
 
   <!-- 10. REQUERIMIENTOS Y PRUEBAS -->
-  <h2><span class="num">10</span>Trazabilidad de Requerimientos (RF / RNF) y Documentación de Pruebas</h2>
+  <h2><span class="num">12</span>Trazabilidad de Requerimientos (RF / RNF) y Documentación de Pruebas</h2>
   <p>
     Integrando los artefactos de <em>Ingeniería de Software</em>, se detalla la trazabilidad de requerimientos clave y la matriz de pruebas funcionales y de seguridad ejecutadas sobre el sistema desplegado:
   </p>
@@ -927,6 +1027,16 @@
         <td><strong>RF-15 / RF-16</strong></td>
         <td>Cancelación con devolución de stock y reportes gerenciales exportables</td>
         <td>Método transaccional <code>cancelarEntradaZona</code>, agregaciones netas en <code>entradasController</code> y exportación con <code>excelController</code>.</td>
+      </tr>
+      <tr>
+        <td><strong>RF-TR1</strong></td>
+        <td>Mostrar a la empresa la cantidad de usuarios conectados en tiempo real</td>
+        <td>Módulo <code>sockets/conectados.js</code> con emisión exclusiva a la sala <code>personal</code>.</td>
+      </tr>
+      <tr>
+        <td><strong>RF-TR2</strong></td>
+        <td>Chat en tiempo real con asistente virtual que responde consultas</td>
+        <td>Módulos <code>sockets/chat.js</code> y <code>utils/gemini.js</code>, con contexto en <code>config/asistente.txt</code>.</td>
       </tr>
       <tr>
         <td><strong>RNF-01</strong></td>
@@ -999,25 +1109,227 @@
         <td>Intento de eliminar una sala con eventos activos y posterior eliminación de un evento sin ventas conflictivas.</td>
         <td><strong>Exitoso:</strong> Sala con eventos devuelve HTTP 409; la baja marca <code>eliminado: true</code> conservando el histórico.</td>
       </tr>
+      <tr>
+        <td><strong>CP-08</strong></td>
+        <td>Chat en tiempo real entre clientes y autoría segura</td>
+        <td>Dos clientes conectados; uno envía un mensaje indicando el nombre de otro usuario.</td>
+        <td><strong>Exitoso:</strong> Llega al instante y el autor es el de la sesión. La empresa y las visitas no lo reciben.</td>
+      </tr>
+      <tr>
+        <td><strong>CP-09</strong></td>
+        <td>Consulta a Gemini y manejo de fallas</td>
+        <td>Mensajes con <code>@gemini</code>, sin prefijo y simulando un error 429 de la API. También se probó con la clave real.</td>
+        <td><strong>Exitoso:</strong> Solo responde con el prefijo y a todos. Ante un error avisa y el servidor sigue activo.</td>
+      </tr>
+      <tr>
+        <td><strong>CP-10</strong></td>
+        <td>Privacidad y límites de las visitas</td>
+        <td>Visitantes con distinta dirección: 11 consultas de uno solo y carga simultánea de 100 visitas.</td>
+        <td><strong>Exitoso:</strong> Nadie más ve la conversación. Corta en 10 por visita y 100 por hora, e invita a registrarse.</td>
+      </tr>
+      <tr>
+        <td><strong>CP-11</strong></td>
+        <td>Conteo de conectados por rol</td>
+        <td>Conexión de personal, clientes, visitas y varias pestañas, con desconexión posterior.</td>
+        <td><strong>Exitoso:</strong> Cuenta a todos, una pestaña extra no suma y solo la empresa recibe el número.</td>
+      </tr>
+      <tr>
+        <td><strong>CP-12</strong></td>
+        <td>Estabilidad al cerrar sesión</td>
+        <td>25 cierres de sesión simultáneos con otras peticiones y sockets activos.</td>
+        <td><strong>Exitoso:</strong> El servidor no se cae. Antes de la corrección, este caso lo detenía.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p class="indent">
+    <strong>Pruebas automatizadas:</strong> Las pruebas están en la carpeta <code>tests/</code> y se ejecutan con <code>npm test</code>. Levantan el servidor real y verifican compras, roles, seguridad, informes, Excel, fotos, chat y límites, con 354 comprobaciones exitosas en la última ejecución. Las respuestas de Gemini se simulan para no consumir el cupo, y el funcionamiento con la clave real se verificó aparte. Se ejecutan siempre sobre una base local exclusiva de pruebas, de modo que nunca modifican los datos de MongoDB Atlas.
+  </p>
+
+  <!-- HISTORIAS DE USUARIO Y PLANIFICACIÓN -->
+  <h2><span class="num">13</span>Historias de Usuario y Planificación</h2>
+  <p>
+    Las historias se priorizaron con el criterio Alta / Media / Baja y se estimaron por tamaño relativo (S, M o L). Este resumen se reconstruyó al cierre del proyecto a partir de las funcionalidades entregadas y del historial de GitHub.
+  </p>
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 9%;">ID</th>
+        <th style="width: 61%;">Historia de usuario</th>
+        <th class="centrado" style="width: 11%;">Prioridad</th>
+        <th class="centrado" style="width: 8%;">Tamaño</th>
+        <th class="centrado" style="width: 11%;">Estado</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>HU-01</strong></td>
+        <td>Como visitante quiero ver la cartelera y los planes sin registrarme para decidir si me interesa.</td>
+        <td class="centrado">Alta</td>
+        <td class="centrado">M</td>
+        <td class="centrado">Hecha</td>
+      </tr>
+      <tr>
+        <td><strong>HU-02</strong></td>
+        <td>Como visitante quiero registrarme e iniciar sesión para poder comprar.</td>
+        <td class="centrado">Alta</td>
+        <td class="centrado">M</td>
+        <td class="centrado">Hecha</td>
+      </tr>
+      <tr>
+        <td><strong>HU-03</strong></td>
+        <td>Como cliente quiero comprar entradas por sector para asegurar mi lugar.</td>
+        <td class="centrado">Alta</td>
+        <td class="centrado">L</td>
+        <td class="centrado">Hecha</td>
+      </tr>
+      <tr>
+        <td><strong>HU-04</strong></td>
+        <td>Como cliente quiero contratar un plan para obtener descuentos.</td>
+        <td class="centrado">Media</td>
+        <td class="centrado">M</td>
+        <td class="centrado">Hecha</td>
+      </tr>
+      <tr>
+        <td><strong>HU-05</strong></td>
+        <td>Como cliente quiero ver y descargar mis entradas con QR para ingresar al evento.</td>
+        <td class="centrado">Alta</td>
+        <td class="centrado">M</td>
+        <td class="centrado">Hecha</td>
+      </tr>
+      <tr>
+        <td><strong>HU-06</strong></td>
+        <td>Como cliente quiero cancelar una entrada para liberar el lugar si no puedo asistir.</td>
+        <td class="centrado">Media</td>
+        <td class="centrado">M</td>
+        <td class="centrado">Hecha</td>
+      </tr>
+      <tr>
+        <td><strong>HU-07</strong></td>
+        <td>Como supervisor quiero administrar salas, eventos y artistas para mantener la cartelera.</td>
+        <td class="centrado">Alta</td>
+        <td class="centrado">L</td>
+        <td class="centrado">Hecha</td>
+      </tr>
+      <tr>
+        <td><strong>HU-08</strong></td>
+        <td>Como supervisor quiero vender en boletería para atender al público presencial.</td>
+        <td class="centrado">Media</td>
+        <td class="centrado">M</td>
+        <td class="centrado">Hecha</td>
+      </tr>
+      <tr>
+        <td><strong>HU-09</strong></td>
+        <td>Como supervisor quiero validar el QR en la puerta para impedir que una entrada se use dos veces.</td>
+        <td class="centrado">Alta</td>
+        <td class="centrado">S</td>
+        <td class="centrado">Hecha</td>
+      </tr>
+      <tr>
+        <td><strong>HU-10</strong></td>
+        <td>Como administrador quiero gestionar usuarios y roles para controlar los accesos.</td>
+        <td class="centrado">Alta</td>
+        <td class="centrado">M</td>
+        <td class="centrado">Hecha</td>
+      </tr>
+      <tr>
+        <td><strong>HU-11</strong></td>
+        <td>Como lector quiero consultar informes y exportarlos a Excel para analizar las ventas.</td>
+        <td class="centrado">Media</td>
+        <td class="centrado">M</td>
+        <td class="centrado">Hecha</td>
+      </tr>
+      <tr>
+        <td><strong>HU-12</strong></td>
+        <td>Como supervisor quiero auditar la actividad para saber qué se hizo en el sistema.</td>
+        <td class="centrado">Media</td>
+        <td class="centrado">M</td>
+        <td class="centrado">Hecha</td>
+      </tr>
+      <tr>
+        <td><strong>HU-13</strong></td>
+        <td>Como cliente quiero un chat en vivo con asistente para resolver mis dudas al instante.</td>
+        <td class="centrado">Media</td>
+        <td class="centrado">M</td>
+        <td class="centrado">Hecha</td>
+      </tr>
+      <tr>
+        <td><strong>HU-14</strong></td>
+        <td>Como visitante quiero consultar al asistente sin tener cuenta para aclarar mis dudas antes de registrarme.</td>
+        <td class="centrado">Media</td>
+        <td class="centrado">S</td>
+        <td class="centrado">Hecha</td>
+      </tr>
+      <tr>
+        <td><strong>HU-15</strong></td>
+        <td>Como integrante de la empresa quiero ver cuántos usuarios hay conectados para conocer la actividad en vivo.</td>
+        <td class="centrado">Baja</td>
+        <td class="centrado">S</td>
+        <td class="centrado">Hecha</td>
+      </tr>
+    </tbody>
+  </table>
+  <h3>Planificación por etapas (según el historial de GitHub)</h3>
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 22%;">Período</th>
+        <th style="width: 26%;">Etapa</th>
+        <th style="width: 52%;">Trabajo realizado</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Septiembre 2026</strong></td>
+        <td>1° Entrega</td>
+        <td>Estructura MVC, programación orientada a objetos, operaciones CRUD y validaciones iniciales.</td>
+      </tr>
+      <tr>
+        <td><strong>Octubre 2026</strong></td>
+        <td>2° Entrega</td>
+        <td>Persistencia con MongoDB, módulo de salas y zonas, informes, conexión a Atlas y filtros de búsqueda.</td>
+      </tr>
+      <tr>
+        <td><strong>Noviembre 2026</strong></td>
+        <td>3° Entrega</td>
+        <td>Nuevo diseño, sitio público, roles, despliegue en Render, Socket.IO, asistente Gemini, pruebas automáticas y documentación final.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h3>Estado del tablero al cierre</h3>
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 34%;">Hecho</th>
+        <th style="width: 33%;">Pendiente para la entrega</th>
+        <th style="width: 33%;">Fuera de alcance</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>HU-01 a HU-15</td>
+        <td>Grabar el video de defensa y preparar los comprimidos individuales.</td>
+        <td>Pasarelas de pago reales y numeración individual de butacas por plano gráfico.</td>
+      </tr>
     </tbody>
   </table>
 
   <!-- 11. MANTENIMIENTO, EVOLUCIÓN E IA -->
-  <h2><span class="num">11</span>Mantenimiento, Evolución y Uso Consciente de Inteligencia Artificial</h2>
+  <h2><span class="num">14</span>Mantenimiento, Evolución y Uso Consciente de Inteligencia Artificial</h2>
   <p class="indent">
-    <strong>Mantenimiento correctivo y evolutivo:</strong> Respecto a la segunda entrega, se refactorizó por completo la capa de autenticación reemplazando el almacenamiento de sesiones en memoria (que perdía sesiones ante cada reinicio) por <code>connect-mongo</code> con expiración automática, y configurando <code>app.set('trust proxy', 1)</code> junto a una política de <code>Referrer-Policy</code> compatible para que las cookies seguras HTTPS y la verificación CSRF operen correctamente detrás del balanceador de Render. Para mejorar la <strong>escalabilidad y el rendimiento</strong>, se reemplazaron cálculos manuales en JavaScript por pipelines de agregación en MongoDB para los informes financieros, se ocultaron los buffers binarios de imágenes en listados generales mediante <code>select: false</code> y se incorporaron índices compuestos y paginación en la colección <code>Actividad</code>.
+    <strong>Mantenimiento correctivo y evolutivo:</strong> Respecto a la segunda entrega, se refactorizó por completo la capa de autenticación reemplazando el almacenamiento de sesiones en memoria (que perdía sesiones ante cada reinicio) por <code>connect-mongo</code> con expiración automática, y configurando <code>app.set('trust proxy', 1)</code> junto a una política de <code>Referrer-Policy</code> compatible para que las cookies seguras HTTPS y la verificación CSRF operen correctamente detrás del balanceador de Render. Para mejorar la <strong>escalabilidad y el rendimiento</strong>, se reemplazaron cálculos manuales en JavaScript por pipelines de agregación en MongoDB para los informes financieros, se ocultaron los buffers binarios de imágenes en listados generales mediante <code>select: false</code> y se incorporaron índices compuestos y paginación en la colección <code>Actividad</code>. En esta etapa final se corrigió además una falla que detenía el servidor cuando una sesión se cerraba mientras terminaba otra petición, y se actualizaron las librerías con vulnerabilidades conocidas (solo quedan dos de severidad moderada ligadas a <code>exceljs</code>, cuya corrección requiere un cambio incompatible de versión).
   </p>
   <p class="indent">
-    <strong>Declaración sobre el uso de Inteligencia Artificial:</strong> Siguiendo los lineamientos institucionales de la cátedra, el equipo utilizó herramientas de IA generativa como asistente de consulta y apoyo productivo en tres tareas acotadas: (1) normalización de hojas de estilo CSS e indentación de mixins reutilizables en plantillas Pug complejas, (2) revisión preventiva de casos borde de seguridad web (directivas de <code>helmet</code> y expresiones regulares de validación) y (3) revisión ortotipográfica de la documentación técnica y de la API (<code>docs/API.md</code>). Todo fragmento sugerido fue analizado críticamente, adaptado a las convenciones del proyecto, probado sobre MongoDB Atlas y validado por los integrantes responsables de cada módulo para garantizar su total comprensión y dominio técnico.
+    <strong>Declaración sobre el uso de Inteligencia Artificial:</strong> El desarrollo de esta entrega se realizó con un uso intensivo de herramientas de IA generativa, no como un apoyo puntual. Se utilizaron <strong>Claude Code</strong> (Anthropic) y <strong>Google Antigravity</strong> para generar y modificar código del servidor y de las vistas Pug, refactorizar, diagnosticar errores, escribir las pruebas automáticas y redactar, diseñar y revisar esta documentación, incluidos sus diagramas. Gran parte del código y del texto fue generado por estas herramientas a partir de las indicaciones del equipo, y luego adaptado y corregido en sucesivas iteraciones. El equipo definió el caso, los requerimientos, las prioridades y las decisiones funcionales (por ejemplo, qué puede ver cada rol), probó el sistema en funcionamiento y decidió qué cambios se aceptaban; el resultado se verificó con las pruebas automáticas y manuales documentadas. Dado que la IA puede equivocarse, cada integrante es responsable de revisar lo generado y de poder explicar la parte del sistema que le corresponde. Además, Gemini forma parte del producto como asistente del chat, tal como se explica en la sección correspondiente.
   </p>
 
   <!-- 12. CONCLUSIÓN FINAL -->
-  <h2><span class="num">12</span>Conclusión Final del Cuatrimestre</h2>
+  <h2><span class="num">15</span>Conclusión Final del Cuatrimestre</h2>
   <ul class="lista-checks">
-    <li><strong>¿Qué aprendimos este cuatrimestre?</strong> Comprendimos cómo estructurar profesionalmente un servidor web en Node.js y Express aplicando separación de responsabilidades MVC, manejo centralizado de errores, asincronía con <code>async/await</code>, modelado documental en MongoDB Atlas y esquemas reales de seguridad (diferenciando cuándo aplicar sesiones de servidor con cookies seguras y cuándo utilizar autenticación <em>stateless</em> mediante JSON Web Tokens), llevando finalmente el producto a un entorno real en la nube.</li>
+    <li><strong>¿Qué aprendimos este cuatrimestre?</strong> Comprendimos cómo estructurar profesionalmente un servidor web en Node.js y Express aplicando separación de responsabilidades MVC, manejo centralizado de errores, asincronía con <code>async/await</code>, modelado documental en MongoDB Atlas y esquemas reales de seguridad (diferenciando cuándo aplicar sesiones de servidor con cookies seguras y cuándo utilizar autenticación <em>stateless</em> mediante JSON Web Tokens), llevando finalmente el producto a un entorno real en la nube, con comunicación en tiempo real mediante Socket.IO y un asistente basado en Gemini.</li>
     <li><strong>¿Qué dificultades tuvimos y cómo las resolvimos?</strong> Los principales desafíos fueron tres: (1) compatibilizar las transacciones ACID entre MongoDB Atlas (clúster con replica set) y entornos locales <em>standalone</em> de desarrollo, lo cual resolvimos diseñando el utilitario <code>utils/transaccion.js</code> que detecta la topología al iniciar y aplica compensaciones automáticas en local; (2) lograr que las cookies seguras <code>secure: true</code> y la protección CSRF funcionaran detrás del proxy HTTPS en la nube ajustando <code>trust proxy</code> y las cabeceras de <code>helmet</code>; y (3) evitar que el crecimiento de la bitácora de auditoría degradara los tiempos de carga, resuelto con índices compuestos y consultas acotadas con <code>lean()</code>.</li>
     <li><strong>¿Qué parte del desarrollo Back End nos interesó más?</strong> Nos resultó especialmente atractiva la arquitectura de seguridad y control de accesos por middlewares (combinar autenticación, roles jerárquicos, firma de tokens JWT y validaciones atómicas en la base de datos), así como ver reflejadas las reglas de negocio del mundo real —como evitar que dos compras simultáneas sobrevendan una sala o que un QR se utilice dos veces en la puerta— directamente en operaciones seguras del servidor.</li>
-    <li><strong>¿Qué deberíamos reforzar a futuro?</strong> De cara al Proyecto Final de la carrera, buscamos profundizar en la escritura de suites de pruebas automatizadas de integración extremo a extremo (E2E), la integración con pasarelas de pago y APIs externas en tiempo real mediante WebSockets, y la automatización de pipelines CI/CD para despliegues continuos.</li>
+    <li><strong>¿Qué deberíamos reforzar a futuro?</strong> De cara al Proyecto Final de la carrera, buscamos ampliar la cobertura de las pruebas automatizadas, la integración con pasarelas de pago reales y la automatización de pipelines CI/CD para despliegues continuos.</li>
   </ul>
 
 </body>

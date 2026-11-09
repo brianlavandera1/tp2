@@ -29,7 +29,7 @@ import mediaRoutes from './routes/mediaRoutes.js';
 import actividadRoutes from './routes/actividadRoutes.js';
 
 // Tiempo real (Socket.IO)
-import { iniciarConectados } from './sockets/conectados.js';
+import { iniciarSockets } from './sockets/index.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -85,7 +85,7 @@ if (!config.sessionSecret) {
   process.exit(1);
 }
 
-app.use(session({
+const sesion = session({
   secret: config.sessionSecret,
   resave: false,
   saveUninitialized: false,
@@ -102,7 +102,8 @@ app.use(session({
     secure: config.esProduccion,  // solo HTTPS en producción
     maxAge: config.sessionMaxAgeMs
   }
-}));
+});
+app.use(sesion);
 
 // Datos comunes para todas las vistas (menú activo, usuario y contador del carrito)
 app.use((req, res, next) => {
@@ -144,7 +145,7 @@ if (!process.env.VERCEL) {
       // El seed borra la base: se ejecuta solo a mano con `npm run seed`
       // Socket.IO necesita el servidor HTTP, por eso se crea aparte de la app de Express
       const servidor = http.createServer(app);
-      iniciarConectados(servidor);
+      iniciarSockets(servidor, sesion);
       servidor.listen(config.port, '0.0.0.0', () => {
         console.log(`🚀 Servidor corriendo en http://localhost:${config.port}`);
       });
