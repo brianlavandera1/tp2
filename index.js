@@ -1,4 +1,5 @@
 import express from 'express';
+import http from 'http';
 import session from 'express-session';
 import MongoStore from 'connect-mongo';
 import helmet from 'helmet';
@@ -26,6 +27,9 @@ import carritoRoutes from './routes/carritoRoutes.js';
 import entradasRoutes from './routes/entradasRoutes.js';
 import mediaRoutes from './routes/mediaRoutes.js';
 import actividadRoutes from './routes/actividadRoutes.js';
+
+// Tiempo real (Socket.IO)
+import { iniciarConectados } from './sockets/conectados.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -138,7 +142,10 @@ if (!process.env.VERCEL) {
   conexion
     .then(() => {
       // El seed borra la base: se ejecuta solo a mano con `npm run seed`
-      app.listen(config.port, '0.0.0.0', () => {
+      // Socket.IO necesita el servidor HTTP, por eso se crea aparte de la app de Express
+      const servidor = http.createServer(app);
+      iniciarConectados(servidor);
+      servidor.listen(config.port, '0.0.0.0', () => {
         console.log(`🚀 Servidor corriendo en http://localhost:${config.port}`);
       });
     })

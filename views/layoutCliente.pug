@@ -1,10 +1,12 @@
 doctype html
 include partials/logo.pug
+include partials/conectados.pug
 include partials/iconos.pug
 html(lang="es")
   head
     include partials/head.pug
     include partials/estilosUrbana.pug
+    +scriptConectados()
     title
       block titulo
         | Urbana Cult · Entradas para eventos
@@ -24,6 +26,7 @@ html(lang="es")
               a(href=enlace[0] class=(rutaActual === enlace[0] ? 'activo' : '') aria-current=(rutaActual === enlace[0] ? 'page' : undefined))= enlace[1]
 
           .acciones-usuario
+            +contadorConectados()
             if esCliente
               a.boton-carrito(href="/cliente/carrito" aria-label="Ver carrito")
                 +icono('carrito')
@@ -48,6 +51,7 @@ html(lang="es")
       footer.pie
         .contenedor
           span © #{new Date().getFullYear()} Urbana Cult
+          +contadorConectados()
           a(href="/ayuda") Centro de ayuda
           span.credito Desarrollado por #[strong Sintaxia]
 

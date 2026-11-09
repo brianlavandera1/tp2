@@ -1,0 +1,46 @@
+//- Conteo en tiempo real de usuarios conectados (Socket.IO). El servidor está en sockets/conectados.js.
+
+//- Va en el <head>: abre la conexión y actualiza cada contador de la página.
+mixin scriptConectados()
+  style.
+    .conectados { display: inline-flex; align-items: center; gap: 7px; font-size: 12.5px; color: var(--color-texto-suave); white-space: nowrap; }
+    .conectados[hidden] { display: none; }
+    .conectados-punto { width: 8px; height: 8px; border-radius: 50%; background: var(--color-exito); box-shadow: 0 0 0 3px var(--color-exito-suave); }
+    .encabezado .conectados { margin-right: 6px; }
+    .lateral .conectados { padding: 4px 14px 0; }
+    @media (max-width: 1050px) { .encabezado .conectados { display: none; } }
+    /* Panel en celular: la barra superior no tiene lugar, se ve al abrir el menú */
+    @media (max-width: 960px) {
+      .lateral .conectados { display: none; }
+      .lateral.menu-abierto .conectados:not([hidden]) { display: inline-flex; order: 3; flex-basis: 100%; padding: 4px 8px; }
+    }
+  script(src="/socket.io/socket.io.min.js" defer)
+  script.
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!window.io) return; // sin servidor de sockets (Vercel) el contador queda oculto
+      // Identifica al navegador, para que varias pestañas cuenten como un solo usuario
+      let visitante;
+      try {
+        visitante = localStorage.getItem('uc-visitante');
+        if (!visitante) {
+          visitante = Date.now().toString(36) + Math.random().toString(36).slice(2);
+          localStorage.setItem('uc-visitante', visitante);
+        }
+      } catch { /* sin almacenamiento: el servidor cuenta esta conexión sola */ }
+
+      const contadores = document.querySelectorAll('[data-conectados]');
+      const socket = io({ auth: { visitante } });
+      socket.on('usuarios-conectados', (total) => {
+        contadores.forEach((contador) => {
+          contador.lastElementChild.textContent = total === 1 ? '1 usuario conectado' : `${total} usuarios conectados`;
+          contador.hidden = false;
+        });
+      });
+      socket.on('disconnect', () => contadores.forEach((contador) => { contador.hidden = true; }));
+    });
+
+//- El contador visible: empieza oculto y aparece cuando llega el primer dato.
+mixin contadorConectados()
+  span.conectados(data-conectados hidden)
+    span.conectados-punto(aria-hidden="true")
+    span

@@ -1,11 +1,13 @@
 doctype html
 include partials/logo.pug
+include partials/conectados.pug
 include partials/iconos.pug
 html(lang="es")
   head
     include partials/head.pug
     include partials/estilosUrbana.pug
     include partials/estilosPanel.pug
+    +scriptConectados()
     title
       block titulo
         | Urbana Cult · Panel de gestión
@@ -47,6 +49,7 @@ html(lang="es")
             a.salir(href="/auth/logout" title="Cerrar sesión")
               +icono('salir')
               span Salir
+        +contadorConectados()
         p.credito-panel Desarrollado por #[strong Sintaxia]
 
       //- ÁREA DINÁMICA (acá se carga cada página)

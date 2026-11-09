@@ -1,10 +1,12 @@
 doctype html
 include partials/logo.pug
+include partials/conectados.pug
 include partials/creditoFoto.pug
 html(lang="es")
   head
     include partials/head.pug
     include partials/estilosUrbana.pug
+    +scriptConectados()
     title
       block titulo
         | Urbana Cult · Ingresar
