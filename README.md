@@ -26,8 +26,8 @@ Si la conexión a Atlas falla o no está configurada, la aplicación se conecta 
 1. **Clonar el repositorio**
 
    ```bash
-   git clone https://github.com/brianlavandera1/tp2.git
-   cd tp2
+   git clone https://github.com/Crrisst/TP1-BackEnd.git
+   cd TP1-BackEnd
    ```
 
 2. **Instalar las dependencias**
