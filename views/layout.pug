@@ -2,11 +2,13 @@ doctype html
 include partials/logo.pug
 include partials/conectados.pug
 include partials/iconos.pug
+include partials/tema.pug
 html(lang="es")
   head
     include partials/head.pug
     include partials/estilosUrbana.pug
     include partials/estilosPanel.pug
+    include partials/estilosTema.pug
     +scriptConectados()
     title
       block titulo
@@ -60,6 +62,7 @@ html(lang="es")
                 +icono(seccion[1])
               | #{grupoActivo[0]} · #{seccion[2]}
           +contadorConectados()
+          +botonTema()
         block content
 
     script.

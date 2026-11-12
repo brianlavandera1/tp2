@@ -1,0 +1,41 @@
+style.
+  .boton-tema { display: inline-grid; place-items: center; flex: none; width: 38px; height: 38px; padding: 8px; border: 1px solid var(--color-borde); border-radius: 10px; background: transparent; color: var(--color-texto); cursor: pointer; }
+  .boton-tema:hover { background: var(--color-superficie-2); }
+  .boton-tema svg { width: 20px; height: 20px; }
+  .acceso-formulario { position: relative; }
+  .acceso-formulario > .boton-tema { position: absolute; top: 12px; right: 12px; }
+  .boton-tema .luna-tema, :root[data-tema="claro"] .boton-tema .sol-tema { display: none; }
+  :root[data-tema="claro"] .boton-tema .luna-tema { display: block; }
+  :root[data-tema="claro"] {
+    color-scheme: light;
+    --noche: #f5f4fa; --tinta: #211b35; --enlace: #6040c5;
+    --color-fondo: #f5f4fa; --color-superficie: #fff; --color-superficie-2: #eeebf7;
+    --color-borde: #dcd6e9; --color-texto: #211b35; --color-texto-suave: #554d68; --color-texto-tenue: #6c637d;
+    --color-marca: #6744d8; --color-marca-oscuro: #5130b6; --color-marca-suave: #eee8ff;
+    --color-exito: #187346; --color-exito-suave: #e3f4eb;
+    --color-error: #b52d48; --color-error-suave: #fce9ee;
+    --color-aviso: #8a5b00; --color-aviso-suave: #fff3d4;
+    --color-info: #245eaa; --color-info-suave: #e8f0ff;
+    --color-oscuro: #fff; --color-oscuro-2: #eeebf7;
+  }
+  :root[data-tema="claro"] body { color: var(--color-texto); }
+  :root[data-tema="claro"] :is(.encabezado, .lateral, .barra-app) { background: var(--color-superficie); }
+  :root[data-tema="claro"] :is(.marca, .marca:hover, .nav-principal a.activo, .nav-principal a:hover, .menu-lateral a.activo, .menu-lateral a:hover, .boton-carrito, .avatar, .entrar, .salir, .conectados, .precio, .insignia-neutra, .btn-secundario, .btn-suave, .ojo, .boton-menu, .boton-lateral) { color: var(--color-texto); }
+  :root[data-tema="claro"] .nav-principal a.activo { box-shadow: inset 0 -2px 0 var(--enlace); }
+  :root[data-tema="claro"] a:hover { color: var(--color-marca-oscuro); }
+  :root[data-tema="claro"] .btn:hover { color: #fff; }
+  :root[data-tema="claro"] :is(input:not([type=checkbox]):not([type=radio]), select, textarea, select option) { background: var(--color-superficie); color: var(--color-texto); border-color: var(--color-borde); }
+  :root[data-tema="claro"] .btn-secundario { border-color: var(--color-borde); }
+  :root[data-tema="claro"] .btn-secundario:hover, :root[data-tema="claro"] .btn-suave:hover { color: var(--color-texto); background: var(--color-superficie-2); }
+  :root[data-tema="claro"] .btn-chico.btn-secundario { background: #e8f0ff; color: #245eaa; border-color: #b9cfea; }
+  :root[data-tema="claro"] .area-dia { --area: #187346; }
+  :root[data-tema="claro"] .area-cartelera { --area: #6744d8; }
+  :root[data-tema="claro"] .area-dinero { --area: #8a5b00; }
+  :root[data-tema="claro"] .area-personas { --area: #245eaa; }
+  :root[data-tema="claro"] .kpi-plata { --kpi: #187346; }
+  :root[data-tema="claro"] .kpi-entradas { --kpi: #6744d8; }
+  :root[data-tema="claro"] .kpi-bajas { --kpi: #b52d48; }
+  :root[data-tema="claro"] .kpi-personas { --kpi: #245eaa; }
+  :root[data-tema="claro"] .acceso-arte { color: #fff; }
+  :root[data-tema="claro"] .acceso-arte .marca { color: #fff; }
+  @media print { .boton-tema { display: none !important; } }

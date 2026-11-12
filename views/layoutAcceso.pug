@@ -2,10 +2,12 @@ doctype html
 include partials/logo.pug
 include partials/conectados.pug
 include partials/creditoFoto.pug
+include partials/tema.pug
 html(lang="es")
   head
     include partials/head.pug
     include partials/estilosUrbana.pug
+    include partials/estilosTema.pug
     +scriptConectados()
     title
       block titulo
@@ -61,6 +63,7 @@ html(lang="es")
 
       //- Formulario de cada vista
       section.acceso-formulario
+        +botonTema()
         .caja
           block content
 

@@ -1,4 +1,27 @@
 meta(charset="UTF-8")
+script.
+  (() => {
+    const aplicar = (tema) => {
+      document.documentElement.dataset.tema = tema;
+      document.querySelectorAll('[data-tema]').forEach((boton) => {
+        if (boton === document.documentElement) return;
+        const etiqueta = tema === 'claro' ? 'Activar tema oscuro' : 'Activar tema claro';
+        boton.setAttribute('aria-label', etiqueta);
+        boton.title = etiqueta;
+        boton.setAttribute('aria-pressed', String(tema === 'claro'));
+      });
+    };
+    let tema = 'oscuro';
+    try { if (localStorage.getItem('uc-tema') === 'claro') tema = 'claro'; } catch {}
+    aplicar(tema);
+    document.addEventListener('DOMContentLoaded', () => aplicar(document.documentElement.dataset.tema));
+    document.addEventListener('click', (evento) => {
+      if (!evento.target.closest('button[data-tema]')) return;
+      const siguiente = document.documentElement.dataset.tema === 'claro' ? 'oscuro' : 'claro';
+      aplicar(siguiente);
+      try { localStorage.setItem('uc-tema', siguiente); } catch {}
+    });
+  })();
 meta(name="viewport" content="width=device-width, initial-scale=1")
 meta(name="author" content="Sintaxia")
 meta(name="description" content="Urbana Cult · Venta de entradas para eventos culturales")
