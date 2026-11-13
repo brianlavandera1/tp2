@@ -6,6 +6,21 @@ style.
   .acceso-formulario > .boton-tema { position: absolute; top: 12px; right: 12px; }
   .boton-tema .luna-tema, :root[data-tema="claro"] .boton-tema .sol-tema { display: none; }
   :root[data-tema="claro"] .boton-tema .luna-tema { display: block; }
+  .control-tema-panel { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 4px; color: var(--color-texto-tenue); font-size: 12px; }
+  .boton-tema.interruptor-tema { position: relative; display: inline-flex; align-items: center; justify-content: space-between; width: 72px; height: 36px; padding: 0 8px; border: 2px solid #f5f6f8; border-radius: 999px; background: #cbd0d9; box-shadow: inset 3px 4px 7px #9298a5, inset -2px -2px 5px #fff; isolation: isolate; }
+  .boton-tema.interruptor-tema::before { content: ''; position: absolute; z-index: -1; top: 2px; left: 2px; width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(145deg, #fff, #e7e9ed); box-shadow: 2px 3px 6px #8d94a1, inset 1px 1px 3px #fff; transform: translateX(36px); transition: transform .3s ease; }
+  .boton-tema.interruptor-tema .sol-tema, .boton-tema.interruptor-tema .luna-tema { display: block; width: 18px; height: 18px; color: #939aa7; transition: color .3s; }
+  .boton-tema.interruptor-tema .luna-tema { color: #7860b5; }
+  :root[data-tema="claro"] .boton-tema.interruptor-tema::before { transform: translateX(0); }
+  :root[data-tema="claro"] .boton-tema.interruptor-tema .sol-tema { color: #f39800; }
+  :root[data-tema="claro"] .boton-tema.interruptor-tema .luna-tema { color: #939aa7; }
+  @media (max-width: 960px) {
+    .control-tema-panel { display: none; order: 4; flex-basis: 100%; }
+    .menu-abierto .control-tema-panel { display: flex; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .boton-tema.interruptor-tema::before, .boton-tema.interruptor-tema svg { transition: none; }
+  }
   :root[data-tema="claro"] {
     color-scheme: light;
     --noche: #f5f4fa; --tinta: #211b35; --enlace: #6040c5;
@@ -19,6 +34,9 @@ style.
     --color-oscuro: #fff; --color-oscuro-2: #eeebf7;
   }
   :root[data-tema="claro"] body { color: var(--color-texto); }
+  :root[data-tema="claro"] .lateral .usuario-panel { color: var(--color-texto); box-shadow: inset 0 0 0 1px var(--color-borde); }
+  :root[data-tema="claro"] .usuario-panel .nombre { color: var(--color-texto); }
+  :root[data-tema="claro"] .usuario-panel .rol { color: var(--color-texto-suave); }
   :root[data-tema="claro"] :is(.encabezado, .lateral, .barra-app) { background: var(--color-superficie); }
   :root[data-tema="claro"] :is(.marca, .marca:hover, .nav-principal a.activo, .nav-principal a:hover, .menu-lateral a.activo, .menu-lateral a:hover, .boton-carrito, .avatar, .entrar, .salir, .conectados, .precio, .insignia-neutra, .btn-secundario, .btn-suave, .ojo, .boton-menu, .boton-lateral) { color: var(--color-texto); }
   :root[data-tema="claro"] .nav-principal a.activo { box-shadow: inset 0 -2px 0 var(--enlace); }
