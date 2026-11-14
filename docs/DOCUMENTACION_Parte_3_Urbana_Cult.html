@@ -428,10 +428,10 @@
         <a href="https://drive.google.com/file/d/1wM1dEgJuGxmv2TmaGzZOSzdpVU1MTw5h/view?usp=drive_link">Video Parte 2</a>
       </div>
     </div>
-    <div class="item-link ancho pendiente">
+    <div class="item-link ancho">
       <strong>Link al Video de Defensa (Coloquio grupal - Entrega Final):</strong>
       <div class="url-wrap">
-        <span class="pendiente-link">[Insertar enlace de Google Drive / YouTube del video final antes de subir al Campus]</span>
+        <a href="https://drive.google.com/file/d/1fM3SQs0AqZckloCg2eoOd-nWB-ALricB/view?usp=sharing">https://drive.google.com/file/d/1fM3SQs0AqZckloCg2eoOd-nWB-ALricB/view?usp=sharing</a>
       </div>
     </div>
   </div>
@@ -1317,7 +1317,7 @@
   <!-- 11. MANTENIMIENTO, EVOLUCIÓN E IA -->
   <h2><span class="num">14</span>Mantenimiento, Evolución y Uso Consciente de Inteligencia Artificial</h2>
   <p class="indent">
-    <strong>Mantenimiento correctivo y evolutivo:</strong> Respecto a la segunda entrega, se refactorizó por completo la capa de autenticación reemplazando el almacenamiento de sesiones en memoria (que perdía sesiones ante cada reinicio) por <code>connect-mongo</code> con expiración automática, y configurando <code>app.set('trust proxy', 1)</code> junto a una política de <code>Referrer-Policy</code> compatible para que las cookies seguras HTTPS y la verificación CSRF operen correctamente detrás del balanceador de Render. Para mejorar la <strong>escalabilidad y el rendimiento</strong>, se reemplazaron cálculos manuales en JavaScript por pipelines de agregación en MongoDB para los informes financieros, se ocultaron los buffers binarios de imágenes en listados generales mediante <code>select: false</code> y se incorporaron índices compuestos y paginación en la colección <code>Actividad</code>. En esta etapa final se corrigió además una falla que detenía el servidor cuando una sesión se cerraba mientras terminaba otra petición, y se actualizaron las librerías con vulnerabilidades conocidas (solo quedan dos de severidad moderada ligadas a <code>exceljs</code>, cuya corrección requiere un cambio incompatible de versión).
+    <strong>Mantenimiento correctivo y evolutivo:</strong> Respecto a la segunda entrega, se refactorizó por completo la capa de autenticación reemplazando el almacenamiento de sesiones en memoria (que perdía sesiones ante cada reinicio) por <code>connect-mongo</code> con expiración automática, y configurando <code>app.set('trust proxy', 1)</code> junto a una política de <code>Referrer-Policy</code> compatible para que las cookies seguras HTTPS y la verificación CSRF operen correctamente detrás del balanceador de Render. Para mejorar la <strong>escalabilidad y el rendimiento</strong>, se reemplazaron cálculos manuales en JavaScript por pipelines de agregación en MongoDB para los informes financieros, se ocultaron los buffers binarios de imágenes en listados generales mediante <code>select: false</code> y se incorporaron índices compuestos y paginación en la colección <code>Actividad</code>. En esta etapa final se corrigió además una falla que detenía el servidor cuando una sesión se cerraba mientras terminaba otra petición, y se actualizaron las librerías con vulnerabilidades conocidas. Las dependencias internas afectadas (<code>uuid</code>, usada por <code>exceljs</code>, y <code>minimatch</code>, usada por <code>nodemon</code>) se fijaron en versiones seguras mediante <code>overrides</code> en <code>package.json</code>, de modo que <code>npm audit</code> no informa vulnerabilidades.
   </p>
   <p class="indent">
     <strong>Declaración sobre el uso de Inteligencia Artificial:</strong> El equipo desarrolló la lógica base del sistema y las conexiones solicitadas: arquitectura MVC, modelos, rutas y conexión a MongoDB Atlas. Se utilizaron <strong>Claude Code</strong> y <strong>Google Antigravity</strong> principalmente para mejorar la interfaz gráfica y para detectar y corregir errores. También se emplearon para implementar funcionalidades de la etapa final, como la comunicación en tiempo real, el chat con Gemini y ajustes de permisos, y para escribir las pruebas automáticas y elaborar la documentación. El contenido generado fue revisado y adaptado por el equipo, que definió los requerimientos, probó el sistema en funcionamiento y decidió qué cambios aceptar.
