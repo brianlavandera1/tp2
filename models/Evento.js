@@ -22,7 +22,7 @@ const eventoSchema = new mongoose.Schema({
   entidad: { type: mongoose.Schema.Types.ObjectId, ref: 'Entidad' }
 }, { timestamps: true });
 
-// Operación Atómica para evitar compras simultáneas solapadas
+// Operación atómica: dos compras simultáneas no pueden superar el cupo
 eventoSchema.methods.venderEntradas = async function(cantidad) {
   if (cantidad <= 0) throw new Error('La cantidad debe ser mayor a cero.');
   const reservado = await mongoose.model('Evento').findOneAndUpdate(

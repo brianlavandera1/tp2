@@ -1,10 +1,5 @@
-/**
- * Protección CSRF (Cross-Site Request Forgery) por verificación de origen.
- * En las peticiones que modifican datos (POST, PUT, PATCH, DELETE) el navegador envía el encabezado
- * Origin (o Referer). Si viene de otro sitio, se rechaza: así una página maliciosa no puede usar la
- * sesión de un usuario logueado para comprar, cancelar o borrar en su nombre.
- * Complementa a la cookie sameSite=lax. Es la defensa que recomienda OWASP junto a los tokens CSRF.
- */
+// Protección CSRF: rechaza los POST, PUT, PATCH y DELETE que llegan desde otro sitio,
+// comparando el encabezado Origin (o Referer) con el propio. Complementa a la cookie sameSite=lax.
 const METODOS_SEGUROS = ['GET', 'HEAD', 'OPTIONS'];
 
 const hostDe = (url) => {

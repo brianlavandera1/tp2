@@ -1,12 +1,5 @@
-/**
- * Plugin de Mongoose: BORRADO LÓGICO.
- * En el sistema nada se elimina físicamente: "eliminar" marca el documento con
- * eliminado = true, la fecha y quién lo hizo. Así queda todo en el histórico.
- *
- * Las búsquedas (find, findOne, countDocuments, exists...) ocultan solas los eliminados, salvo que:
- *  - el filtro pida explícitamente el campo `eliminado` (por ejemplo, la lista de eliminados), o
- *  - el filtro busque por `_id` (populate y findById): así una entrada vieja sigue mostrando su evento.
- */
+// Borrado lógico: "eliminar" marca el documento (eliminado, fecha y quién) y nada se pierde.
+// Las búsquedas ocultan los eliminados, salvo que el filtro pida `eliminado` o busque por _id.
 export default function borradoLogico(schema) {
   schema.add({
     eliminado: { type: Boolean, default: false, index: true },

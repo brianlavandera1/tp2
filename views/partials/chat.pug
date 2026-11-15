@@ -71,7 +71,7 @@ mixin chatFlotante()
     document.addEventListener('DOMContentLoaded', () => {
       const raiz = document.querySelector('.chat-flotante');
       const socket = window.socketUrbana;
-      if (!socket) return; // sin servidor de sockets (Vercel) el chat no se muestra
+      if (!socket) return; // sin servidor de sockets el chat no se muestra
       raiz.hidden = false;
       raiz.classList.toggle('con-barra', Boolean(document.querySelector('.barra-app')));
 

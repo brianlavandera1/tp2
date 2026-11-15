@@ -45,8 +45,7 @@ export const registrarClick = async (req, res) => {
 };
 
 // Busca usuarios por usuario, nombre, apellido, DNI o email (incluye eliminados: su historial sigue disponible).
-// Cada palabra tiene que aparecer en algún campo: "juan perez" encuentra a Juan Pérez.
-// Una palabra de solo números se toma como el comienzo del DNI: "286" encuentra los DNI 286...
+// Cada palabra tiene que aparecer en algún campo; una palabra de solo números busca el comienzo del DNI.
 function buscarUsuarios(texto, limite) {
   const condiciones = texto.split(/\s+/).slice(0, 4).map(palabra => {
     const re = new RegExp(escapeRegex(palabra), 'i');
@@ -86,9 +85,7 @@ export const mostrarActividad = async (req, res) => {
   // Filtro común para la tabla y los resúmenes
   const filtro = {};
 
-  // BÚSQUEDA LIBRE DE USUARIO: por usuario, nombre, apellido, DNI o email.
-  // Primero se buscan los usuarios que coinciden (colección chica) y después su actividad
-  // con nombreUsuario $in [...], que usa el índice nombreUsuario + fecha.
+  // Búsqueda libre: primero los usuarios que coinciden y después su actividad (índice nombreUsuario + fecha)
   const textoUsuario = typeof usuario === 'string' ? usuario.trim().slice(0, 80) : '';
   let coincidencias = [];
   if (textoUsuario) {
@@ -108,12 +105,8 @@ export const mostrarActividad = async (req, res) => {
     filtro.$or = [{ accion: re }, { detalle: re }, { pagina: re }];
   }
 
-  // VENTANA DE TIEMPO: para no recorrer toda la colección (que crece con cada clic),
-  // solo se consulta un período acotado y los datos más viejos se traen al buscarlos.
-  //  - sin filtros: últimas 24 horas
-  //  - con texto o tipo pero sin fechas: últimos 7 días
-  //  - un usuario o una sesión puntual: todo su historial (va por índice, es rápido)
-  //  - con fechas: el período pedido, hasta 92 días
+  // Período consultado, para no recorrer toda la colección: 24 horas sin filtros, 7 días con texto o tipo,
+  // todo el historial de un usuario o una sesión (usa índice) y hasta 92 días con fechas
   const DIA = 24 * 60 * 60 * 1000;
   const MAXIMO_DIAS = 92;
   let ventana;

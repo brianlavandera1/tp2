@@ -26,11 +26,8 @@ const entradaSchema = new mongoose.Schema({
   canceladaPor: { type: String, default: null }
 }, { timestamps: true });
 
-/**
- * Cancela una entrada en una sola transacción. La entrada NO se borra: pasa a estado 'Cancelada'
- * (queda en el histórico), devuelve el cupo, se descuenta de la compra original y deja el registro de auditoría.
- * `quien` = nombre del usuario que cancela (el cliente o un administrador).
- */
+// Cancela una entrada sin borrarla: pasa a "Cancelada", devuelve el cupo, ajusta la compra
+// y deja el registro, todo en una transacción. `quien` = usuario que cancela.
 async function cancelarEntradaZona(entradaId, clienteId, quien) {
   const Entrada = mongoose.model('Entrada');
   const filtro = clienteId ? { _id: entradaId, cliente: clienteId } : { _id: entradaId };

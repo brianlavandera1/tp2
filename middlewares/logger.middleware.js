@@ -1,7 +1,4 @@
-/**
- * Middleware de Logging HTTP
- * Imprime en consola detalles de las peticiones entrantes: método, URL, código de estado y tiempo de respuesta.
- */
+// Muestra en consola cada petición: método, URL, estado y tiempo de respuesta
 const requestLogger = (req, res, next) => {
   const start = Date.now();
   const { method, originalUrl } = req;

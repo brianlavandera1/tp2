@@ -24,7 +24,7 @@ const validarRegistro = (req, res, next) => {
     });
   }
 
-  // ✅ Actualizado: Teléfono de 10 a 15 dígitos numéricos
+  // Teléfono: de 10 a 15 dígitos
   const regexTelefono = /^\d{10,15}$/;
   if (!telefono || !regexTelefono.test(telefono.trim())) {
     return res.status(400).render('auth/registro', { 

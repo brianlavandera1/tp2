@@ -1,11 +1,8 @@
 import crypto from 'crypto';
 import Actividad from '../models/Actividad.js';
 
-/**
- * Registro de actividad: cada petición de un usuario queda guardada al terminar
- * (navegación, acciones que modifican datos, inicio y cierre de sesión).
- * Los clics en botones, enlaces y solapas los envía el navegador a POST /actividad/click.
- */
+// Guarda lo que hace cada usuario al terminar cada petición: páginas, acciones, inicio y cierre de sesión.
+// Los clics los informa el navegador a POST /actividad/click.
 
 // Nombre legible de cada acción: [método, ruta, descripción]
 const ACCIONES = [

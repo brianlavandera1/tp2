@@ -5,12 +5,8 @@ import Entrada from '../models/Entrada.js';
 import Transaccion from '../models/Transaccion.js';
 import CancelacionLog from '../models/CancelacionLog.js';
 
-/**
- * Historial de ventas de DEMOSTRACIÓN, chico a propósito: dos compras por evento en los últimos días,
- * para que el informe, el panel y la auditoría tengan algo que mostrar.
- * Todo queda consistente: se descuenta el cupo por sector, cada entrada apunta a su transacción
- * y cada cancelación deja su registro de auditoría. Sin azar: cada `npm run seed` da lo mismo.
- */
+// Ventas de demostración para que el informe, el panel y la auditoría tengan datos.
+// Siempre dan lo mismo: no se usa azar.
 
 const SECTORES = ['General', 'Platea', 'VIP'];
 const MEDIOS_ONLINE = ['Tarjeta de Crédito', 'Tarjeta de Débito', 'Mercado Pago'];

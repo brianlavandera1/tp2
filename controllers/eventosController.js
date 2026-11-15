@@ -33,7 +33,7 @@ const getEventos = async (req, res) => {
   try {
     const eventos = await Evento.find().populate('sala').populate('entidad'); 
     if (isHtmlRequest(req)) {
-      return res.render('Admin/eventos', {  // 👈 Apunta a views/Admin/eventos.pug
+      return res.render('Admin/eventos', {
         usuarioLogueado: req.session ? req.session.usuario : null,
         eventos, 
         salas: await Sala.find(), 
@@ -110,7 +110,7 @@ const showEditEventoForm = async (req, res) => {
   try {
     const evento = await Evento.findById(req.params.id).populate('entidad');
     if (!evento) return res.redirect('/admin/eventos?error=Evento+no+encontrado');
-    res.render('Admin/editarEvento', {  // 👈 Apunta a views/Admin/editarEvento.pug
+    res.render('Admin/editarEvento', {
       usuarioLogueado: req.session ? req.session.usuario : null,
       evento, 
       salas: await Sala.find(), 

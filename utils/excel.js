@@ -1,7 +1,7 @@
 import ExcelJS from 'exceljs';
 
 // Argentina no tiene horario de verano. Excel no maneja zonas horarias: muestra la fecha tal cual se guarda,
-// así que se corre a la hora local (el servidor puede estar en UTC, como en Vercel)
+// así que se corre a la hora local (el servidor puede estar en UTC)
 const DESFASE_ARGENTINA_MS = 3 * 60 * 60 * 1000;
 export const fechaLocal = (fecha) => (fecha ? new Date(new Date(fecha).getTime() - DESFASE_ARGENTINA_MS) : null);
 
@@ -12,10 +12,7 @@ export const FORMATO_FECHA_HORA = 'dd/mm/yyyy hh:mm';
 const COLOR_MARCA = 'FF5B3DF5';
 const COLOR_TOTALES = 'FFEEEAFF';
 
-/**
- * Agrega una hoja con encabezado de color, primera fila fija y filtros.
- * columnas: [{ titulo, clave, ancho, formato }] · filas: objetos con esas claves · totales: fila final opcional
- */
+// Agrega una hoja con encabezado, primera fila fija, filtros y una fila de totales opcional
 function agregarHoja(libro, { nombre, columnas, filas, totales }) {
   const hoja = libro.addWorksheet(nombre, { views: [{ state: 'frozen', ySplit: 1 }] });
   hoja.columns = columnas.map(c => ({ header: c.titulo, key: c.clave, width: c.ancho || 16, style: c.formato ? { numFmt: c.formato } : {} }));
@@ -37,8 +34,7 @@ function agregarHoja(libro, { nombre, columnas, filas, totales }) {
   }
 }
 
-// Arma el libro y lo envía como descarga. Se manda completo (con su tamaño) porque en Vercel
-// la respuesta de una función no puede ir por partes indefinidamente
+// Arma el libro y lo envía completo como descarga
 export async function enviarExcel(res, nombreArchivo, hojas) {
   const libro = new ExcelJS.Workbook();
   libro.creator = 'Urbana Cult';

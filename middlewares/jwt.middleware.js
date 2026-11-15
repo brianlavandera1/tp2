@@ -1,12 +1,8 @@
 import jwt from 'jsonwebtoken';
 import config from '../config/config.js';
 
-/**
- * Autenticación por token para la API (alternativa a la sesión).
- * Si la petición trae `Authorization: Bearer <token>`, se verifica la firma, la expiración,
- * la audiencia y el emisor. Si es válido, el usuario queda en req.usuarioToken.
- * Si no trae token, sigue de largo y se usa la sesión como siempre.
- */
+// Token para la API: si llega "Authorization: Bearer <token>" se verifica firma, vencimiento,
+// audiencia y emisor, y el usuario queda en req.usuarioToken. Sin token se usa la sesión.
 export const autenticarToken = (req, res, next) => {
   const encabezado = req.get('authorization') || '';
   if (!encabezado.startsWith('Bearer ')) return next();

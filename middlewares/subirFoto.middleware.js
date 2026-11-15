@@ -11,10 +11,7 @@ const subida = multer({
   }
 });
 
-/**
- * Procesa un formulario multipart con un campo de archivo opcional.
- * Si la foto no es válida vuelve a `rutaError` con el mensaje, en lugar de cortar con un 500.
- */
+// Procesa el formulario con foto opcional; si la foto no es válida vuelve a `rutaError` con el mensaje
 const subirFoto = (campo, rutaError) => (req, res, next) => {
   subida.single(campo)(req, res, (error) => {
     if (!error) return next();

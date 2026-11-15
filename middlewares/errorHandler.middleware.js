@@ -28,5 +28,4 @@ const errorHandler = (err, req, res, next) => {
   });
 };
 
-// Exportación explícita para que index.js lo pueda leer
 export { notFoundHandler, errorHandler };

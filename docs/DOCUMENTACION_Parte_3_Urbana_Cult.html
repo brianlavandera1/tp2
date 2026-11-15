@@ -438,23 +438,12 @@
 
   <!-- 2. FUENTES -->
   <h2><span class="num">2</span>Fuentes y Bibliografía Utilizadas</h2>
-  <p class="indent">
-    <strong>Material oficial de la cátedra y entregas previas:</strong> Mapa de Contenidos de <em>Desarrollo Web Backend</em> (<strong>Bloques 1 al 11.2</strong>) y cuadernillos teóricos <strong>Módulos M1 a M13</strong> del Aula Virtual (<code>aulasvirtuales.bue.edu.ar</code>): <em>Introducción a Node.js y Express</em> (Bloques 1–2), <em>Patrón MVC, POO y Persistencia con FS</em> (Bloques 3–4), <em>Middlewares y Motor de Plantillas Pug</em> (Bloques 5.1–5.2), <em>Asincronía (Callbacks, Promises, async/await), HTTP y Estados</em> (Bloques 6.1–6.3), <em>MongoDB, Mongoose y Operadores de Consulta</em> (Bloques 7.1–7.3), <em>Seguridad, Modelo RBAC y Hashing</em> (Bloque 8.0), <em>APIs RESTful, MongoDB Atlas y Despliegue en Render</em> (Bloque 9.0), y <em>Autenticación con Sesiones, Cookies y JSON Web Tokens — RFC 7519</em> (Bloques 10.0–10.2), y <em>WebSockets con Socket.IO e integración de Gemini</em> (material D12 y Bloque 11). Asimismo, se tomaron como base los artefactos de <em>Ingeniería de Software</em> para el Caso #3 (Urbana Cult) y las entregas previas <em>DOCUMENTACIÓN - Parte 1</em> y <em>DOCUMENTACIÓN - Parte 2</em> del equipo Sintaxia.
-  </p>
-  <p class="indent">
-    <strong>Documentación técnica oficial consultada:</strong>
-    Node.js v20+ Documentation (<a href="https://nodejs.org/docs">nodejs.org/docs</a>);
-    Express 5 API Reference (<a href="https://expressjs.com">expressjs.com</a>);
-    Mongoose ODM v9 Docs — Schemas, Populate, Plugins &amp; Transactions (<a href="https://mongoosejs.com/docs">mongoosejs.com/docs</a>);
-    MongoDB Manual — Query &amp; Projection Operators y Atlas Cloud (<a href="https://www.mongodb.com/docs">mongodb.com/docs</a>);
-    RFC 7519 JSON Web Token &amp; librería <code>jsonwebtoken</code> (<a href="https://jwt.io/introduction">jwt.io</a>);
-    OWASP Session Management &amp; CSRF Prevention Cheat Sheets (<a href="https://cheatsheetseries.owasp.org">cheatsheetseries.owasp.org</a>);
-    Helmet.js Security Headers (<a href="https://helmetjs.github.io">helmetjs.github.io</a>);
-    Pug Template Engine (<a href="https://pugjs.org">pugjs.org</a>);
-    Render Web Services Deployment Guide (<a href="https://render.com/docs">render.com/docs</a>);
-    Socket.IO v4 Documentation (<a href="https://socket.io/docs/v4">socket.io/docs/v4</a>);
-    Gemini API Documentation (<a href="https://ai.google.dev/gemini-api/docs">ai.google.dev/gemini-api/docs</a>).
-  </p>
+  <ul>
+    <li><strong>Material de la cátedra:</strong> Mapa de Contenidos de <em>Desarrollo Web Backend</em> (Bloques 1 al 11.2) y módulos del Aula Virtual.</li>
+    <li><strong>Entregas previas:</strong> artefactos de <em>Ingeniería de Software</em> del Caso #3 y <em>Documentación</em> Partes 1 y 2 del equipo.</li>
+    <li><strong>Documentación oficial:</strong> Node.js (<a href="https://nodejs.org/docs">nodejs.org</a>), Express (<a href="https://expressjs.com">expressjs.com</a>), Mongoose (<a href="https://mongoosejs.com/docs">mongoosejs.com</a>), MongoDB y Atlas (<a href="https://www.mongodb.com/docs">mongodb.com/docs</a>), Socket.IO (<a href="https://socket.io/docs/v4">socket.io</a>), Gemini API (<a href="https://ai.google.dev/gemini-api/docs">ai.google.dev</a>), Render (<a href="https://render.com/docs">render.com/docs</a>).</li>
+    <li><strong>Seguridad:</strong> JSON Web Token (<a href="https://jwt.io/introduction">jwt.io</a>), guías de sesiones y CSRF de OWASP (<a href="https://cheatsheetseries.owasp.org">cheatsheetseries.owasp.org</a>) y Helmet (<a href="https://helmetjs.github.io">helmetjs.github.io</a>).</li>
+  </ul>
 
   <!-- 3. INTRODUCCIÓN -->
   <h2><span class="num">3</span>Introducción y Alcance de la Entrega Final</h2>
@@ -462,7 +451,7 @@
     En esta tercera instancia final de la materia <em>Desarrollo Web Backend</em>, la consultora estudiantil <strong>Sintaxia (Grupo 19)</strong> consolidó la versión productiva de <strong>Urbana Cult</strong>, un sistema integral para la gestión de salas culturales, programación de espectáculos, membresías de beneficios, boletería presencial, venta online de entradas y validación de accesos mediante códigos QR.
   </p>
   <p class="indent">
-    Cumpliendo íntegramente la hoja de ruta planteada al cierre de la segunda entrega, el proyecto evolucionó desde un Producto Mínimo Viable local con sesiones en memoria hacia una arquitectura robusta desplegada en la nube (<strong>Render + MongoDB Atlas</strong>). En esta etapa se incorporó encriptación irreversible de contraseñas con <code>bcrypt</code>, persistencia de sesiones en base de datos con <code>connect-mongo</code>, una API JSON protegida mediante <strong>JSON Web Tokens (JWT)</strong> firmados digitalmente, control de acceso granular de cuatro roles operativos más protección de Superadministrador, transacciones atómicas para evitar sobreventa de localidades, borrado lógico auditable en todas las colecciones maestras, bitácora de actividad de usuarios, exportación administrativa a planillas Excel, comunicación en tiempo real con <strong>Socket.IO</strong> y un asistente virtual con <strong>Gemini</strong>.
+    Siguiendo lo planteado al cierre de la segunda entrega, el proyecto pasó de funcionar en forma local, con sesiones en memoria, a estar publicado en la nube (<strong>Render + MongoDB Atlas</strong>). Se sumaron contraseñas encriptadas, sesiones guardadas en la base, una API protegida con <strong>JWT</strong>, cuatro roles, transacciones para evitar la sobreventa, comunicación en tiempo real con <strong>Socket.IO</strong> y un asistente con <strong>Gemini</strong>.
   </p>
   <p class="indent">
     <strong>Alcance definido:</strong> El sistema cubre el ciclo comercial completo de un centro cultural: descubrimiento público de la cartelera con filtros sin recarga, registro validado en tres capas, contratación de planes de membresía (Estándar, Premium y VIP), carrito y cobro online simulado, venta física en ventanilla con ticket imprimible, acreditación en puerta por lectura de QR, cancelación con restitución automática de cupos y tableros gerenciales de recaudación neta, además de asistencia en tiempo real para clientes y visitantes. Quedan fuera del alcance la integración con pasarelas bancarias reales y la numeración individual de butacas por plano gráfico.
@@ -678,9 +667,6 @@
   </ul>
 
   <h3>Justificación de decisiones arquitectónicas, herramientas omitidas y módulos adicionales</h3>
-  <p class="indent">
-    <strong> Decisiones alineadas a los bloques teóricos de la cátedra:</strong> Para el control de permisos se adoptó el modelo <strong>RBAC</strong> (<em>Role-Based Access Control</em>, Bloques 8.0 y 10.0) restringiendo roles con <code>enum</code> en Mongoose y validándolos en servidor mediante <code>verificarRol</code>. Para el resguardo de credenciales, se evolucionó del concepto de hash con <em>salt</em> visto con <code>PBKDF2</code> (Bloque 8.0) hacia <strong><code>bcrypt</code></strong> con factor de costo 10 (Bloque 10.2), que gestiona el <em>salt</em> criptográfico por usuario de forma nativa y resistente a fuerza bruta. En materia de comunicación HTTP y consultas (Bloques 6.2, 6.3, 7.2 y 7.3), las operaciones críticas emplean operadores atómicos y lógicos de MongoDB (<code>$gte</code>, <code>$lte</code>, <code>$or</code>, <code>$ne</code>, <code>$inc</code>, <code>$elemMatch</code>, <code>$expr</code>) devolviendo códigos HTTP semánticos estrictos (<code>200</code>, <code>201</code>, <code>302</code>, <code>400</code>, <code>401</code>, <code>403</code>, <code>404</code>, <code>409</code>, <code>429</code>, <code>500</code>).
-  </p>
   <p class="indent">
     <strong>Herramientas no utilizadas:</strong> No se incorporó <strong>Passport.js</strong> dado que el sistema emplea credenciales locales sin proveedores OAuth externos, permitiendo control directo sobre la regeneración de sesión, el bloqueo por intentos y la firma de JWT. Tampoco se habilitó el middleware <strong><code>cors</code></strong> abierto (Bloque 6.2) porque las vistas Pug se sirven desde el mismo origen del backend, reforzándose en cambio con validación estricta de cabecera <code>Origin</code>/<code>Referer</code> (<code>verificarOrigen</code>) contra ataques CSRF; ni se utilizó <strong><code>mongoose-unique-validator</code></strong> por encontrarse deprecado en Mongoose 8/9, resolviendo la unicidad mediante índices nativos <code>unique: true</code> y captura del código <code>11000</code>. Asimismo, se eligió <strong>coexistencia de Sesiones y JWT</strong>: cookies de sesión en MongoDB para la navegación SSR en Pug y tokens <em>stateless</em> <code>Bearer</code> (RFC 7519) para la API RESTful <code>/entradas</code>.
   </p>

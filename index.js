@@ -36,8 +36,7 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 
-// En Vercel (y cualquier hosting con proxy) la app recibe las peticiones a través de un proxy HTTPS:
-// sin esto Express cree que la conexión es HTTP, no envía la cookie de sesión "secure" y no se puede iniciar sesión
+// Render entrega las peticiones a través de un proxy HTTPS: sin esto no se envía la cookie "secure"
 app.set('trust proxy', 1);
 
 app.set('view engine', 'pug');
@@ -66,9 +65,7 @@ app.use(helmet({
       upgradeInsecureRequests: config.esProduccion ? [] : null
     }
   },
-  // Con el valor por defecto de helmet ("no-referrer") los navegadores envían "Origin: null" al enviar
-  // un formulario, y la protección CSRF (verificarOrigen) no podría reconocer al propio sitio.
-  // Esta política manda el origen completo dentro del sitio y solo el dominio hacia sitios externos.
+  // Con "no-referrer" el navegador manda "Origin: null" y verificarOrigen no reconocería al propio sitio
   referrerPolicy: { policy: 'strict-origin-when-cross-origin' }
 }));
 

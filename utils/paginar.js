@@ -1,10 +1,6 @@
 export const POR_PAGINA = 15;
 
-/**
- * Consulta paginada genérica: cuenta el total y trae solo la página pedida (?pagina=N).
- * Devuelve los documentos y los datos que usa el mixin `paginacion` de las vistas.
- */
-// campos: proyección (solo lo que se muestra) · liviano: objetos planos (lean), más rápidos de leer
+// Consulta paginada (?pagina=N): devuelve los documentos y los datos del mixin `paginacion`
 export async function paginar(modelo, filtro, req, { orden = { _id: -1 }, populate = null, porPagina = POR_PAGINA, campos = null, liviano = false } = {}) {
   const total = await modelo.countDocuments(filtro);
   const totalPaginas = Math.max(1, Math.ceil(total / porPagina));

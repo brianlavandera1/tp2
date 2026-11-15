@@ -22,7 +22,6 @@ const mensajeDeError = (error, porDefecto) => {
   return error.status === 400 ? error.message : porDefecto;
 };
 
-// GESTIÓN DE ARTISTAS / ENTIDADES
 export const listarEntidades = async (req, res) => {
   const entidades = await Entidad.find().sort({ nombre: 1 });
 

@@ -17,10 +17,10 @@ export const conectarDB = async () => {
   if (uriAtlas) {
     try {
       console.log('🌐 Intentando conectar a MongoDB Atlas...');
-      const conexion = await mongoose.connect(uriAtlas, { serverSelectionTimeoutMS: 10000 }); // Hasta 10 segundos: el primer pedido en Vercel o una red lenta pueden tardar
+      const conexion = await mongoose.connect(uriAtlas, { serverSelectionTimeoutMS: 10000 }); // hasta 10 segundos
       return finalizarConexion(conexion);
     } catch (errorAtlas) {
-      // En Vercel no existe una base local: se informa el motivo real (usuario/clave, IP no habilitada en Atlas...)
+      // Sin base local se informa el motivo real del error de Atlas
       if (process.env.VERCEL) throw new Error(`No se pudo conectar a MongoDB Atlas: ${errorAtlas.message}`);
       console.warn(`⚠️ No se pudo conectar a MongoDB Atlas (${errorAtlas.message}). Intentando con la base de datos local...`);
     }

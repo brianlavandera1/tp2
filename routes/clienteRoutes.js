@@ -28,7 +28,7 @@ router.get('/mis-compras', asyncHandler(mostrarMisCompras));
 router.get('/mis-entradas/:eventoId/descargar', asyncHandler(descargarEntradas));
 router.post('/cancelar-entrada/:id', asyncHandler(cancelarEntrada));
 
-// ⚙️ Rutas de configuración de perfil
+// Perfil
 router.get('/configuracion', asyncHandler(mostrarConfiguracion));
 router.post('/configuracion', asyncHandler(actualizarConfiguracion));
 

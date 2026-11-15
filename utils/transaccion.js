@@ -3,24 +3,15 @@ import mongoose from 'mongoose';
 // null = todavía no se detectó; true = replica set / Atlas; false = servidor standalone
 let soportaTransacciones = null;
 
-/**
- * Las transacciones de MongoDB solo existen en un replica set (Atlas siempre lo es).
- * Un mongod local suele ser standalone: ahí se usa compensación manual.
- */
+// Las transacciones de MongoDB necesitan un replica set (Atlas lo es); en un mongod local se compensa a mano.
 export async function detectarTransacciones() {
   const hello = await mongoose.connection.db.admin().command({ hello: 1 });
   soportaTransacciones = Boolean(hello.setName || hello.msg === 'isdbgrid');
   return soportaTransacciones;
 }
 
-/**
- * Ejecuta `trabajo(ctx)` de forma atómica.
- * - ctx.session: sesión de MongoDB para pasar a cada operación (null si no hay transacciones).
- * - ctx.alDeshacer(fn): registra cómo revertir un paso; solo se usa sin transacciones nativas.
- *
- * Con transacción nativa, si `trabajo` lanza un error MongoDB descarta todos los cambios.
- * Sin ella, se ejecutan las compensaciones registradas en orden inverso y se relanza el error.
- */
+// Ejecuta `trabajo(ctx)` de forma atómica. Con transacción nativa, un error descarta todo;
+// sin ella, se ejecutan en orden inverso los pasos registrados con ctx.alDeshacer.
 export async function conTransaccion(trabajo) {
   if (soportaTransacciones === null) await detectarTransacciones();
   const compensaciones = [];

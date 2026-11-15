@@ -12,7 +12,7 @@ mixin scriptConectados()
   script(src="/socket.io/socket.io.min.js" defer)
   script.
     document.addEventListener('DOMContentLoaded', () => {
-      if (!window.io) return; // sin servidor de sockets (Vercel) el contador queda oculto
+      if (!window.io) return; // sin servidor de sockets el contador queda oculto
       // Identifica al navegador, para que varias pestañas cuenten como un solo usuario
       let visitante;
       try {

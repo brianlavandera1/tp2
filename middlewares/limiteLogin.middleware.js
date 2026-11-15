@@ -1,8 +1,5 @@
-/**
- * Middleware de límite de intentos de login (protección contra fuerza bruta).
- * Cuenta solo los intentos FALLIDOS por combinación IP + usuario dentro de una ventana de tiempo.
- * Al superar el máximo bloquea temporalmente; un login correcto reinicia el contador.
- */
+// Límite de intentos de login: cuenta los fallos por IP y usuario, y bloquea un tiempo al pasar el máximo.
+// Un login correcto reinicia el contador.
 const VENTANA_MS = 15 * 60 * 1000; // 15 minutos
 const MAXIMO_FALLOS = 5;
 

@@ -10,7 +10,7 @@ const getSalas = async (req, res) => {
   try {
     const salas = await Sala.find();
     if (isHtmlRequest(req)) {
-      return res.render('Admin/salas', {  // 👈 Apunta a views/Admin/salas.pug
+      return res.render('Admin/salas', {
         usuarioLogueado: req.session ? req.session.usuario : null,
         salas,
         error: req.query.error || null,
@@ -77,7 +77,7 @@ const showEditSalaForm = async (req, res) => {
   try {
     const sala = await Sala.findById(req.params.id);
     if (!sala) return res.redirect('/admin/salas?error=Sala+no+encontrada');
-    res.render('Admin/editarSala', {  // 👈 Apunta a views/Admin/editarSala.pug
+    res.render('Admin/editarSala', {
       usuarioLogueado: req.session ? req.session.usuario : null,
       sala,
       error: req.query.error || null 

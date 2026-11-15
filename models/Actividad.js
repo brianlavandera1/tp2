@@ -1,13 +1,7 @@
 import mongoose from 'mongoose';
 
-/**
- * Registro de actividad (auditoría): cada sesión deja constancia de todo lo que hace.
- *  - sesion:     inicio y cierre de sesión (y los intentos fallidos)
- *  - navegacion: cada página que se abre
- *  - accion:     cada operación que modifica datos (comprar, editar, eliminar, cancelar, validar...)
- *  - click:      cada clic en botones, enlaces y solapas del menú (lo envía el navegador)
- * Nunca se guardan contraseñas ni datos de tarjetas.
- */
+// Registro de actividad por sesión: inicio y cierre, páginas, acciones y clics.
+// Nunca se guardan contraseñas ni datos de tarjetas.
 export const TIPOS_ACTIVIDAD = Object.freeze(['sesion', 'navegacion', 'accion', 'click']);
 
 const actividadSchema = new mongoose.Schema({

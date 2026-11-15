@@ -25,7 +25,7 @@ export const verCarrito = async (req, res) => {
   });
   const subtotal = carrito.reduce((a, b) => a + (b.precio * b.cantidad), 0);
   
-  // Solución al bug de punto flotante de JavaScript redondeando a 2 decimales
+  // Redondeo a 2 decimales para evitar errores de punto flotante
   const desc = Number((subtotal * (req.session.usuario.porcentajeDescuento || 0)).toFixed(2));
   const total = Number((subtotal - desc).toFixed(2));
 

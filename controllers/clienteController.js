@@ -171,7 +171,7 @@ export const cancelarEntrada = async (req, res) => {
   res.json({ success: true, message: 'Entrada cancelada correctamente.' });
 };
 
-// 🎟️ Cartelera con búsqueda inteligente por texto (incluyendo entidades/artistas) y filtro por fecha
+// Cartelera con búsqueda por texto (también por artista) y por fecha
 export const mostrarComprar = async (req, res) => {
   try {
     const { buscar, fecha } = req.query;
@@ -179,7 +179,6 @@ export const mostrarComprar = async (req, res) => {
 
     if (buscar) {
       const patron = escapeRegex(buscar);
-      // Buscamos entidades coincidentes con el texto ingresado
       const entidadesCoincidentes = await Entidad.find({
         nombre: { $regex: patron, $options: 'i' }
       });
@@ -215,7 +214,7 @@ export const mostrarComprar = async (req, res) => {
   }
 };
 
-// ⚙️ Configuración de Perfil
+// Configuración del perfil
 export const mostrarConfiguracion = async (req, res) => {
   const usuario = await Usuario.findById(req.session.usuario._id);
   res.render('Cliente/configuracion', {
